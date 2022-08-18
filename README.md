@@ -1,2 +1,7 @@
-# prixelart-backend
-App that allows Prixers and Prixelart to manage arts and services, being able to showcasing, promote and sale.
+# Prixelart WebApp Backend
+
+To start, just clone both [frontend]("https://github.com/CapuzR/prixelart-frontend") and (backend)["https://github.com/CapuzR/prixelart-backend"] repo, configure your env variables and run:
+
+```bash
+npm start
+```
