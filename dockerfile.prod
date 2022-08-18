@@ -1,0 +1,25 @@
+FROM node:16.3.0-alpine as build
+
+RUN mkdir -p /home/node/backend/node_modules && chown -R node:node /home/node/backend
+
+WORKDIR /home/node/backend
+COPY package*.json ./
+# RUN npm cache verify
+ENV HOME='.'
+RUN npm uninstall bcrypt
+RUN npm install bcrypt
+RUN npm uninstall sharp
+RUN npm install sharp
+RUN npm install
+# RUN apk --no-cache add --virtual builds-deps build-base python
+# RUN npm config set python /usr/bin/python
+# RUN apk --no-cache add --virtual builds-deps build-base python && npm install && apk del builds-deps
+COPY . ./
+EXPOSE 8000
+CMD ["npm", "start"]
+# RUN npm run start
+
+# FROM nginx:1.17-alpine
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# EXPOSE 8080
+# CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,62 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "description": "App that allows Prixers and Prixelart to manage arts and services, being able to showcasing, promote and sale.",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "html"
+    ],
+    "testEnvironment": "node",
+    "testTimeout": 90000
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapuzR/prixelart-be.git"
+  },
+  "keywords": [
+    "prixer",
+    "prix",
+    "prixelart"
+  ],
+  "author": "Ricardo Jesús Capuz Lárez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CapuzR/prixelart-be/issues"
+  },
+  "homepage": "https://github.com/CapuzR/prixelart-be#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^7.4.4",
+    "aws-sdk": "^2.907.0",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "helmet": "^4.6.0",
+    "jimp": "^0.16.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.14",
+    "multer": "^1.4.2",
+    "multer-s3-transform": "^2.10.3",
+    "nanoid": "^3.1.23",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "sharp": "^0.28.2",
+    "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
+  }
+}
