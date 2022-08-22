@@ -7,7 +7,8 @@ let helmet = require('helmet');
 
 const app = express();
 
-var allowedOrigins = ['http://prixelart.com', 'https://prixelart.com'];
+var allowedOrigins = ['http://' + process.env.FRONT_END_URL, 'https://' + process.env.FRONT_END_URL];
+
 app.use(cors({
   credentials: true,
   origin: function(origin, callback){
