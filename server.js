@@ -7,19 +7,19 @@ let helmet = require('helmet');
 
 const app = express();
 
-var allowedOrigins = ['http://prixelart.com', 'https://prixelart.com'];
-app.use(cors({
-  credentials: true,
-  origin: function(origin, callback){
-    if(allowedOrigins.indexOf(origin) === -1){
-      var msg = 'The CORS policy for this site does not ' +
-                'allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
-}));
-
+var allowedOrigins = ['http://' + process.env.FRONT_END_URL, 'https://' + process.env.FRONT_END_URL];
+// app.use(cors({
+//   credentials: true,
+//   origin: function(origin, callback){
+//     if(allowedOrigins.indexOf(origin) === -1){
+//       var msg = 'The CORS policy for this site does not ' +
+//                 'allow access from the specified Origin.';
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   }
+// }));
+app.use(cors())
 app.disable('x-powered-by');
 
 app.use((req, res, next)=>{
@@ -35,6 +35,7 @@ app.use((req, res, next)=>{
 const user = require('./user/userRoutes');
 const prixer = require('./prixer/prixerRoutes');
 const admin = require('./admin/adminRoutes');
+const preferences = require('./preferences/preferencesRoutes');
 const art = require('./art/artRoutes');
 const product = require('./product/productRoutes');
 const consumer = require('./consumer/consumerRoutes');
