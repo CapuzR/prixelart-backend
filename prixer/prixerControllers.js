@@ -8,11 +8,12 @@ const createPrixer = async (req, res) => {
     const prixerData = {
       specialty: req.body.specialty,
       instagram: req.body.instagram,
+      facebook: req.body.facebook,
+      twitter: req.body.twitter,
       dateOfBirth: req.body.dateOfBirth,
       phone: req.body.phone,
       country: req.body.country,
       city: req.body.city,
-      description: req.body.description,
       userId: req.user.id,
       avatar: req.body.avatar,
       username: req.user.username,
@@ -57,13 +58,14 @@ const updatePrixer = async (req, res) => {
     const prixer = {
       specialty: req.body.specialty,
       instagram: req.body.instagram,
+      facebook: req.body.facebook,
+      twitter: req.body.twitter,
       dateOfBirth: req.body.dateOfBirth,
       phone: req.body.phone,
       country: req.body.country,
       city: req.body.city,
       username: req.body.username,
       avatar: req.body.avatar,
-      description: req.body.description,
     };
 
     const user = {
