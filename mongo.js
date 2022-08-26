@@ -7,6 +7,7 @@ module.exports = async()=> {
       await mongoose.connect(process.env.MONGO_URI, {
         keepAlive: true,
         useNewUrlParser: true,
+        dbName: process.env.MONGO_DB_NAME,
         useUnifiedTopology: false,
         useFindAndModify: false,
       })
@@ -22,6 +23,7 @@ module.exports = async()=> {
       await mongoose.connect(process.env.MONGO_URI, {
         keepAlive: true,
         useNewUrlParser: true,
+        dbName: process.env.MONGO_DB_NAME,
         useUnifiedTopology: true,
         useFindAndModify: false,
       })
