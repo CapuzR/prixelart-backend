@@ -38,11 +38,12 @@ const mergeManufacturerAndUser = (readedManufacturer, readedUser) => {
   manufacturer["email"] = readedUser.email;
   manufacturer["specialty"] = readedManufacturer.specialty;
   manufacturer["instagram"] = readedManufacturer.instagram;
+  manufacturer["facebook"] = readedManufacturer.facebook;
+  manufacturer["twitter"] = readedManufacturer.twitter;
   manufacturer["dateOfBirth"] = readedManufacturer.dateOfBirth;
   manufacturer["phone"] = readedManufacturer.phone;
   manufacturer["country"] = readedManufacturer.country;
   manufacturer["city"] = readedManufacturer.city;
-  manufacturer["description"] = readedManufacturer.description;
   manufacturer["avatar"] = readedManufacturer.avatar;
 
   return manufacturer;

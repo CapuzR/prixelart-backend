@@ -52,11 +52,12 @@ const updateManufacturer = async (req, res) => {
     const manufacturer = {
       specialty: req.body.specialty,
       instagram: req.body.instagram,
+      facebook: req.body.facebook,
+      twitter: req.body.twitter,
       dateOfBirth: req.body.dateOfBirth,
       phone: req.body.phone,
       country: req.body.country,
       city: req.body.city,
-      description: req.body.description,
       username: req.body.username,
       avatar: req.body.avatar,
     };

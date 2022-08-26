@@ -5,8 +5,10 @@ const Schema = mongoose.Schema;
 
 const PrixerSchema = Schema({
   specialty: { type: String, required: true },
-  instagram: { type: String, required: true },
   description: { type: String, required: false },
+  instagram: { type: String, required: true },
+  twitter: { type: String, required: false },
+  facebook: { type: String, required: false },
   dateOfBirth: { type: String, required: true },
   phone: { type: String, required: true },
   country: { type: String, required: true },
