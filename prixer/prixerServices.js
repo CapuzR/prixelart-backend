@@ -36,13 +36,15 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["lastName"] = readedUser.lastName;
   prixer["email"] = readedUser.email;
   prixer["specialty"] = readedPrixer.specialty;
+  prixer["description"] = readedPrixer.description;
   prixer["instagram"] = readedPrixer.instagram;
+  prixer["facebook"] = readedPrixer.facebook;
+  prixer["twitter"] = readedPrixer.twitter;
   prixer["dateOfBirth"] = readedPrixer.dateOfBirth;
   prixer["phone"] = readedPrixer.phone;
   prixer["country"] = readedPrixer.country;
   prixer["city"] = readedPrixer.city;
   prixer["avatar"] = readedPrixer.avatar;
-  prixer["description"] = readedPrixer.description;
 
   return prixer;
 };
