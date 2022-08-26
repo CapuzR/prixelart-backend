@@ -84,7 +84,7 @@ const updateImageCarousel = async (req, res) =>
   const newUrlImage = req.file.transforms[0].location;
   await Carousel.findByIdAndUpdate(req.params.id, {
     carouselImages: newUrlImage});
-  res.json({status: 'Image Updated'})
+    res.json({status: 'Image Updated'})
 } 
 
   const deleteImageCarousel = async (req, res) => 

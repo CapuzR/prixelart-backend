@@ -46,6 +46,18 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+var allowedOrigins = ['http://' + process.env.FRONT_END_URL, 'https://' + process.env.FRONT_END_URL];
+app.use(cors({
+  credentials: true,
+  origin: function(origin, callback){
+    if(allowedOrigins.indexOf(origin) === -1){
+      var msg = 'The CORS policy for this site does not ' +
+                'allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 app.use('/', user);
 app.use('/', prixer);
