@@ -29,6 +29,7 @@ jobs:
         echo "VIEW_ENGINE=${{ secrets.VIEW_ENGINE }}" >> .env
         echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> .env
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+        echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
         echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
         echo "TOKEN_EXPIRE_TIME=${{ secrets.TOKEN_EXPIRE_TIME }}" >> .env
