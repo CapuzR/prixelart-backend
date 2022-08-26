@@ -30,9 +30,6 @@ jobs:
         echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> .env
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
         echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
-        echo "CLOUD_NAME=${{ secrets.CLOUD_NAME }}" >> .env
-        echo "CLD_API_KEY=${{ secrets.CLD_API_KEY }}" >> .env
-        echo "CLD_API_SECRET=${{ secrets.CLD_API_SECRET }}" >> .env
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
         echo "TOKEN_EXPIRE_TIME=${{ secrets.TOKEN_EXPIRE_TIME }}" >> .env
         echo "DO_ACCESS_KEY=${{ secrets.DO_ACCESS_KEY }}" >> .env
