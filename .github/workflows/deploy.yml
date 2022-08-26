@@ -48,7 +48,7 @@ jobs:
         echo "ADMIN_TOKEN_EXPIRE_TIME=${{ secrets.ADMIN_TOKEN_EXPIRE_TIME }}" >> .env
         echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> .env
     - name: Publish to Github Packages Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v4
       with:
         name: capuzR/prixelart-backend/backend
         registry: docker.pkg.github.com
