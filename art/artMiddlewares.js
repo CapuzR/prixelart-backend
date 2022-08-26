@@ -56,7 +56,7 @@ var path = require('path')
             transform: function (req, file, cb) {
               const crops = JSON.parse(req.body.crops);
               req.body.crops = JSON.parse(req.body.crops);
-              cb(null, sharp().extract({left: crops[0].crop.x, top: 0, width: crops[0].croppedAreaPixels.width, height: crops[0].croppedAreaPixels.height}).webp({ quality: 50 }).resize(850, null))
+              cb(null, sharp().webp({ quality: 50 }).resize(850, null))
             }
           }, {
             id: 'largeThumb',
@@ -135,7 +135,7 @@ var path = require('path')
         };
       }
 
-    const uploadThumbnail = (request, response, next)=> {
+    const uploadThumbnail = (request, response, next) => {
       uploadThumbnailArt(request, response, artThumbsCb(request, response, next));
       uploadOriginalArt(request, response, originalArtCb(request, response, next));
     }
