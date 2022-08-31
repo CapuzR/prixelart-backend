@@ -66,7 +66,8 @@ const readImageCarousel = async (req, res) =>
 
 const createImageCarousel =  async (req, res) =>
   {
-
+    if(req.file)
+    {
     const urlImg = req.file.transforms[0].location;
     const imagesCarousel = new Carousel({
       carouselImages: urlImg
@@ -77,6 +78,9 @@ const createImageCarousel =  async (req, res) =>
           body: req.body,
           file: urlImg
       })
+    } else {
+      res.json({"status": 'must send a file'})
+    }
   }
 
 const updateImageCarousel = async (req, res) =>
