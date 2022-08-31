@@ -66,6 +66,7 @@ const updatePrixer = async (req, res) => {
       city: req.body.city,
       username: req.body.username,
       avatar: req.body.avatar,
+      description: req.body.description,
     };
 
     const user = {

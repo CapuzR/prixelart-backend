@@ -128,6 +128,7 @@ const readAllPrixersFull = async () => {
 const updatePrixer = async (prixerData, userData) => {
   const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
   toUpdatePrixer.set(prixerData);
+  if (prixerData.specialty === "") toUpdatePrixer.specialty = [];
   const updatedPrixer = await toUpdatePrixer.save();
   if (!updatedPrixer) {
     return console.log("Prixer update error: " + err);

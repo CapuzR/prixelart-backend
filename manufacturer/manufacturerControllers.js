@@ -58,6 +58,7 @@ const updateManufacturer = async (req, res) => {
       phone: req.body.phone,
       country: req.body.country,
       city: req.body.city,
+      description: req.body.description,
       username: req.body.username,
       avatar: req.body.avatar,
     };

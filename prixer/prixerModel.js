@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const PrixerSchema = Schema({
-  specialty: { type: String, required: true },
+  specialty: { type: [String], required: false },
   description: { type: String, required: false },
   instagram: { type: String, required: true },
   twitter: { type: String, required: false },
