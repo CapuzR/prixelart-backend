@@ -74,7 +74,7 @@ const createImageCarousel =  async (req, res) =>
     })
     await imagesCarousel.save()
        res.json({
-        status: 'Process successful',
+        status: 'Process sucessfull',
           body: req.body,
           file: urlImg
       })
