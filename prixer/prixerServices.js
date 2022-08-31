@@ -127,12 +127,22 @@ const readAllPrixersFull = async () => {
 
 const updatePrixer = async (prixerData, userData) => {
   const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
-  toUpdatePrixer.set(prixerData);
+  toUpdatePrixer.specialty = prixerData.specialty.split(",");
+  toUpdatePrixer.facebook = prixerData.facebook;
+  toUpdatePrixer.twitter = prixerData.twitter;
+  toUpdatePrixer.dateOfBirth = prixerData.dateOfBirth;
+  toUpdatePrixer.phone = prixerData.phone;
+  toUpdatePrixer.country = prixerData.country;
+  toUpdatePrixer.city = prixerData.city;
+  toUpdatePrixer.username = prixerData.username;
+  toUpdatePrixer.avatar = prixerData.avatar;
+  toUpdatePrixer.description = prixerData.description;
+  if (prixerData.specialty === "") toUpdatePrixer.specialty = [];
   const updatedPrixer = await toUpdatePrixer.save();
   if (!updatedPrixer) {
     return console.log("Prixer update error: " + err);
   }
-
+  console.log(prixerData);
   const updatedUser = await userService.updateUser(userData);
   const prixer = await mergePrixerAndUser(updatedPrixer, updatedUser);
 

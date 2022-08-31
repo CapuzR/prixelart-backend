@@ -36,7 +36,7 @@ const mergeManufacturerAndUser = (readedManufacturer, readedUser) => {
   manufacturer["firstName"] = readedUser.firstName;
   manufacturer["lastName"] = readedUser.lastName;
   manufacturer["email"] = readedUser.email;
-  manufacturer["specialty"] = readedManufacturer.specialty;
+  manufacturer["specialtyArt"] = readedManufacturer.specialtyArt;
   manufacturer["instagram"] = readedManufacturer.instagram;
   manufacturer["facebook"] = readedManufacturer.facebook;
   manufacturer["twitter"] = readedManufacturer.twitter;
@@ -45,6 +45,7 @@ const mergeManufacturerAndUser = (readedManufacturer, readedUser) => {
   manufacturer["country"] = readedManufacturer.country;
   manufacturer["city"] = readedManufacturer.city;
   manufacturer["avatar"] = readedManufacturer.avatar;
+  manufacturer["description"] = readedManufacturer.description;
 
   return manufacturer;
 };

@@ -50,7 +50,7 @@ const readAllManufacturersFull = async (req, res) => {
 const updateManufacturer = async (req, res) => {
   try {
     const manufacturer = {
-      specialty: req.body.specialty,
+      specialtyArt: req.body.specialtyArt,
       instagram: req.body.instagram,
       facebook: req.body.facebook,
       twitter: req.body.twitter,
@@ -58,6 +58,7 @@ const updateManufacturer = async (req, res) => {
       phone: req.body.phone,
       country: req.body.country,
       city: req.body.city,
+      description: req.body.description,
       username: req.body.username,
       avatar: req.body.avatar,
     };
