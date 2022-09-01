@@ -29,23 +29,7 @@ const upload = multer({
           cb(null, file.fieldname  + '-' + req.body.Id + '-large.webp')
         },
         transform: function (req, file, cb) {
-          cb(null, sharp().resize(1300, null).webp({ quality: 50 }));
-        }
-    }, {
-        id: 'mediumThumb',
-        key: function (req, file, cb) {
-          cb(null, file.fieldname + '-' + req.body.Id + '-medium.webp')
-        },
-        transform: function (req, file, cb) {
-          cb(null, sharp().resize(850, null).webp({ quality: 50 }));
-        }
-    },{
-        id: 'smallThumb',
-        key: function (req, file, cb) {
-          cb(null, file.fieldname  + '-' + req.body.Id + '-small.webp')
-        },
-        transform: function (req, file, cb) {
-          cb(null, sharp().resize(600, null).webp({ quality: 50 }));
+          cb(null, sharp().resize(1300, null).webp({ quality: 80 }));
         }
     }
     ]
