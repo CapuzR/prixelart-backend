@@ -20,10 +20,10 @@ const createPrixer = async (req, res) => {
       username: req.user.username,
     };
 
-    console.log(prixerData, "este es el registro");
-
     res.send(await prixerServices.createPrixer(prixerData));
   } catch (e) {
+    console.log(err);
+
     res.status(500).send(e);
   }
 };
@@ -83,6 +83,7 @@ const updatePrixer = async (req, res) => {
     const updates = await prixerServices.updatePrixer(prixer, user);
     return res.send(updates);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
