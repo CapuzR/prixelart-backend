@@ -4,13 +4,13 @@ const testimonialServices = require("./testimonialServices");
 
 const createTestimonial = async (req, res) => {
   try {
-    const TestimonialData = {
+    const testimonialData = {
       type: req.body.type,
       name: req.body.name,
       value: req.body.value,
       avatar: req.body.avatar,
       footer: req.body.footer,
-      company: req.body.company,
+      // company: req.body.company,
       status: req.body.status,
     };
 

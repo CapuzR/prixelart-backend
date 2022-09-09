@@ -10,13 +10,9 @@ const {
 const express = require("express");
 const testimonialRoutes = express.Router();
 
-testimonialRoutes.get("/testimonial", readAllTestimonials);
+testimonialRoutes.get("/testimonial/read-all", readAllTestimonials);
 testimonialRoutes.get("/testimonial/name", readTestimonial);
-testimonialRoutes.post(
-  "/testimonial",
-  upload.single("testimonial"),
-  createTestimonial
-);
+testimonialRoutes.post("/testimonial/create", createTestimonial);
 testimonialRoutes.put(
   "/testimonial/name",
   upload.single("newTestimonial"),
