@@ -1,13 +1,50 @@
+const multer  = require('multer');
+const multerS3 = require('multer-s3-transform');
+const dotenv = require('dotenv');
+const sharp = require('sharp');
+const aws = require('aws-sdk');
+const { nanoid } = require('nanoid');
 const productServices = require( "./productServices" );
+
+const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
+const s3 = new aws.S3({
+    endpoint: spacesEndpoint,
+    accessKeyId: process.env.DO_ACCESS_KEY,
+    secretAccessKey: process.env.DO_ACCESS_SECRET
+});
+
+const upload = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: process.env.PUBLIC_BUCKET_NAME,
+      acl: 'public-read',
+      shouldTransform: function (req, file, cb) {
+        req.body.Id = nanoid(7); //=> "5-JDFkc"
+        cb(null, /^image/i.test(file.mimetype))
+      },
+      transforms: [{
+        id: 'largeThumb',
+        key: function (req, file, cb) {
+          cb(null, file.fieldname  + '-' + req.body.Id + '-large.webp')
+        },
+        transform: function (req, file, cb) {
+          cb(null, sharp().resize(300, 300).webp({ quality: 80 }));
+      }
+    }
+    ]
+    })
+  })
 
 //CRUD
 
 const createProduct = async (req, res, next)=> {
-  try {
-    res.send(await productServices.createProduct(req.body));
-  }catch(e) {
-    res.status(500).send(e);
-  }
+    const imagesResult = [];
+      req.files.map(img =>
+      {
+        img.transforms.map(url => imagesResult.push(url.location))
+      })
+      req.body.images = imagesResult;
+      res.send(await productServices.createProduct(req.body));
 }
 
 const readById = async (req, res)=> {
@@ -51,6 +88,6 @@ async function updateProduct (req, res) {
   }
 }
 
-module.exports = { createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct }
+module.exports = { upload, createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct }
 
 // //CRUD END

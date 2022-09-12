@@ -20,6 +20,8 @@ app.use(cors({
   }
 }));
 
+// app.use(cors())
+
 app.disable('x-powered-by');
 
 app.use((req, res, next)=>{
@@ -45,8 +47,6 @@ app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
-// app.use(cors())
 
 app.use('/', user);
 app.use('/', prixer);

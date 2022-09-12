@@ -1,7 +1,8 @@
 const Product = require( "./productModel" );
 const Products = require( "./products" );
 
-const createProduct = async (productData)=> {
+
+const createProduct = async (productData) => {
     try{
         const newProduct = await new Product(productData).save();
         if (newProduct) {
