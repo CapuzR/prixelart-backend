@@ -9,7 +9,7 @@ const TestimonialSchema = Schema({
   value: { type: String, required: true },
   avatar: { type: String, required: true },
   footer: { type: String, required: false },
-  company: { type: Image, required: false },
+  company: { type: String, required: false },
   status: { type: Boolean, required: true },
 });
 const Testimonial = mongoose.model(
