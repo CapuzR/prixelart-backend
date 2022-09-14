@@ -7,7 +7,7 @@ const TestimonialSchema = Schema({
   type: { type: String, required: true },
   name: { type: String, required: true },
   value: { type: String, required: true },
-  avatar: { type: String, required: true },
+  avatar: { type: String, required: false },
   footer: { type: String, required: false },
   company: { type: String, required: false },
   status: { type: Boolean, required: true },

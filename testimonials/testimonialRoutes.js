@@ -1,4 +1,7 @@
 const { Testimonial } = require("./testimonialModel");
+const { upload } =
+  // avatarUpload,
+  require("../preferences/preferencesController");
 
 const {
   createTestimonial,
@@ -12,7 +15,11 @@ const testimonialRoutes = express.Router();
 
 testimonialRoutes.get("/testimonial/read-all", readAllTestimonials);
 testimonialRoutes.get("/testimonial/name", readTestimonial);
-testimonialRoutes.post("/testimonial/create", createTestimonial);
+testimonialRoutes.post(
+  "/testimonial/create",
+  upload.single("avatar"),
+  createTestimonial
+);
 // testimonialRoutes.put(
 //   "/testimonial/name",
 //   upload.single("newTestimonial"),
