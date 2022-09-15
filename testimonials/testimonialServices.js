@@ -43,7 +43,7 @@ const readById = async (testimonial) => {
 
 const readAllTestimonials = async () => {
   try {
-    const readedTestimonials = await Testimonial.find({ active: true });
+    const readedTestimonials = await Testimonial.find({}).exec();
     if (readedTestimonials) {
       const data = {
         info: "Todos los testimonios disponibles",
@@ -53,28 +53,7 @@ const readAllTestimonials = async () => {
     } else {
       const data = {
         info: "No hay testimonios registrados",
-        arts: null,
-      };
-      return data;
-    }
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
-const readTestimonials = async () => {
-  try {
-    const readedTestimonials = await Testimonial.find();
-    if (readedTestimonials) {
-      const data = {
-        info: "Todos los testimonios disponibles",
-        testimonials: readedTestimonials,
-      };
-      return data;
-    } else {
-      const data = {
-        info: "No hay testimonios registrados",
-        arts: null,
+        testimonials: null,
       };
       return data;
     }
@@ -102,10 +81,15 @@ const updateTestimonial = async (testimonialData) => {
   }
 };
 
+const deleteTestimonial = async (req, res) => {
+  await Testimonial.findByIdAndDelete(req.params.id);
+  res.json({ status: "Image deleted" });
+};
+
 module.exports = {
   createTestimonial,
   readById,
   readAllTestimonials,
-  readTestimonials,
   updateTestimonial,
+  deleteTestimonial,
 };

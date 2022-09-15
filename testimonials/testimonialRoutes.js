@@ -20,12 +20,12 @@ testimonialRoutes.post(
   upload.single("avatar"),
   createTestimonial
 );
-// testimonialRoutes.put(
-//   "/testimonial/name",
-//   upload.single("newTestimonial"),
-//   updateTestimonial
-// );
-testimonialRoutes.delete("/testimonial/name", deleteTestimonial);
+testimonialRoutes.put(
+  "/testimonial/name",
+  upload.single("updateTestimonial"),
+  updateTestimonial
+);
+testimonialRoutes.delete("/testimonial/delete", deleteTestimonial);
 
 // testimonialRoutes.get("/termsAndConditions/read", async (req, res) => {
 //   try {

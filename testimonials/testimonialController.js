@@ -36,7 +36,9 @@ const createTestimonial = async (req, res) => {
 const readTestimonial = async (req, res) => {
   try {
     const name = await testimonialControllers.readTestimonialByName(req);
-    const readedTestimonial = await testimonialServices.readTestimonial(name);
+    const readedTestimonial = await testimonialServices.readAllTestimonials(
+      name
+    );
     res.send(readedTestimonial);
   } catch (err) {
     res.status(500).send(err);
