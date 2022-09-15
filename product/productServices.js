@@ -21,6 +21,7 @@ const createProduct = async (productData) => {
         return error;
     }
 }
+
 const readById = async (product)=> {
     try {
     const readedProduct = await Product.find({_id: product._id});
@@ -86,18 +87,26 @@ const readAllProductsAdmin = async ()=> {
 }
 }
 
-const updateProduct = async (productData)=> {
+const updateProduct = async (productData, productId)=> {
     try {
-        const toUpdateProduct = await Product.findOne({'_id': productData._id});
-        toUpdateProduct.set(productData);
-        const updatedProduct = await toUpdateProduct.save();
-        if(!updatedProduct) { return console.log('Product update error: ' + err); }
-
+        const updateProduct = await Product.findByIdAndUpdate(productId, productData);
+        if(!updateProduct) { return console.log('Product update error: ' + err); }
         return 'Actualización realizada con éxito.';
-    } catch(e){
+    } catch(error){
         console.log(error);
         return error;
     }
 }
 
-module.exports = { createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct }
+const deleteProduct = async (productId) =>
+{
+  try {
+    await Product.findByIdAndDelete(productId);
+    return 'Producto eliminado exitosamente'
+  } catch (error) {
+    console.log(error)
+    return error;
+  }
+}
+
+module.exports = { createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct, deleteProduct }

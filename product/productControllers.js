@@ -30,8 +30,7 @@ const upload = multer({
         transform: function (req, file, cb) {
           cb(null, sharp().resize(300, 300).webp({ quality: 80 }));
       }
-    }
-    ]
+    }]
     })
   })
 
@@ -39,12 +38,30 @@ const upload = multer({
 
 const createProduct = async (req, res, next)=> {
     const imagesResult = [];
-      req.files.map(img =>
-      {
-        img.transforms.map(url => imagesResult.push(url.location))
-      })
-      req.body.images = imagesResult;
-      res.send(await productServices.createProduct(req.body));
+    req.files.map(async img =>
+    {
+      const cycleImages = await img.transforms.map(async url => await imagesResult.push(url.location))
+    })
+      const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      images: imagesResult, //images from Products
+      publicPrice: {
+          from: req.body.publicPriceFrom,
+          to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+          from: req.body.prixerPriceFrom,
+          to: req.body.prixerPriceTo,
+      },//prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar
+    }
+      res.send(await productServices.createProduct(parseObject));
 }
 
 const readById = async (req, res)=> {
@@ -75,19 +92,50 @@ const readAllProductsAdmin = async (req, res)=> {
 }
 
 async function updateProduct (req, res) {
-  try {
-    const product = req.body;
-    const productResult = await productServices.updateProduct(product);
+    const imagesResult = [];
+    req.files.map(async img =>
+    {
+      await img.transforms.map(async url => await imagesResult.push(url.location))
+    })
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      images: imagesResult, //images from Products
+      publicPrice: {
+          from: req.body.publicPriceFrom,
+          to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+          from: req.body.prixerPriceFrom,
+          to: req.body.prixerPriceTo,
+      },//prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar
+    }
+    const product = parseObject;
+    const productResult = await productServices.updateProduct(product, req.params.id);
     data = {
         productResult,
         success: true
     }
     return res.send(data);
-  } catch (err) {
-    res.status(500).send(err);
-  }
 }
 
-module.exports = { upload, createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct }
+//9ci74izh5f
+
+async function deleteProduct (req, res) {
+    const productResult = await productServices.deleteProduct(req.params.id)
+    data = {
+      productResult,
+      success: true
+    }
+    return res.send(data);
+}
+
+module.exports = { upload, createProduct, readById, readAllProducts, readAllProductsAdmin, updateProduct, deleteProduct}
 
 // //CRUD END
