@@ -40,7 +40,7 @@ const createProduct = async (req, res, next)=> {
     const imagesResult = [];
     req.files.map(async img =>
     {
-      const cycleImages = await img.transforms.map(async url => await imagesResult.push(url.location))
+      imagesResult.push(img.transforms[0].location)
     })
       const parseObject = {
       name: req.body.name,
@@ -95,7 +95,7 @@ async function updateProduct (req, res) {
     const imagesResult = [];
     req.files.map(async img =>
     {
-      await img.transforms.map(async url => await imagesResult.push(url.location))
+      imagesResult.push(img.transforms[0].location)
     })
     const parseObject = {
       name: req.body.name,
