@@ -125,8 +125,6 @@ async function updateProduct (req, res) {
     return res.send(data);
 }
 
-//9ci74izh5f
-
 async function deleteProduct (req, res) {
     const productResult = await productServices.deleteProduct(req.params.id)
     data = {
