@@ -1,3 +1,5 @@
+const ObjectId = require("mongoose").Types.ObjectId;
+
 const Testimonial = require("./testimonialModel");
 
 const createTestimonial = async (testimonialData) => {
@@ -21,13 +23,11 @@ const createTestimonial = async (testimonialData) => {
 };
 const readById = async (testimonial) => {
   try {
-    const readedTestimonial = await Testimonial.find({ _id: testimonial._id });
+    const readedTestimonial = await Testimonial.findOne({
+      _id: testimonial,
+    });
     if (readedTestimonial) {
-      const data = {
-        info: "Todos los testimonios disponibles",
-        testimonials: readedTestimonial,
-      };
-      return data;
+      return readedTestimonial;
     } else {
       const data = {
         info: "No hay testimonios registrados",
@@ -63,14 +63,14 @@ const readAllTestimonials = async () => {
   }
 };
 
-const updateTestimonial = async (testimonialData) => {
+const updateTestimonial1 = async (testimonialData) => {
   try {
     const toUpdateTestimonial = await Testimonial.findOne({
       _id: testimonialData._id,
     });
     toUpdateTestimonial.set(testimonialData);
-    const updatedProduct = await toUpdateTestimonial.save();
-    if (!updatedProduct) {
+    const updatedTestimonial = await toUpdateTestimonial.save();
+    if (!updatedTestimonial) {
       return console.log("Testimonial update error: " + err);
     }
 
@@ -81,9 +81,37 @@ const updateTestimonial = async (testimonialData) => {
   }
 };
 
-const deleteTestimonial = async (req, res) => {
-  await Testimonial.findByIdAndDelete(req.params.id);
-  res.json({ status: "Image deleted" });
+const updateTestimonial = async (testimonialId, testimonialData) => {
+  try {
+    const toUpdateTestimonial = await Testimonial.findByIdAndUpdate(
+      testimonialId
+    );
+    // toUpdateTestimonial.avatar = testimonialData.avatar;
+    toUpdateTestimonial.type = testimonialData.type;
+    toUpdateTestimonial.value = testimonialData.value;
+    toUpdateTestimonial.footer = testimonialData.footer;
+    toUpdateTestimonial.status = testimonialData.status;
+    toUpdateTestimonial.name = testimonialData.name;
+
+    const updatedTestimonial = await toUpdateTestimonial.save();
+    if (!updatedTestimonial) {
+      return console.log("Testimonial update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const deleteTestimonial = async (testimonialId) => {
+  try {
+    await Testimonial.findByIdAndDelete(testimonialId);
+    return "Testimonio eliminado exitosamente";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
 };
 
 module.exports = {

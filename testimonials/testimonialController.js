@@ -26,7 +26,7 @@ const createTestimonial = async (req, res) => {
     };
     console.log(testimonialData);
 
-    res.send("OK");
+    res.send(await testimonialServices.createTestimonial(testimonialData));
   } catch (e) {
     console.log(e);
     res.status(500).send(e);
@@ -35,10 +35,8 @@ const createTestimonial = async (req, res) => {
 
 const readTestimonial = async (req, res) => {
   try {
-    const name = await testimonialControllers.readTestimonialByName(req);
-    const readedTestimonial = await testimonialServices.readAllTestimonials(
-      name
-    );
+    const name = await testimonialControllers.readById(req);
+
     res.send(readedTestimonial);
   } catch (err) {
     res.status(500).send(err);
@@ -53,6 +51,10 @@ const readAllTestimonials = async (req, res) => {
     res.status(500).send(err);
   }
 };
+const readById = async (req, res) => {
+  const readedTestimonials = await testimonialServices.readById(req.params.id);
+  res.send(readedTestimonials);
+};
 
 const updateTestimonial = async (req, res) => {
   try {
@@ -66,23 +68,27 @@ const updateTestimonial = async (req, res) => {
       status: req.body.status,
     };
 
-    const updates = await testimonialServices.updateTestimonial(testimonial);
+    const updates = await testimonialServices.updateTestimonial(
+      req.params.id,
+      testimonial
+    );
     return res.send(updates);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
 
-const deleteTestimonial = async (req, res) => {
-  try {
-    const deleteTestimonial = await testimonialServices.deleteTestimonial(
-      req.body
-    );
-    return res.send(deleteTestimonial);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+async function deleteTestimonial(req, res) {
+  const testimonialResult = await testimonialServices.deleteTestimonial(
+    req.params.id
+  );
+  data = {
+    testimonialResult,
+    success: true,
+  };
+  return res.send(data);
+}
 
 const upload = multer({
   storage: multerS3({
@@ -113,6 +119,7 @@ module.exports = {
   readTestimonial,
   updateTestimonial,
   deleteTestimonial,
+  readById,
   upload,
 };
 
