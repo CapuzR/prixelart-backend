@@ -16,7 +16,7 @@ const createProduct = async (productData) => {
                 message: 'Disculpa, ocurrió un error desconocido, inténtalo de nuevo.'
             }
         }
-    } catch(e) {
+    } catch(error) {
         console.log(error);
         return error;
     }
