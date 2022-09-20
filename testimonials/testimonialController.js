@@ -57,7 +57,7 @@ const updateTestimonial = async (req, res) => {
       company: req.body.company,
       status: req.body.status,
     };
-
+    console.log(req.params.id);
     const updates = await testimonialServices.updateTestimonial(
       req.params.id,
       testimonial
