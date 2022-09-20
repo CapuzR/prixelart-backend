@@ -6,7 +6,6 @@ const { upload } =
 const {
   createTestimonial,
   readAllTestimonials,
-  readTestimonial,
   readById,
   updateTestimonial,
   deleteTestimonial,

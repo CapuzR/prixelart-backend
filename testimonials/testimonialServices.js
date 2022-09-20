@@ -63,30 +63,12 @@ const readAllTestimonials = async () => {
   }
 };
 
-const updateTestimonial1 = async (testimonialData) => {
-  try {
-    const toUpdateTestimonial = await Testimonial.findOne({
-      _id: testimonialData._id,
-    });
-    toUpdateTestimonial.set(testimonialData);
-    const updatedTestimonial = await toUpdateTestimonial.save();
-    if (!updatedTestimonial) {
-      return console.log("Testimonial update error: " + err);
-    }
-
-    return "Actualización realizada con éxito.";
-  } catch (e) {
-    console.log(error);
-    return error;
-  }
-};
-
 const updateTestimonial = async (testimonialId, testimonialData) => {
   try {
     const toUpdateTestimonial = await Testimonial.findByIdAndUpdate(
       testimonialId
     );
-    // toUpdateTestimonial.avatar = testimonialData.avatar;
+    toUpdateTestimonial.avatar = testimonialData.avatar;
     toUpdateTestimonial.type = testimonialData.type;
     toUpdateTestimonial.value = testimonialData.value;
     toUpdateTestimonial.footer = testimonialData.footer;

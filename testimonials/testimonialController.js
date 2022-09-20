@@ -33,16 +33,6 @@ const createTestimonial = async (req, res) => {
   }
 };
 
-const readTestimonial = async (req, res) => {
-  try {
-    const name = await testimonialControllers.readById(req);
-
-    res.send(readedTestimonial);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
-
 const readAllTestimonials = async (req, res) => {
   try {
     const readedTestimonials = await testimonialServices.readAllTestimonials();
@@ -116,7 +106,6 @@ const upload = multer({
 module.exports = {
   createTestimonial,
   readAllTestimonials,
-  readTestimonial,
   updateTestimonial,
   deleteTestimonial,
   readById,
