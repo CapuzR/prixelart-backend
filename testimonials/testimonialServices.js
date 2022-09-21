@@ -68,6 +68,7 @@ const updateTestimonial = async (testimonialId, testimonialData) => {
     const toUpdateTestimonial = await Testimonial.findByIdAndUpdate(
       testimonialId
     );
+    console.log(testimonialData);
     toUpdateTestimonial.avatar = testimonialData.avatar;
     toUpdateTestimonial.type = testimonialData.type;
     toUpdateTestimonial.value = testimonialData.value;
