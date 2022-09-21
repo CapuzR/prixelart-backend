@@ -48,19 +48,19 @@ const readById = async (req, res) => {
 
 const updateTestimonial = async (req, res) => {
   try {
-    const imageAvatar = req.file.transforms[0].location;
-    const testimonialData = {
+    const testimonial = {
       type: req.body.type,
       name: req.body.name,
       value: req.body.value,
-      avatar: imageAvatar,
+      avatar: req.body.avatar,
       footer: req.body.footer,
-      // company: req.body.company,
+      company: req.body.company,
       status: req.body.status,
     };
+    console.log(req.params.id);
     const updates = await testimonialServices.updateTestimonial(
       req.params.id,
-      testimonialData
+      testimonial
     );
     return res.send(updates);
   } catch (err) {

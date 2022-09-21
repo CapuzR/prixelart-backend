@@ -22,7 +22,7 @@ testimonialRoutes.post(
 );
 testimonialRoutes.put(
   "/testimonial/update/:id",
-  upload.single("avatar"),
+  upload.single("updateTestimonial"),
   updateTestimonial
 );
 testimonialRoutes.delete("/testimonial/read/:id", deleteTestimonial);
