@@ -38,7 +38,7 @@ const upload = multer({
 
 const createProduct = async (req, res, next)=> {
     const imagesResult = [];
-    req.files.map(async img =>
+    req.files.map(async (img, i) =>
     {
       imagesResult.push(img.transforms[0].location)
     })
