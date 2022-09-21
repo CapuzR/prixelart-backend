@@ -92,7 +92,7 @@ const readAllProductsAdmin = async (req, res)=> {
 }
 
 async function updateProduct (req, res) {
-    const imagesResult = [];
+    const imagesResult = req.body.images;
     req.files.map(async img =>
     {
       imagesResult.push(img.transforms[0].location)
@@ -116,8 +116,7 @@ async function updateProduct (req, res) {
       variants: req.body.variants ? req.body.variants : [],
       hasSpecialVar: req.body.hasSpecialVar
     }
-    const product = parseObject;
-    const productResult = await productServices.updateProduct(product, req.params.id);
+    const productResult = await productServices.updateProduct(parseObject, req.params.id);
     data = {
         productResult,
         success: true
