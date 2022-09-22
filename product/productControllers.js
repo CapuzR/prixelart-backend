@@ -93,7 +93,14 @@ const readAllProductsAdmin = async (req, res) => {
 };
 
 async function updateProduct(req, res) {
-  const imagesResult = req.body.images;
+  const imagesResult =
+    req.files.length > 0
+      ? typeof req.body.images === "string"
+        ? [req.body.images]
+        : req.body.images
+      : typeof req.body.images === "string"
+      ? [req.body.images]
+      : req.body.images;
   req.files.map(async (img) => {
     imagesResult.push(img.transforms[0].location);
   });
@@ -116,6 +123,7 @@ async function updateProduct(req, res) {
     variants: req.body.variants ? req.body.variants : [],
     hasSpecialVar: req.body.hasSpecialVar,
   };
+  console.log(imagesResult);
   const productResult = await productServices.updateProduct(
     parseObject,
     req.params.id
