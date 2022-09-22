@@ -39,6 +39,7 @@ const upload = multer({
 //CRUD
 
 const createProduct = async (req, res, next) => {
+  try{
   const imagesResult = [];
   req.files.map(async (img) => {
     imagesResult.push(img.transforms[0].location);
@@ -63,6 +64,9 @@ const createProduct = async (req, res, next) => {
     hasSpecialVar: req.body.hasSpecialVar,
   };
   res.send(await productServices.createProduct(parseObject));
+}catch(err){
+  res.status(500).send(err);
+}
 };
 
 const readById = async (req, res) => {
@@ -93,6 +97,7 @@ const readAllProductsAdmin = async (req, res) => {
 };
 
 async function updateProduct(req, res) {
+  try{
   const imagesResult =
     req.files.length > 0
       ? typeof req.body.images === "string"
@@ -123,7 +128,6 @@ async function updateProduct(req, res) {
     variants: req.body.variants ? req.body.variants : [],
     hasSpecialVar: req.body.hasSpecialVar,
   };
-  console.log(imagesResult);
   const productResult = await productServices.updateProduct(
     parseObject,
     req.params.id
@@ -133,6 +137,9 @@ async function updateProduct(req, res) {
     success: true,
   };
   return res.send(data);
+}catch(err){
+  res.status(500).send(err);
+}
 }
 
 async function deleteProduct(req, res) {
