@@ -71,7 +71,6 @@ const updatePrixer = async (req, res) => {
       avatar: req.body.avatar,
       description: req.body.description,
     };
-    console.log(prixer, "este es el registro");
 
     const user = {
       username: req.body.username,
