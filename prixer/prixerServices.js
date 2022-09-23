@@ -148,6 +148,24 @@ const updatePrixer = async (prixerData, userData) => {
   return prixer;
 };
 
+const updateVisibility = async (prixerId, prixerData) => {
+  try {
+    const toUpdatePrixer = await Prixer.findOne({
+      _id: prixerId,
+    });
+    toUpdatePrixer.status = prixerData.status;
+
+    const updatedPrixer = await toUpdatePrixer.save();
+    if (!updatedPrixer) {
+      return console.log("Prixer update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const disablePrixer = (prixerData) => {};
 
 const removePrixers = async () => {
@@ -165,6 +183,7 @@ module.exports = {
   readAllPrixers,
   readPrixer,
   updatePrixer,
+  updateVisibility,
   disablePrixer,
   removePrixers,
   readAllPrixersFull,

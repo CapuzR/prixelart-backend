@@ -86,6 +86,23 @@ const updatePrixer = async (req, res) => {
   }
 };
 
+const updateVisibility = async (req, res) => {
+  console.log(req.body);
+  try {
+    const prixerData = {
+      status: req.body.status,
+    };
+    const updates = await prixerServices.updateVisibility(
+      req.params.id,
+      prixerData
+    );
+    return res.send(updates);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const disablePrixer = async (req, res) => {
   try {
     const disabledUser = await prixerServices.disablePrixer(req.body);
@@ -100,6 +117,7 @@ module.exports = {
   readAllPrixers,
   readPrixer,
   updatePrixer,
+  updateVisibility,
   disablePrixer,
   readAllPrixersFull,
 };
