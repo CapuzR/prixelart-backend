@@ -69,6 +69,23 @@ const updateTestimonial = async (req, res) => {
   }
 };
 
+const updateVisibility = async (req, res) => {
+  console.log(req.body);
+  try {
+    const testimonialData = {
+      status: req.body.status,
+    };
+    const updates = await testimonialServices.updateVisibility(
+      req.params.id,
+      testimonialData
+    );
+    return res.send(updates);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 async function deleteTestimonial(req, res) {
   const testimonialResult = await testimonialServices.deleteTestimonial(
     req.params.id
@@ -107,6 +124,7 @@ module.exports = {
   createTestimonial,
   readAllTestimonials,
   updateTestimonial,
+  updateVisibility,
   deleteTestimonial,
   readById,
   upload,

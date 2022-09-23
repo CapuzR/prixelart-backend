@@ -93,46 +93,49 @@ const readAllProductsAdmin = async (req, res) => {
 };
 
 async function updateProduct(req, res) {
-  const imagesResult =
-    req.files.length > 0
-      ? typeof req.body.images === "string"
+  try {
+    const imagesResult =
+      req.files.length > 0
+        ? typeof req.body.images === "string"
+          ? [req.body.images]
+          : req.body.images
+        : typeof req.body.images === "string"
         ? [req.body.images]
-        : req.body.images
-      : typeof req.body.images === "string"
-      ? [req.body.images]
-      : req.body.images;
-  req.files.map(async (img) => {
-    imagesResult.push(img.transforms[0].location);
-  });
-  const parseObject = {
-    name: req.body.name,
-    description: req.body.description,
-    category: req.body.category,
-    considerations: req.body.considerations,
-    images: imagesResult, //images from Products
-    publicPrice: {
-      from: req.body.publicPriceFrom,
-      to: req.body.publicPriceTo,
-    }, //price
-    prixerPrice: {
-      from: req.body.prixerPriceFrom,
-      to: req.body.prixerPriceTo,
-    }, //prixerPrice
-    attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-    active: req.body.active,
-    variants: req.body.variants ? req.body.variants : [],
-    hasSpecialVar: req.body.hasSpecialVar,
-  };
-  console.log(imagesResult);
-  const productResult = await productServices.updateProduct(
-    parseObject,
-    req.params.id
-  );
-  data = {
-    productResult,
-    success: true,
-  };
-  return res.send(data);
+        : req.body.images;
+    req.files.map(async (img) => {
+      imagesResult.push(img.transforms[0].location);
+    });
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      images: imagesResult, //images from Products
+      publicPrice: {
+        from: req.body.publicPriceFrom,
+        to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+        from: req.body.prixerPriceFrom,
+        to: req.body.prixerPriceTo,
+      }, //prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar,
+    };
+    const productResult = await productServices.updateProduct(
+      parseObject,
+      req.params.id
+    );
+    data = {
+      productResult,
+      success: true,
+    };
+    return res.send(data);
+  } catch (error) {
+    res.status(500).send(err);
+  }
 }
 
 async function deleteProduct(req, res) {

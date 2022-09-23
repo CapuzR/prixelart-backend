@@ -8,6 +8,7 @@ const {
   readAllTestimonials,
   readById,
   updateTestimonial,
+  updateVisibility,
   deleteTestimonial,
 } = require("./testimonialController");
 const express = require("express");
@@ -25,6 +26,7 @@ testimonialRoutes.put(
   upload.single("avatar"),
   updateTestimonial
 );
+testimonialRoutes.put("/testimonial/update-home/:id", updateVisibility);
 testimonialRoutes.delete("/testimonial/read/:id", deleteTestimonial);
 
 module.exports = testimonialRoutes;
