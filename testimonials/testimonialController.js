@@ -49,6 +49,7 @@ const readById = async (req, res) => {
 const updateTestimonial = async (req, res) => {
   try {
     const imageAvatar = req.file.transforms[0].location;
+    // const avatarTestimonial = != undefined ? req.body.avatar : imageAvatar;
     const testimonialData = {
       type: req.body.type,
       name: req.body.name,
