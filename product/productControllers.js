@@ -41,7 +41,7 @@ const upload = multer({
 const createProduct = async (req, res, next) => {
   try {
     const imagesResult = [];
-    req.files.map(async (img) => {
+    req.files.map(async (img, i) => {
       imagesResult.push(img.transforms[0].location);
     });
     const parseObject = {
@@ -103,11 +103,15 @@ async function updateProduct(req, res) {
         ? typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images
-        : typeof req.body.images === "string"
+        : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-    req.files.map(async (img) => {
-      imagesResult.push(img.transforms[0].location);
+    req.files.map(async (img, i) => {
+      if(imagesResult[0] === ''){
+        imagesResult[0] = img.transforms[0].location
+      }else{
+        imagesResult.push(img.transforms[0].location);
+      }
     });
     const parseObject = {
       name: req.body.name,
