@@ -39,30 +39,34 @@ const upload = multer({
 //CRUD
 
 const createProduct = async (req, res, next) => {
-  const imagesResult = [];
-  req.files.map(async (img) => {
-    imagesResult.push(img.transforms[0].location);
-  });
-  const parseObject = {
-    name: req.body.name,
-    description: req.body.description,
-    category: req.body.category,
-    considerations: req.body.considerations,
-    images: imagesResult, //images from Products
-    publicPrice: {
-      from: req.body.publicPriceFrom,
-      to: req.body.publicPriceTo,
-    }, //price
-    prixerPrice: {
-      from: req.body.prixerPriceFrom,
-      to: req.body.prixerPriceTo,
-    }, //prixerPrice
-    attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-    active: req.body.active,
-    variants: req.body.variants ? req.body.variants : [],
-    hasSpecialVar: req.body.hasSpecialVar,
-  };
-  res.send(await productServices.createProduct(parseObject));
+  try {
+    const imagesResult = [];
+    req.files.map(async (img) => {
+      imagesResult.push(img.transforms[0].location);
+    });
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      images: imagesResult, //images from Products
+      publicPrice: {
+        from: req.body.publicPriceFrom,
+        to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+        from: req.body.prixerPriceFrom,
+        to: req.body.prixerPriceTo,
+      }, //prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar,
+    };
+    res.send(await productServices.createProduct(parseObject));
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
 
 const readById = async (req, res) => {
@@ -133,7 +137,7 @@ async function updateProduct(req, res) {
       success: true,
     };
     return res.send(data);
-  } catch (error) {
+  } catch (err) {
     res.status(500).send(err);
   }
 }
