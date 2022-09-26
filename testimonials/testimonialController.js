@@ -24,7 +24,6 @@ const createTestimonial = async (req, res) => {
       footer: req.body.footer,
       status: req.body.status,
     };
-    console.log(testimonialData);
 
     res.send(await testimonialServices.createTestimonial(testimonialData));
   } catch (e) {
@@ -48,13 +47,15 @@ const readById = async (req, res) => {
 
 const updateTestimonial = async (req, res) => {
   try {
-    const imageAvatar = req.file.transforms[0].location;
+    console.log(req.body.avatar);
+
+    // const imageAvatar = req.file.transforms[0].location;
     // const avatarTestimonial = != undefined ? req.body.avatar : imageAvatar;
     const testimonialData = {
       type: req.body.type,
       name: req.body.name,
       value: req.body.value,
-      avatar: imageAvatar,
+      avatar: req.body.avatar || req.file.transforms[0].location,
       footer: req.body.footer,
       // company: req.body.company,
       status: req.body.status,
