@@ -41,15 +41,40 @@ const upload = multer({
 const createProduct = async (req, res, next) => {
   try {
     const imagesResult = [];
-    req.files.map(async (img, i) => {
-      imagesResult.push(img.transforms[0].location);
-    });
+    if(req.body.video && req.files){
+        req.files.map((img, i) => {
+          imagesResult.push({
+            type: 'images',
+            url : img.transforms[0].location
+          });
+        });
+        imagesResult.push({
+          type: 'video',
+          url : req.body.video
+        });
+    }else if(req.body.video && req.files == undefined){
+      imagesResult.push({
+        type: 'video',
+        url : req.body.video
+      });
+    } else{
+      req.files.map((img, i) => {
+        imagesResult.push({
+          type: 'images',
+          url : img.transforms[0].location
+        });
+      });
+    }
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
       category: req.body.category,
       considerations: req.body.considerations,
-      images: imagesResult, //images from Products
+      sources:{
+      // typeFile: req.body.typeFile,
+      images: imagesResult,
+      // video: req.body.video
+      }, //images from Products
       publicPrice: {
         from: req.body.publicPriceFrom,
         to: req.body.publicPriceTo,
@@ -62,7 +87,7 @@ const createProduct = async (req, res, next) => {
       active: req.body.active,
       variants: req.body.variants ? req.body.variants : [],
       hasSpecialVar: req.body.hasSpecialVar,
-    };
+    }
     res.send(await productServices.createProduct(parseObject));
   } catch (err) {
     res.status(500).send(err);
@@ -118,7 +143,11 @@ async function updateProduct(req, res) {
       description: req.body.description,
       category: req.body.category,
       considerations: req.body.considerations,
-      images: imagesResult, //images from Products
+      sources:{
+      typeFile: req.body.typeFile,
+      images: imagesResult,
+      video: req.body.video
+      }, //images from Products
       publicPrice: {
         from: req.body.publicPriceFrom,
         to: req.body.publicPriceTo,
