@@ -40,6 +40,7 @@ const upload = multer({
 
 const createProduct = async (req, res, next) => {
   try {
+    console.log(req.files)
     const imagesResult = [];
     if(req.body.video && req.files){
         req.files.map((img, i) => {
@@ -88,6 +89,7 @@ const createProduct = async (req, res, next) => {
       variants: req.body.variants ? req.body.variants : [],
       hasSpecialVar: req.body.hasSpecialVar,
     }
+    console.log(imagesResult)
     res.send(await productServices.createProduct(parseObject));
   } catch (err) {
     res.status(500).send(err);
@@ -121,7 +123,7 @@ const readAllProductsAdmin = async (req, res) => {
   }
 };
 
-async function updateProduct(req, res) {
+const updateProduct = async (req, res) => {
   try {
     const imagesResult =
       req.files.length > 0
@@ -131,45 +133,70 @@ async function updateProduct(req, res) {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-    req.files.map(async (img, i) => {
-      if(imagesResult[0] === ''){
-        imagesResult[0] = img.transforms[0].location
-      }else{
-        imagesResult.push(img.transforms[0].location);
-      }
-    });
-    const parseObject = {
-      name: req.body.name,
-      description: req.body.description,
-      category: req.body.category,
-      considerations: req.body.considerations,
-      sources:{
-      typeFile: req.body.typeFile,
-      images: imagesResult,
-      video: req.body.video
-      }, //images from Products
-      publicPrice: {
-        from: req.body.publicPriceFrom,
-        to: req.body.publicPriceTo,
-      }, //price
-      prixerPrice: {
-        from: req.body.prixerPriceFrom,
-        to: req.body.prixerPriceTo,
-      }, //prixerPrice
-      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-      active: req.body.active,
-      variants: req.body.variants ? req.body.variants : [],
-      hasSpecialVar: req.body.hasSpecialVar,
-    };
-    const productResult = await productServices.updateProduct(
-      parseObject,
-      req.params.id
-    );
-    data = {
-      productResult,
-      success: true,
-    };
-    return res.send(data);
+        console.log(imagesResult)
+        // if(req.body.video && req.files){
+        //     req.files.map((img, i) => {
+        //       imagesResult.push({
+        //         type: 'images',
+        //         url : img.transforms[0].location
+        //       });
+        //     });
+        //     imagesResult.push({
+        //       type: 'video',
+        //       url : req.body.video
+        //     });
+        // }else if(req.body.video && req.files == undefined){
+        //   imagesResult.push({
+        //     type: 'video',
+        //     url : req.body.video
+        //   });
+        // } else{
+        //   req.files.map((img, i) => {
+        //     if(imagesResult[0] === ''){
+        //       imagesResult[0] = {
+        //         type: 'images',
+        //         url: img.transforms[0].location
+        //       }
+        //     }else{
+        //       imagesResult.push({
+        //         type: 'images',
+        //         url: img.transforms[0].location
+        //       });
+        //     }
+        //   })}
+    // const parseObject = {
+    //   name: req.body.name,
+    //   description: req.body.description,
+    //   category: req.body.category,
+    //   considerations: req.body.considerations,
+    //   sources:{
+    //   typeFile: req.body.typeFile,
+    //   images: imagesResult,
+    //   // video: req.body.video
+    //   }, //images from Products
+    //   publicPrice: {
+    //     from: req.body.publicPriceFrom,
+    //     to: req.body.publicPriceTo,
+    //   }, //price
+    //   prixerPrice: {
+    //     from: req.body.prixerPriceFrom,
+    //     to: req.body.prixerPriceTo,
+    //   }, //prixerPrice
+    //   attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+    //   active: req.body.active,
+    //   variants: req.body.variants ? req.body.variants : [],
+    //   hasSpecialVar: req.body.hasSpecialVar,
+    // };
+    // const productResult = await productServices.updateProduct(
+    //   parseObject,
+    //   req.params.id
+    // );
+    // data = {
+    //   productResult,
+    //   success: true,
+    // };
+    console.log(imagesResult)
+    // return res.send(data);
   } catch (err) {
     res.status(500).send(err);
   }
