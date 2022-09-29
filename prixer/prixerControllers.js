@@ -18,6 +18,8 @@ const createPrixer = async (req, res) => {
       userId: req.user.id,
       avatar: req.body.avatar,
       username: req.user.username,
+      status: req.body.status,
+      termsAgree: req.body.termsAgree,
     };
 
     res.send(await prixerServices.createPrixer(prixerData));
@@ -77,6 +79,8 @@ const updatePrixer = async (req, res) => {
       username: req.body.username,
       avatar: req.body.avatar,
       description: req.body.description,
+      status: req.body.status,
+      termsAgree: req.body.termsAgree,
     };
 
     const user = {
