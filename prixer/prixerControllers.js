@@ -18,9 +18,9 @@ const createPrixer = async (req, res) => {
       userId: req.user.id,
       avatar: req.body.avatar,
       username: req.user.username,
+      status: req.body.status,
+      termsAgree: req.body.termsAgree,
     };
-
-    console.log(prixerData, "este es el registro");
 
     res.send(await prixerServices.createPrixer(prixerData));
   } catch (e) {
@@ -40,7 +40,7 @@ const readPrixer = async (req, res) => {
 
 const readAllPrixers = async (req, res) => {
   try {
-    const readedPrixers = await prixerServices.readAllPrixers();
+    const readedPrixers = await prixerServices.readAllPrixers({ status: true });
     res.send(readedPrixers);
   } catch (err) {
     res.status(500).send(err);
@@ -48,6 +48,15 @@ const readAllPrixers = async (req, res) => {
 };
 
 const readAllPrixersFull = async (req, res) => {
+  try {
+    const readedPrixers = await prixerServices.readAllPrixersFull();
+    res.send(readedPrixers);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const readAllPrixersFullv2 = async (req, res) => {
   try {
     const readedPrixers = await prixerServices.readAllPrixersFull();
     res.send(readedPrixers);
@@ -70,6 +79,8 @@ const updatePrixer = async (req, res) => {
       username: req.body.username,
       avatar: req.body.avatar,
       description: req.body.description,
+      status: req.body.status,
+      termsAgree: req.body.termsAgree,
     };
 
     const user = {
@@ -82,6 +93,23 @@ const updatePrixer = async (req, res) => {
     const updates = await prixerServices.updatePrixer(prixer, user);
     return res.send(updates);
   } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const updateVisibility = async (req, res) => {
+  console.log(req.body);
+  try {
+    const prixerData = {
+      status: req.body.status,
+    };
+    const updates = await prixerServices.updateVisibility(
+      req.params.id,
+      prixerData
+    );
+    return res.send(updates);
+  } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -100,8 +128,10 @@ module.exports = {
   readAllPrixers,
   readPrixer,
   updatePrixer,
+  updateVisibility,
   disablePrixer,
   readAllPrixersFull,
+  readAllPrixersFullv2,
 };
 
 //CRUD END

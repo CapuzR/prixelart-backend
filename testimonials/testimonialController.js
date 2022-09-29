@@ -47,17 +47,19 @@ const readById = async (req, res) => {
 
 const updateTestimonial = async (req, res) => {
   try {
+<<<<<<< HEAD
     console.log(req.body.avatar);
 
     // const imageAvatar = req.file.transforms[0].location;
     // const avatarTestimonial = != undefined ? req.body.avatar : imageAvatar;
+=======
+>>>>>>> Admin-117
     const testimonialData = {
       type: req.body.type,
       name: req.body.name,
       value: req.body.value,
       avatar: req.body.avatar || req.file.transforms[0].location,
       footer: req.body.footer,
-      // company: req.body.company,
       status: req.body.status,
     };
     const updates = await testimonialServices.updateTestimonial(

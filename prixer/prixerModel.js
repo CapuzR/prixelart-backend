@@ -17,6 +17,8 @@ const PrixerSchema = Schema({
   shortShot: { type: String },
   username: { type: String, required: true, index: true },
   avatar: { type: String, required: false },
+  status: { type: Boolean, required: false },
+  termsAgree: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("Prixer", PrixerSchema, "prixers");

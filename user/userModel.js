@@ -9,7 +9,6 @@ const UserSchema = Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  termsAgree: { type: Boolean, required: false },
   token: { type: String, default: "" },
   login_count: Number,
 });
