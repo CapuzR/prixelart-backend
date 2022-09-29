@@ -20,8 +20,6 @@ const createPrixer = async (req, res) => {
       username: req.user.username,
     };
 
-    console.log(prixerData, "este es el registro");
-
     res.send(await prixerServices.createPrixer(prixerData));
   } catch (e) {
     res.status(500).send(e);
@@ -40,7 +38,7 @@ const readPrixer = async (req, res) => {
 
 const readAllPrixers = async (req, res) => {
   try {
-    const readedPrixers = await prixerServices.readAllPrixers();
+    const readedPrixers = await prixerServices.readAllPrixers({ status: true });
     res.send(readedPrixers);
   } catch (err) {
     res.status(500).send(err);
@@ -48,6 +46,15 @@ const readAllPrixers = async (req, res) => {
 };
 
 const readAllPrixersFull = async (req, res) => {
+  try {
+    const readedPrixers = await prixerServices.readAllPrixersFull();
+    res.send(readedPrixers);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const readAllPrixersFullv2 = async (req, res) => {
   try {
     const readedPrixers = await prixerServices.readAllPrixersFull();
     res.send(readedPrixers);
@@ -120,6 +127,7 @@ module.exports = {
   updateVisibility,
   disablePrixer,
   readAllPrixersFull,
+  readAllPrixersFullv2,
 };
 
 //CRUD END

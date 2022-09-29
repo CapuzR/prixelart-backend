@@ -14,6 +14,7 @@ router.post(
 router.post("/prixer/read", prixerControllers.readPrixer);
 router.get("/prixer/read-all", prixerControllers.readAllPrixers);
 router.get("/prixer/read-all-full", prixerControllers.readAllPrixersFull);
+router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
 router.post(
   "/prixer/update",
   userMdw.ensureAuthenticated,
