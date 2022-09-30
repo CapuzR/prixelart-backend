@@ -133,70 +133,83 @@ const updateProduct = async (req, res) => {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-        console.log(imagesResult)
-        // if(req.body.video && req.files){
-        //     req.files.map((img, i) => {
-        //       imagesResult.push({
-        //         type: 'images',
-        //         url : img.transforms[0].location
-        //       });
-        //     });
-        //     imagesResult.push({
-        //       type: 'video',
-        //       url : req.body.video
-        //     });
-        // }else if(req.body.video && req.files == undefined){
-        //   imagesResult.push({
-        //     type: 'video',
-        //     url : req.body.video
-        //   });
-        // } else{
-        //   req.files.map((img, i) => {
-        //     if(imagesResult[0] === ''){
-        //       imagesResult[0] = {
-        //         type: 'images',
-        //         url: img.transforms[0].location
-        //       }
-        //     }else{
-        //       imagesResult.push({
-        //         type: 'images',
-        //         url: img.transforms[0].location
-        //       });
-        //     }
-        //   })}
-    // const parseObject = {
-    //   name: req.body.name,
-    //   description: req.body.description,
-    //   category: req.body.category,
-    //   considerations: req.body.considerations,
-    //   sources:{
-    //   typeFile: req.body.typeFile,
-    //   images: imagesResult,
-    //   // video: req.body.video
-    //   }, //images from Products
-    //   publicPrice: {
-    //     from: req.body.publicPriceFrom,
-    //     to: req.body.publicPriceTo,
-    //   }, //price
-    //   prixerPrice: {
-    //     from: req.body.prixerPriceFrom,
-    //     to: req.body.prixerPriceTo,
-    //   }, //prixerPrice
-    //   attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-    //   active: req.body.active,
-    //   variants: req.body.variants ? req.body.variants : [],
-    //   hasSpecialVar: req.body.hasSpecialVar,
-    // };
-    // const productResult = await productServices.updateProduct(
-    //   parseObject,
-    //   req.params.id
-    // );
-    // data = {
-    //   productResult,
-    //   success: true,
-    // };
-    console.log(imagesResult)
-    // return res.send(data);
+
+        const newResult = imagesResult.map((img,  i) => {
+          switch (img[0]) {
+            case 'h':
+            return objParse = {
+              type: 'images',
+              url: img
+            }
+              break;
+              case '<':
+              return objParse = {
+                type: 'video',
+                url: req.body.video
+              }
+                break;
+            default:
+            return objParse ={
+              type: 'images',
+              url: img
+            }
+              break;
+          }
+        })
+        if(req.body.video && req.files){
+            req.files.map((img, i) => {
+              newResult.push({
+                type: 'images',
+                url : img.transforms[0].location
+              });
+            });
+            // if(!req.body.video){
+            //   newResult.push({
+            //     type: 'video',
+            //     url : req.body.video
+            //   });
+            // }
+        } else{
+          req.files.map((img, i) => {
+            if(newResult[0] === ''){
+              newResult[0] = {
+                type: 'images',
+                url: img.transforms[0].location
+              }
+            }
+          })}
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      sources:{
+      typeFile: req.body.typeFile,
+      images: newResult,
+      // video: req.body.video
+      }, //images from Products
+      publicPrice: {
+        from: req.body.publicPriceFrom,
+        to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+        from: req.body.prixerPriceFrom,
+        to: req.body.prixerPriceTo,
+      }, //prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar,
+    };
+    const productResult = await productServices.updateProduct(
+      parseObject,
+      req.params.id
+    );
+    data = {
+      productResult,
+      success: true,
+    };
+    return res.send(data);
   } catch (err) {
     res.status(500).send(err);
   }
