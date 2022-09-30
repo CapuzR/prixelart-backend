@@ -40,7 +40,6 @@ const upload = multer({
 
 const createProduct = async (req, res, next) => {
   try {
-    console.log(req.files)
     const imagesResult = [];
     if(req.body.video && req.files){
         req.files.map((img, i) => {
@@ -89,7 +88,6 @@ const createProduct = async (req, res, next) => {
       variants: req.body.variants ? req.body.variants : [],
       hasSpecialVar: req.body.hasSpecialVar,
     }
-    console.log(imagesResult)
     res.send(await productServices.createProduct(parseObject));
   } catch (err) {
     res.status(500).send(err);
