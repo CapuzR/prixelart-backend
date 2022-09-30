@@ -45,6 +45,8 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["country"] = readedPrixer.country;
   prixer["city"] = readedPrixer.city;
   prixer["avatar"] = readedPrixer.avatar;
+  prixer["status"] = readedPrixer.status;
+  prixer["termsAgree"] = readedUser.termsAgree;
 
   return prixer;
 };
@@ -63,7 +65,7 @@ const readPrixer = async (prixerData) => {
 
 const readAllPrixers = async () => {
   try {
-    const readedPrixers = await Prixer.find({}).exec();
+    const readedPrixers = await Prixer.find({ status: true }).exec();
     if (readedPrixers) {
       const data = {
         info: "Todos los Prixers disponibles",
@@ -125,27 +127,92 @@ const readAllPrixersFull = async () => {
   }
 };
 
-const updatePrixer = async (prixerData, userData) => {
-  const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
-  toUpdatePrixer.specialty = prixerData.specialty.split(",");
-  toUpdatePrixer.facebook = prixerData.facebook;
-  toUpdatePrixer.twitter = prixerData.twitter;
-  toUpdatePrixer.dateOfBirth = prixerData.dateOfBirth;
-  toUpdatePrixer.phone = prixerData.phone;
-  toUpdatePrixer.country = prixerData.country;
-  toUpdatePrixer.city = prixerData.city;
-  toUpdatePrixer.username = prixerData.username;
-  toUpdatePrixer.avatar = prixerData.avatar;
-  toUpdatePrixer.description = prixerData.description;
-  if (prixerData.specialty === "") toUpdatePrixer.specialty = [];
-  const updatedPrixer = await toUpdatePrixer.save();
-  if (!updatedPrixer) {
-    return console.log("Prixer update error: " + err);
+const readAllPrixersFullv2 = async () => {
+  try {
+    const readedPrixers = await Prixer.find({ status: true }).exec();
+    let data = [];
+    if (readedPrixers) {
+      data = await Promise.all(
+        readedPrixers.map(async (readedPrixer) => {
+          const readedUser = await userService.readUserById({
+            id: readedPrixer.userId,
+          });
+          if (readedUser) {
+            const prixer = mergePrixerAndUser(readedPrixer, readedUser);
+            return prixer;
+          } else {
+            return {
+              info:
+                "El Prixer " +
+                readedPrixer.username +
+                " no está asignado a un usuario.",
+              prixers: null,
+            };
+          }
+        })
+      );
+      const prixers = {
+        info: "Prixers disponibles",
+        prixers: data,
+      };
+      return prixers;
+    } else {
+      const data = {
+        info: "No hay Prixers registrados",
+        prixers: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
   }
-  const updatedUser = await userService.updateUser(userData);
-  const prixer = await mergePrixerAndUser(updatedPrixer, updatedUser);
+};
 
-  return prixer;
+const updatePrixer = async (prixerData, userData) => {
+  try {
+    const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
+    toUpdatePrixer.specialtyArt = prixerData.specialtyArt.split(",");
+    toUpdatePrixer.facebook = prixerData.facebook;
+    toUpdatePrixer.twitter = prixerData.twitter;
+    toUpdatePrixer.dateOfBirth = prixerData.dateOfBirth;
+    toUpdatePrixer.phone = prixerData.phone;
+    toUpdatePrixer.country = prixerData.country;
+    toUpdatePrixer.city = prixerData.city;
+    toUpdatePrixer.username = prixerData.username;
+    toUpdatePrixer.avatar = prixerData.avatar;
+    toUpdatePrixer.description = prixerData.description;
+    if (prixerData.specialty === "") toUpdatePrixer.specialty = [];
+    const updatedPrixer = await toUpdatePrixer.save();
+    if (!updatedPrixer) {
+      return console.log("Prixer update error: " + err);
+    }
+    const updatedUser = await userService.updateUser(userData);
+    const prixer = await mergePrixerAndUser(updatedPrixer, updatedUser);
+
+    return prixer;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const updateVisibility = async (prixerId, prixerData) => {
+  try {
+    const toUpdatePrixer = await Prixer.findOne({
+      _id: prixerId,
+    });
+    toUpdatePrixer.status = prixerData.status;
+
+    const updatedPrixer = await toUpdatePrixer.save();
+    if (!updatedPrixer) {
+      return console.log("Prixer update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
 };
 
 const disablePrixer = (prixerData) => {};
@@ -163,8 +230,10 @@ const removePrixers = async () => {
 module.exports = {
   createPrixer,
   readAllPrixers,
+  readAllPrixersFullv2,
   readPrixer,
   updatePrixer,
+  updateVisibility,
   disablePrixer,
   removePrixers,
   readAllPrixersFull,
