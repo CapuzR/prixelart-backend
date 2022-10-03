@@ -131,7 +131,6 @@ const updateProduct = async (req, res) => {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-
         const newResult = imagesResult.map((img,  i) => {
           switch (img[0]) {
             case 'h':
@@ -147,13 +146,14 @@ const updateProduct = async (req, res) => {
               }
                 break;
             default:
-            return objParse ={
-              type: 'images',
-              url: img
-            }
+                return objParse = {
+                  type: 'images',
+                  url: img
+                }
               break;
           }
         })
+
         if(req.body.video && req.files){
             req.files.map((img, i) => {
               newResult.push({
@@ -161,13 +161,27 @@ const updateProduct = async (req, res) => {
                 url : img.transforms[0].location
               });
             });
+            newResult.map((obj, i) => {
+                if(newResult.length > 5)
+                {
+                  return newResult
+                } else{
+                  if(obj.type != 'video'){
+                    obj = {
+                      type: 'video',
+                      url: req.body.video
+                    }
+                  }
+                }
+
+            })
             // if(!req.body.video){
             //   newResult.push({
             //     type: 'video',
             //     url : req.body.video
             //   });
             // }
-        } else{
+        }else{
           req.files.map((img, i) => {
             if(newResult[0] === ''){
               newResult[0] = {
@@ -176,6 +190,7 @@ const updateProduct = async (req, res) => {
               }
             }
           })}
+          console.log(newResult)
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
