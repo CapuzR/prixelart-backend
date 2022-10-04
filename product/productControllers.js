@@ -123,6 +123,7 @@ const readAllProductsAdmin = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
+
     const imagesResult =
       req.files.length > 0
         ? typeof req.body.images === "string"
@@ -131,6 +132,7 @@ const updateProduct = async (req, res) => {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
+            console.log(imagesResult)
         const newResult = imagesResult.map((img,  i) => {
           switch (img[0]) {
             case 'h':
@@ -142,18 +144,14 @@ const updateProduct = async (req, res) => {
               case '<':
               return {
                 type: 'video',
-                url: req.body.video
+                url: img
               }
                 break;
             default:
               break;
           }
         })
-
-        if(req.files){
-          if(newResult.length >= 5){
-            return null
-          }else{
+        if(req.files.length > 0){
             req.files.map((img, i) => {
               newResult.push({
                 type: 'images',
@@ -161,36 +159,24 @@ const updateProduct = async (req, res) => {
               })
             })
           }
-        }else{
-            newResult.map((obj, i) => {
-                if(obj.type === 'video'){
-                  return {
-                    type: 'video',
-                    url: req.body.video
-                  }
-                  }else {
-                  newResult.push({
-                    type: 'video',
-                    url : req.body.video
-                  })
-                 }
-               })
-          // req.files.map((img, i) => {
-          //   if(newResult[0] === ''){
-          //     newResult[0] = {
-          //       type: 'images',
-          //       url: img.transforms[0].location
-          //     }
-          //   }
-          // })
-        }
+          if(req.body.video != ''){
+            const currentVideo = newResult.find(result => result.type === 'video');
+            if(currentVideo){
+              currentVideo.url = req.body.video
+            } else{
+              newResult.push({
+                type: 'video',
+                url: req.body.video
+              })
+            }
+          }
+        console.log(newResult)
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
       category: req.body.category,
       considerations: req.body.considerations,
       sources:{
-      typeFile: req.body.typeFile,
       images: newResult,
       // video: req.body.video
       }, //images from Products
