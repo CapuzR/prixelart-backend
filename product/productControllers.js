@@ -34,7 +34,7 @@ const upload = multer({
       },
     ],
   }),
-});
+})
 
 //CRUD
 
@@ -131,7 +131,6 @@ const updateProduct = async (req, res) => {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-
         const newResult = imagesResult.map((img,  i) => {
           switch (img[0]) {
             case 'h':
@@ -182,7 +181,6 @@ const updateProduct = async (req, res) => {
       category: req.body.category,
       considerations: req.body.considerations,
       sources:{
-      typeFile: req.body.typeFile,
       images: newResult,
       // video: req.body.video
       }, //images from Products
@@ -213,6 +211,45 @@ const updateProduct = async (req, res) => {
   }
 }
 
+const updateProductWithVariants = async (req, res) => {
+  // try {
+      console.log(req.body.variants)
+      const parseObject = {
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        considerations: req.body.considerations,
+        sources:{
+        images: req.body.sources.images,
+        // video: req.body.video
+        }, //images from Products
+        publicPrice: {
+          from: req.body.publicPriceFrom.from,
+          to: req.body.publicPriceTo.to,
+        }, //price
+        prixerPrice: {
+          from: req.body.prixerPriceFrom.from,
+          to: req.body.prixerPriceTo,to,
+        }, //prixerPrice
+        attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+        active: req.body.active,
+        variants: req.body.variants ? req.body.variants : [],
+        hasSpecialVar: req.body.hasSpecialVar,
+      };
+      const productResult = await productServices.updateProduct(
+        parseObject,
+        req.params.id
+      );
+      data = {
+        productResult,
+        success: true,
+      };
+      return res.send(data);
+  // } catch (err) {
+  //   res.status(500).send(err);
+  // }
+}
+
 async function deleteProduct(req, res) {
   const productResult = await productServices.deleteProduct(req.params.id);
   data = {
@@ -222,6 +259,7 @@ async function deleteProduct(req, res) {
   return res.send(data);
 }
 
+
 module.exports = {
   upload,
   createProduct,
@@ -229,6 +267,7 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
+  updateProductWithVariants,
   deleteProduct,
 };
 
