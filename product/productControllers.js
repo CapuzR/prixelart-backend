@@ -131,51 +131,59 @@ const updateProduct = async (req, res) => {
         : typeof req.body.images === 'string'
         ? [req.body.images]
         : req.body.images;
-
         const newResult = imagesResult.map((img,  i) => {
           switch (img[0]) {
             case 'h':
-            return objParse = {
+            return {
               type: 'images',
               url: img
             }
               break;
               case '<':
-              return objParse = {
+              return {
                 type: 'video',
                 url: req.body.video
               }
                 break;
             default:
-            return objParse ={
-              type: 'images',
-              url: img
-            }
               break;
           }
         })
-        if(req.body.video && req.files){
+
+        if(req.files){
+          if(newResult.length >= 5){
+            return null
+          }else{
             req.files.map((img, i) => {
               newResult.push({
                 type: 'images',
                 url : img.transforms[0].location
-              });
-            });
-            // if(!req.body.video){
-            //   newResult.push({
-            //     type: 'video',
-            //     url : req.body.video
-            //   });
-            // }
-        } else{
-          req.files.map((img, i) => {
-            if(newResult[0] === ''){
-              newResult[0] = {
-                type: 'images',
-                url: img.transforms[0].location
-              }
-            }
-          })}
+              })
+            })
+          }
+        }else{
+            newResult.map((obj, i) => {
+                if(obj.type === 'video'){
+                  return {
+                    type: 'video',
+                    url: req.body.video
+                  }
+                  }else {
+                  newResult.push({
+                    type: 'video',
+                    url : req.body.video
+                  })
+                 }
+               })
+          // req.files.map((img, i) => {
+          //   if(newResult[0] === ''){
+          //     newResult[0] = {
+          //       type: 'images',
+          //       url: img.transforms[0].location
+          //     }
+          //   }
+          // })
+        }
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
