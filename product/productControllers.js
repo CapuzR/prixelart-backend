@@ -146,18 +146,30 @@ const updateProduct = async (req, res) => {
               }
                 break;
             default:
+<<<<<<< HEAD
+=======
+                return objParse = {
+                  type: 'images',
+                  url: img
+                }
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
               break;
           }
         })
 
+<<<<<<< HEAD
         if(req.files){
           if(newResult.length >= 5){
             return null
           }else{
+=======
+        if(req.body.video && req.files){
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
             req.files.map((img, i) => {
               newResult.push({
                 type: 'images',
                 url : img.transforms[0].location
+<<<<<<< HEAD
               })
             })
           }
@@ -184,6 +196,40 @@ const updateProduct = async (req, res) => {
           //   }
           // })
         }
+=======
+              });
+            });
+            newResult.map((obj, i) => {
+                if(newResult.length > 5)
+                {
+                  return newResult
+                } else{
+                  if(obj.type != 'video'){
+                    obj = {
+                      type: 'video',
+                      url: req.body.video
+                    }
+                  }
+                }
+
+            })
+            // if(!req.body.video){
+            //   newResult.push({
+            //     type: 'video',
+            //     url : req.body.video
+            //   });
+            // }
+        }else{
+          req.files.map((img, i) => {
+            if(newResult[0] === ''){
+              newResult[0] = {
+                type: 'images',
+                url: img.transforms[0].location
+              }
+            }
+          })}
+          console.log(newResult)
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
