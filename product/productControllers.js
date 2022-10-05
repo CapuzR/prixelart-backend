@@ -148,17 +148,38 @@ const updateProduct = async (req, res) => {
               }
                 break;
             default:
+<<<<<<< HEAD
+=======
+                return objParse = {
+                  type: 'images',
+                  url: img
+                }
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
               break;
           }
         })
+<<<<<<< HEAD
         if(req.files.length > 0){
+=======
+
+<<<<<<< HEAD
+        if(req.files){
+          if(newResult.length >= 5){
+            return null
+          }else{
+=======
+        if(req.body.video && req.files){
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
+>>>>>>> 6b0a87400c8bae26afaeb1e40ccc93f6c798530a
             req.files.map((img, i) => {
               newResult.push({
                 type: 'images',
                 url : img.transforms[0].location
+<<<<<<< HEAD
               })
             })
           }
+<<<<<<< HEAD
           if(req.body.video != ''){
             const currentVideo = newResult.find(result => result.type === 'video');
             if(currentVideo){
@@ -171,6 +192,65 @@ const updateProduct = async (req, res) => {
             }
           }
         console.log(newResult)
+=======
+        }else{
+            newResult.map((obj, i) => {
+                if(obj.type === 'video'){
+                  return {
+                    type: 'video',
+                    url: req.body.video
+                  }
+                  }else {
+                  newResult.push({
+                    type: 'video',
+                    url : req.body.video
+                  })
+                 }
+               })
+          // req.files.map((img, i) => {
+          //   if(newResult[0] === ''){
+          //     newResult[0] = {
+          //       type: 'images',
+          //       url: img.transforms[0].location
+          //     }
+          //   }
+          // })
+        }
+=======
+              });
+            });
+            newResult.map((obj, i) => {
+                if(newResult.length > 5)
+                {
+                  return newResult
+                } else{
+                  if(obj.type != 'video'){
+                    obj = {
+                      type: 'video',
+                      url: req.body.video
+                    }
+                  }
+                }
+
+            })
+            // if(!req.body.video){
+            //   newResult.push({
+            //     type: 'video',
+            //     url : req.body.video
+            //   });
+            // }
+        }else{
+          req.files.map((img, i) => {
+            if(newResult[0] === ''){
+              newResult[0] = {
+                type: 'images',
+                url: img.transforms[0].location
+              }
+            }
+          })}
+          console.log(newResult)
+>>>>>>> e82985ed423e19a66d5f6aed4c12cd73efcaed2c
+>>>>>>> 6b0a87400c8bae26afaeb1e40ccc93f6c798530a
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
