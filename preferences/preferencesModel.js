@@ -8,7 +8,7 @@ const carouselSchema = Schema({
 });
 
 const termsAndConditionsSchema = Schema({
-  termsAndConditions: { type: String, required: true },
+  termsAndConditions: { type: Object, required: true },
 });
 
 const Carousel = mongoose.model("Carousel", carouselSchema, "carousel");

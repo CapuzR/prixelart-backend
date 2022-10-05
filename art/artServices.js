@@ -208,15 +208,61 @@ const readAllByUserId = async (userId) => {
   }
 };
 
-const updateArt = async (art) => {
+const getOneById = async (artId) => {
   try {
-    const toUpdateArt = await Art.findOne({ _id: art._id });
-    toUpdateArt.set(art);
+    const readedArts = await Art.find({ artId: artId })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    if (readedArts) {
+      const data = {
+        info: "Arte encontrado",
+        arts: readedArts,
+      };
+
+      return data;
+    } else {
+      const data = {
+        info: "El arte especificado no existe",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const updateArt = async (artId, artData) => {
+  try {
+    const toUpdateArt = await Art.findByIdAndUpdate(artId);
+    toUpdateArt.artId = artData.artId;
+    toUpdateArt.title = artData.title;
+    toUpdateArt.category = artData.category;
+    toUpdateArt.description = artData.description;
+    toUpdateArt.tags = artData.tags;
+    toUpdateArt.imageUrl = artData.imageUrl;
+    toUpdateArt.thumbnailUrl = artData.thumbnail;
+    toUpdateArt.largeThumbUrl = artData.largeThumbUrl;
+    toUpdateArt.mediumThumbUrl = artData.mediumThumbUrl;
+    toUpdateArt.smallThumbUrl = artData.smallThumbUrl;
+    toUpdateArt.squareThumbUrl = artData.squareThumbUrl;
+    toUpdateArt.userId = artData.userId;
+    toUpdateArt.prixerUsername = artData.prixerUsername;
+    toUpdateArt.status = artData.status;
+    toUpdateArt.publicId = artData.publicId;
+    toUpdateArt.artType = artData.artType;
+    toUpdateArt.originalPhotoWidth = originalPhotoWidth;
+    toUpdateArt.originalPhotoHeight = originalPhotoHeight;
+    toUpdateArt.originalPhotoIso = originalPhotoIso;
+    toUpdateArt.originalPhotoPpi = originalPhotoPpi;
+    toUpdateArt.artLocation = artLocation;
+    toUpdateArt.crops = crops;
+
     const updatedArt = await toUpdateArt.save();
     if (!updatedArt) {
       return console.log("Art update error: " + err);
     }
-
     return "Actualización realizada con éxito.";
   } catch (error) {
     console.log(error);
@@ -254,6 +300,7 @@ module.exports = {
   readByQuery,
   randomArts,
   readAllByUserId,
+  getOneById,
   readOneById,
   updateArt,
   disableArt,

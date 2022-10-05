@@ -67,7 +67,6 @@ const updateTestimonial = async (req, res) => {
 };
 
 const updateVisibility = async (req, res) => {
-  console.log(req.body);
   try {
     const testimonialData = {
       status: req.body.status,

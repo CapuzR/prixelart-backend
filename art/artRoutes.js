@@ -14,6 +14,7 @@ router.post(
   artMiddlewares.uploadThumbnail,
   artControllers.createArt
 );
+router.get("/art/get-by-id/:id", artControllers.getOneById);
 router.post("/art/read-by-prixer", artControllers.readAllByUsername);
 router.get("/art/read-all", artControllers.readAllArts);
 router.get("/art/read-by-query", artControllers.readByQuery);
@@ -23,8 +24,8 @@ router.get(
 );
 router.post("/art/read-by-id", artControllers.readOneById);
 router.get("/art/random", artControllers.randomArts);
-router.post(
-  "/art/update",
+router.put(
+  "/art/update/:id",
   userMdw.ensureAuthenticated,
   artControllers.updateArt
 );
