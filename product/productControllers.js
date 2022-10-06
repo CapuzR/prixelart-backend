@@ -187,14 +187,12 @@ const updateProduct = async (req, res) => {
         variants: req.body.variants ? req.body.variants : [],
         hasSpecialVar: req.body.productHasSpecialVar,
     };
+    console.log(req.body)
     parseObject.variants.push(variants)
     parseObject.attributes.push({
       name: req.body.attributesName,
       value: req.body.attributesValue
     })
-    console.log(variants)
-    console.log(parseObject)
-    console.log(newResult)
     const productResult = await productServices.updateProduct(
       parseObject,
       req.params.id
