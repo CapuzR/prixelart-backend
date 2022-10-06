@@ -10,7 +10,6 @@ router.post('/product/create', adminAuthServices.ensureAuthenticated, productCon
 router.post('/product/read', productControllers.readById);
 router.delete('/product/delete/:id', productControllers.deleteProduct);
 router.get('/product/read-all', productControllers.readAllProducts);
-router.put('/product/update/:id', adminAuthServices.ensureAuthenticated, productControllers.upload.array('newProductImages', 4) , productControllers.updateProduct);
-router.put('/product/create/variant/:id', productControllers.upload.single('variantImage'), productControllers.updateProductWithVariants);
+router.put('/product/update/:id', adminAuthServices.ensureAuthenticated, productControllers.upload.fields([{name:'newProductImages', maxCount: 4}, {name: 'variantImage', maxCount: 1}]) , productControllers.updateProduct);
 
 module.exports = router;
