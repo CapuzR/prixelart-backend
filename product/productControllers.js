@@ -146,25 +146,48 @@ const updateProduct = async (req, res) => {
           break;
       }
     })
-      const variants = {
-        _id: req.body.variant_id,
-        variantImage: req.files['variantImage'][0].transforms[0].location,
-        active: req.body.variantActive,
-        name: req.body.variantName,
-        description: req.body.variantDescription,
-        category: req.body.variantCategory,
-        considerations: req.body.variantConsiderations,
-        publicPrice: {
-          from: req.body.variantPublicPriceFrom,
-          to: req.body.variantPublicPriceTo,
-          equation: req.body.variantPublicPriceEq
-        }, //price
-        prixerPrice: {
-          from: req.body.variantPrixerPriceFrom,
-          to: req.body.variantPrixerPriceTo,
-          equation: req.body.variantPrixerPriceEq
-        }
+
+    const variants = {
+      _id: req.body.variant_id,
+      variantImage: req.files['variantImage'] !== undefined ? req.files['variantImage'][0].transforms[0].location : req.body.variantImage,
+      active: req.body.variantActive,
+      name: req.body.variantName,
+      description: req.body.variantDescription,
+      category: req.body.variantCategory,
+      considerations: req.body.variantConsiderations,
+      attributes: typeof req.body.attributesName  === 'string' ? [{
+        name: req.body.attributesName,
+        value: req.body.attributesValue
+      }]
+      :
+      []
+      ,
+      publicPrice: {
+        from: req.body.variantPublicPriceFrom,
+        to: req.body.variantPublicPriceTo,
+        equation: req.body.variantPublicPriceEq
+      }, //price
+      prixerPrice: {
+        from: req.body.variantPrixerPriceFrom,
+        to: req.body.variantPrixerPriceTo,
+        equation: req.body.variantPrixerPriceEq
       }
+    }
+
+    if(typeof req.body.attributesName === 'object')
+    {
+      const a = req.body.attributesName.map((name, i) => {
+        const b = req.body.attributesValue.map(value => {
+          return value
+        })
+        return {
+          name: name,
+          value: b[i]
+        }
+    })
+      variants.attributes.push(a)
+    }
+
       const parseObject = {
         name: req.body.productName,
         description: req.body.productDescription,
@@ -184,15 +207,10 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: req.body.variants ? req.body.variants : [],
+        variants: req.body.variants !== undefined ? req.body.variants : [],
         hasSpecialVar: req.body.productHasSpecialVar,
     };
-    console.log(req.body)
-    parseObject.variants.push(variants)
-    parseObject.attributes.push({
-      name: req.body.attributesName,
-      value: req.body.attributesValue
-    })
+      parseObject.variants.push(variants)
     const productResult = await productServices.updateProduct(
       parseObject,
       req.params.id
@@ -203,91 +221,82 @@ const updateProduct = async (req, res) => {
   };
     return res.send(data);
   }else{
-      const imagesResult =
-        req?.files['newProductImages']?.length > 0
-          ? typeof req.body.images === "string"
+    const imagesResult =
+      req.files['newProductImages'].length > 0
+        ? typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images
-          : typeof req.body.images === 'string'
-          ? [req.body.images]
-          : req.body.images;
-          const newResult = imagesResult.map((img,  i) => {
+        : typeof req.body.images === 'string'
+        ? [req.body.images]
+        : req.body.images;
+        const newResult = imagesResult.map((img,  i) => {
           switch (img[0]) {
             case 'h':
-            return objParse = {
+            return {
               type: 'images',
               url: img
             }
               break;
               case '<':
-              return objParse = {
+              return {
                 type: 'video',
                 url: img
               }
                 break;
             default:
-            return objParse ={
-              type: 'images',
-              url: img
-            }
               break;
           }
         })
-          if(req.body.video && req.files){
-            req?.files['newProductImages']?.map((img, i) => {
+        if(req.files['newProductImages'].length > 0){
+            req.files['newProductImages'].map((img, i) => {
               newResult.push({
                 type: 'images',
                 url : img.transforms[0].location
-              });
-            });
-            // if(!req.body.video){
-            //   newResult.push({
-            //     type: 'video',
-            //     url : req.body.video
-            //   });
-            // }
-          } else{
-          req?.files['newProductImages']?.map((img, i) => {
-            if(newResult[0] === ''){
-              newResult[0] = {
-                type: 'images',
-                url: img.transforms[0].location
-              }
+              })
+            })
+          }
+          if(req.body.video != ''){
+            const currentVideo = newResult.find(result => result.type === 'video');
+            if(currentVideo){
+              currentVideo.url = req.body.video
+            } else{
+              newResult.push({
+                type: 'video',
+                url: req.body.video
+              })
             }
-          })}
-      const parseObject = {
-        name: req.body.name,
-        description: req.body.description,
-        category: req.body.category,
-        considerations: req.body.considerations,
-        sources:{
-        images: newResult,
-        // video: req.body.video
-        }, //images from Products
-        publicPrice: {
-          from: req.body.publicPriceFrom,
-          to: req.body.publicPriceTo,
-        }, //price
-        prixerPrice: {
-          from: req.body.prixerPriceFrom,
-          to: req.body.prixerPriceTo,
-        }, //prixerPrice
-        attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-        active: req.body.active,
-        variants: req.body.variants ? req.body.variants : [],
-        hasSpecialVar: req.body.hasSpecialVar,
+          }
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      sources:{
+      images: newResult,
+      // video: req.body.video
+      }, //images from Products
+      publicPrice: {
+        from: req.body.publicPriceFrom,
+        to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+        from: req.body.prixerPriceFrom,
+        to: req.body.prixerPriceTo,
+      }, //prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar,
     };
-    console.log(imagesResult)
-    console.log(newResult)
-      const productResult = await productServices.updateProduct(
-        parseObject,
-        req.params.id
-      );
-      data = {
+    const productResult = await productServices.updateProduct(
+      parseObject,
+      req.params.id
+    );
+    data = {
       productResult,
       success: true,
     };
-      return res.send(data);
+    return res.send(data);
     }
   } catch (err) {
     console.log(err)
