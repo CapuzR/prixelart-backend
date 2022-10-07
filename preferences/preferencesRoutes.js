@@ -1,5 +1,3 @@
-const { termsAndConditions } = require("./preferencesModel");
-
 const {
   createImageCarousel,
   upload,
@@ -7,6 +5,8 @@ const {
   readImageCarousel,
   updateImageCarousel,
   deleteImageCarousel,
+  readTermsAndConditions,
+  updateTermsAndConditions,
 } = require("./preferencesController");
 const express = require("express");
 const preferencesRoutes = express.Router();
@@ -25,27 +25,7 @@ preferencesRoutes.put(
 );
 preferencesRoutes.delete("/carousel/:id", deleteImageCarousel);
 
-preferencesRoutes.get("/termsAndConditions/read", async (req, res) => {
-  try {
-    const result = await termsAndConditions.find();
-    res.send({ terms: result[0] });
-  } catch (error) {
-    console.log(error);
-    res.send({ message: 505 });
-  }
-});
-
-preferencesRoutes.put("/termsAndConditions/update", async (req, res) => {
-  try {
-    const result = await termsAndConditions.find();
-    const updating = await termsAndConditions.findOne({ _id: result[0]._id });
-    updating.termsAndConditions = req.body.termsAndConditions;
-    await updating.save();
-    res.send({ terms: updating });
-  } catch (error) {
-    console.log(error);
-    res.send({ message: 505 });
-  }
-});
+preferencesRoutes.get("/termsAndConditions/read", readTermsAndConditions);
+preferencesRoutes.put("/termsAndConditions/update", updateTermsAndConditions);
 
 module.exports = preferencesRoutes;

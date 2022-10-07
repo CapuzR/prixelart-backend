@@ -5,6 +5,8 @@ const sharp = require("sharp");
 const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const { Carousel } = require("./preferencesModel");
+const { termsAndConditions } = require("./preferencesModel");
+
 dotenv.config();
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -77,6 +79,29 @@ const deleteImageCarousel = async (req, res) => {
   res.json({ status: "Image deleted" });
 };
 
+const readTermsAndConditions = async (req, res) => {
+  try {
+    const result = await termsAndConditions.find();
+    res.send({ terms: result[0] });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: 505 });
+  }
+};
+
+const updateTermsAndConditions = async (req, res) => {
+  try {
+    const result = await termsAndConditions.find();
+    const updating = await termsAndConditions.findOne({ _id: result[0]._id });
+    updating.termsAndConditions = req.body.termsAndConditions;
+    await updating.save();
+    res.send({ terms: updating });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: 505 });
+  }
+};
+
 module.exports = {
   createImageCarousel,
   upload,
@@ -84,4 +109,6 @@ module.exports = {
   readImageCarousel,
   updateImageCarousel,
   deleteImageCarousel,
+  readTermsAndConditions,
+  updateTermsAndConditions,
 };
