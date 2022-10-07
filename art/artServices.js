@@ -1,6 +1,7 @@
 const Art = require("./artModel");
 const insensitives = require("../utils/insensitives");
 const { organizeArtData } = require("../utils/util");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 //CRUD
 const createArt = async (artData) => {
@@ -235,29 +236,31 @@ const getOneById = async (artId) => {
 
 const updateArt = async (artId, artData) => {
   try {
-    const toUpdateArt = await Art.findByIdAndUpdate(artId);
-    toUpdateArt.artId = artData.artId;
+    const toUpdateArt = await Art.findOne({ artId });
+    // toUpdateArt.set(art);
+    // const toUpdateArt = await Art.findByIdAndUpdate(artId);
+    // toUpdateArt.artId = artData.artId;
     toUpdateArt.title = artData.title;
     toUpdateArt.category = artData.category;
     toUpdateArt.description = artData.description;
     toUpdateArt.tags = artData.tags;
-    toUpdateArt.imageUrl = artData.imageUrl;
-    toUpdateArt.thumbnailUrl = artData.thumbnail;
-    toUpdateArt.largeThumbUrl = artData.largeThumbUrl;
-    toUpdateArt.mediumThumbUrl = artData.mediumThumbUrl;
-    toUpdateArt.smallThumbUrl = artData.smallThumbUrl;
-    toUpdateArt.squareThumbUrl = artData.squareThumbUrl;
-    toUpdateArt.userId = artData.userId;
-    toUpdateArt.prixerUsername = artData.prixerUsername;
-    toUpdateArt.status = artData.status;
-    toUpdateArt.publicId = artData.publicId;
     toUpdateArt.artType = artData.artType;
-    toUpdateArt.originalPhotoWidth = originalPhotoWidth;
-    toUpdateArt.originalPhotoHeight = originalPhotoHeight;
-    toUpdateArt.originalPhotoIso = originalPhotoIso;
-    toUpdateArt.originalPhotoPpi = originalPhotoPpi;
-    toUpdateArt.artLocation = artLocation;
-    toUpdateArt.crops = crops;
+    toUpdateArt.artLocation = artData.artLocation;
+    // toUpdateArt.imageUrl = artData.imageUrl;
+    // toUpdateArt.thumbnailUrl = artData.thumbnail;
+    // toUpdateArt.largeThumbUrl = artData.largeThumbUrl;
+    // toUpdateArt.mediumThumbUrl = artData.mediumThumbUrl;
+    // toUpdateArt.smallThumbUrl = artData.smallThumbUrl;
+    // toUpdateArt.squareThumbUrl = artData.squareThumbUrl;
+    // toUpdateArt.userId = artData.userId;
+    // toUpdateArt.prixerUsername = artData.prixerUsername;
+    // toUpdateArt.status = artData.status;
+    // toUpdateArt.publicId = artData.publicId;
+    // toUpdateArt.originalPhotoWidth = originalPhotoWidth;
+    // toUpdateArt.originalPhotoHeight = originalPhotoHeight;
+    // toUpdateArt.originalPhotoIso = originalPhotoIso;
+    // toUpdateArt.originalPhotoPpi = originalPhotoPpi;
+    // toUpdateArt.crops = crops;
 
     const updatedArt = await toUpdateArt.save();
     if (!updatedArt) {
@@ -274,7 +277,6 @@ const disableArt = (prixerData) => {};
 
 const deleteArt = async (artId) => {
   try {
-    console.log(artId);
     await Art.findOneAndDelete({ artId: artId });
     return "Arte eliminado exitosamente";
   } catch (error) {

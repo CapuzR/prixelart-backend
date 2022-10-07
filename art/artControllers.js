@@ -14,36 +14,58 @@ const createArt = async (req, res, next) => {
 const updateArt = async (req, res) => {
   try {
     const artData = {
-      artId: req.body.type,
       title: req.body.title,
       category: req.body.category,
       description: req.body.description,
       tags: req.body.tags,
-      imageUrl: req.body.imageUrl,
-      thumbnailUrl: req.body.thumbnailUrl,
-      largeThumbUrl: req.body.largeThumbUrl,
-      mediumThumbUrl: req.body.mediumThumbUrl,
-      smallThumbUrl: req.body.smallThumbUrl,
-      squareThumbUrl: req.body.squareThumbUrl,
-      userId: req.body.userId,
-      prixerUsername: req.body.prixerUsername,
-      status: req.body.status,
-      publicId: req.body.publicId,
       artType: req.body.artType,
-      originalPhotoWidth: req.body.originalPhotoWidth,
-      originalPhotoHeight: req.body.originalPhotoHeight,
-      originalPhotoIso: req.body.originalPhotoIso,
-      originalPhotoPpi: req.body.originalPhotoPpi,
       artLocation: req.body.artLocation,
-      crops: req.body.crops,
     };
-    const updates = await artServices.updateArt(req.params.id, artData);
-    return res.send(updates);
+    const artResult = await artServices.updateArt(req.params.id, artData);
+    data = {
+      data: {
+        artResult,
+        success: true,
+      },
+    };
+    return res.send(artResult);
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 };
+// const updateArt = async (req, res) => {
+//   try {
+//     const artData = {
+//       artId: req.body.type,
+//       title: req.body.title,
+//       category: req.body.category,
+//       description: req.body.description,
+//       tags: req.body.tags,
+//       imageUrl: req.body.imageUrl,
+//       thumbnailUrl: req.body.thumbnailUrl,
+//       largeThumbUrl: req.body.largeThumbUrl,
+//       mediumThumbUrl: req.body.mediumThumbUrl,
+//       smallThumbUrl: req.body.smallThumbUrl,
+//       squareThumbUrl: req.body.squareThumbUrl,
+//       userId: req.body.userId,
+//       prixerUsername: req.body.prixerUsername,
+//       status: req.body.status,
+//       publicId: req.body.publicId,
+//       artType: req.body.artType,
+//       originalPhotoWidth: req.body.originalPhotoWidth,
+//       originalPhotoHeight: req.body.originalPhotoHeight,
+//       originalPhotoIso: req.body.originalPhotoIso,
+//       originalPhotoPpi: req.body.originalPhotoPpi,
+//       artLocation: req.body.artLocation,
+//       crops: req.body.crops,
+//     };
+//     const updates = await artServices.updateArt(req.params.id, artData);
+//     return res.send(updates);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send(err);
+//   }
+// };
 
 const readAllArts = async (req, res) => {
   try {
