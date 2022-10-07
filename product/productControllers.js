@@ -146,10 +146,33 @@ const updateProduct = async (req, res) => {
           break;
       }
     })
+      const newVariantResult = req.body.images?.map((img,  i) => {
+        switch (img[0]) {
+      case 'h':
+      return objParse = {
+        type: 'images',
+        url: img
+      }
+        break;
+        case '<':
+        return objParse = {
+          type: 'video',
+          url: img
+        }
+          break;
+      default:
+      return objParse ={
+        type: 'images',
+        url: img
+      }
+        break;
+    }
+  })
+
 
     const variants = {
       _id: req.body.variant_id,
-      variantImage: req.files['variantImage'] !== undefined ? req.files['variantImage'][0].transforms[0].location : req.body.variantImage,
+      variantImage: req.body.images ? newVariantResult : [],
       active: req.body.variantActive,
       name: req.body.variantName,
       description: req.body.variantDescription,
@@ -173,6 +196,21 @@ const updateProduct = async (req, res) => {
         equation: req.body.variantPrixerPriceEq
       }
     }
+
+    if(req.files['variantImage'].length > 0){
+        req.files['variantImage'].map((img, i) => {
+          variants.variantImage.push({
+            type: 'images',
+            url : img.transforms[0].location
+          })
+        })
+        if(req.body.video){
+          variants.variantImage.push({
+            type: 'video',
+            url : req.body.video
+          });
+        }
+      }
 
     if(typeof req.body.attributesName === 'object')
     {
@@ -207,7 +245,7 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: req.body.variants !== undefined ? req.body.variants : [],
+        variants: req.body.variants ? req.body.variants : [],
         hasSpecialVar: req.body.productHasSpecialVar,
     };
       parseObject.variants.push(variants)
@@ -222,7 +260,7 @@ const updateProduct = async (req, res) => {
     return res.send(data);
   }else{
     const imagesResult =
-      req.files['newProductImages'].length > 0
+      req?.files['newProductImages']?.length > 0
         ? typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images
@@ -247,8 +285,8 @@ const updateProduct = async (req, res) => {
               break;
           }
         })
-        if(req.files['newProductImages'].length > 0){
-            req.files['newProductImages'].map((img, i) => {
+        if(req?.files['newProductImages']?.length > 0){
+            req?.files['newProductImages']?.map((img, i) => {
               newResult.push({
                 type: 'images',
                 url : img.transforms[0].location
