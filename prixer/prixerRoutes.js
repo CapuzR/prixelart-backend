@@ -1,4 +1,7 @@
 "use strict";
+const { upload } =
+  // avatarUpload,
+  require("../preferences/preferencesController");
 
 const express = require("express");
 const router = express.Router();
@@ -17,8 +20,9 @@ router.get("/prixer/read-all-full", prixerControllers.readAllPrixersFull);
 router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
 router.post(
   "/prixer/update",
+  upload.single("avatar"),
   userMdw.ensureAuthenticated,
-  prixerMiddlewares.avatarUpload,
+  // prixerMiddlewares.avatarUpload,
   prixerControllers.updatePrixer
 );
 router.put("/prixer/update-home/:id", prixerControllers.updateVisibility);

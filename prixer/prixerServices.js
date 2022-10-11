@@ -172,7 +172,7 @@ const readAllPrixersFullv2 = async () => {
 const updatePrixer = async (prixerData, userData) => {
   try {
     const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
-    toUpdatePrixer.specialtyArt = prixerData.specialtyArt.split(",");
+    toUpdatePrixer.specialtyArt = prixerData.specialtyArt.split(", ");
     toUpdatePrixer.facebook = prixerData.facebook;
     toUpdatePrixer.twitter = prixerData.twitter;
     toUpdatePrixer.dateOfBirth = prixerData.dateOfBirth;
