@@ -124,7 +124,10 @@ const readAllProductsAdmin = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     if(req.body.variant_id !== undefined){
-      const newResult = req.body.productImages.map((img,  i) => {
+      const newResult = typeof req.body.productImages === 'string' ?
+      [req.body.productImages]
+      :
+      req.body.productImages.map((img,  i) => {
       switch (img[0]) {
         case 'h':
         return objParse = {
@@ -146,13 +149,18 @@ const updateProduct = async (req, res) => {
           break;
       }
     })
-      const newVariantResult = req.body.images?.map((img,  i) => {
+
+      req.body.images ?
+      const newVariantResult = typeof req.body.images === 'string' ?
+      [req.body.images]
+      :
+      req.body.images.map((img,  i) => {
         switch (img[0]) {
-      case 'h':
-      return objParse = {
-        type: 'images',
-        url: img
-      }
+          case 'h':
+          return objParse = {
+            type: 'images',
+            url: img
+          }
         break;
         case '<':
         return objParse = {
@@ -168,7 +176,8 @@ const updateProduct = async (req, res) => {
         break;
     }
   })
-
+      :
+      return undefined
 
     const variants = {
       _id: req.body.variant_id,
@@ -197,7 +206,7 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    if(req.files['variantImage'].length > 0){
+    if(req?.files['variantImage']?.length > 0){
         req.files['variantImage'].map((img, i) => {
           variants.variantImage.push({
             type: 'images',
@@ -225,7 +234,6 @@ const updateProduct = async (req, res) => {
     })
       variants.attributes.push(a)
     }
-
       const parseObject = {
         name: req.body.productName,
         description: req.body.productDescription,
@@ -245,7 +253,7 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: req.body.variants ? req.body.variants : [],
+        variants: req.body.variant_id ? [variants] : [],
         hasSpecialVar: req.body.productHasSpecialVar,
     };
       parseObject.variants.push(variants)
@@ -293,6 +301,7 @@ const updateProduct = async (req, res) => {
               })
             })
           }
+          console.log(newResult)
           if(req.body.video != ''){
             const currentVideo = newResult.find(result => result.type === 'video');
             if(currentVideo){

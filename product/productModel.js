@@ -23,10 +23,7 @@ const ProductSchema = Schema({
     },//prixerPrice
     attributes: { type: Array, required: false}, //activeAttributes
     active: { type: Boolean, required: true },
-    variants: {
-      variants: {type: Array, required: false},
-      images: {type: String, required: false}
-    },
+    variants: {type: Array, required: false},
     hasSpecialVar: { type: Boolean, required: true }
 });
 
