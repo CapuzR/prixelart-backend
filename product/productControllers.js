@@ -123,6 +123,7 @@ const readAllProductsAdmin = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
+<<<<<<< HEAD
     if (req.body.variant_id !== undefined) {
       const newResult = req.body.productImages.map((img, i) => {
         switch (img[0]) {
@@ -200,6 +201,93 @@ const updateProduct = async (req, res) => {
 
       if (req.files["variantImage"].length > 0) {
         req.files["variantImage"].map((img, i) => {
+=======
+    if(req.body.variant_id !== undefined){
+      const newResult = typeof req.body.productImages === 'string' ?
+      [req.body.productImages]
+      :
+      req.body.productImages.map((img,  i) => {
+      switch (img[0]) {
+        case 'h':
+        return objParse = {
+          type: 'images',
+          url: img
+        }
+          break;
+          case '<':
+          return objParse = {
+            type: 'video',
+            url: img
+          }
+            break;
+        default:
+        return objParse ={
+          type: 'images',
+          url: img
+        }
+          break;
+      }
+    })
+
+      req.body.images ?
+      const newVariantResult = typeof req.body.images === 'string' ?
+      [req.body.images]
+      :
+      req.body.images.map((img,  i) => {
+        switch (img[0]) {
+          case 'h':
+          return objParse = {
+            type: 'images',
+            url: img
+          }
+        break;
+        case '<':
+        return objParse = {
+          type: 'video',
+          url: img
+        }
+          break;
+      default:
+      return objParse ={
+        type: 'images',
+        url: img
+      }
+        break;
+    }
+  })
+      :
+      return undefined
+
+    const variants = {
+      _id: req.body.variant_id,
+      variantImage: req.body.images ? newVariantResult : [],
+      active: req.body.variantActive,
+      name: req.body.variantName,
+      description: req.body.variantDescription,
+      category: req.body.variantCategory,
+      considerations: req.body.variantConsiderations,
+      attributes: typeof req.body.attributesName  === 'string' ? [{
+        name: req.body.attributesName,
+        value: req.body.attributesValue
+      }]
+      :
+      []
+      ,
+      publicPrice: {
+        from: req.body.variantPublicPriceFrom,
+        to: req.body.variantPublicPriceTo,
+        equation: req.body.variantPublicPriceEq
+      }, //price
+      prixerPrice: {
+        from: req.body.variantPrixerPriceFrom,
+        to: req.body.variantPrixerPriceTo,
+        equation: req.body.variantPrixerPriceEq
+      }
+    }
+
+    if(req?.files['variantImage']?.length > 0){
+        req.files['variantImage'].map((img, i) => {
+>>>>>>> Products-125
           variants.variantImage.push({
             type: "images",
             url: img.transforms[0].location,
@@ -213,6 +301,7 @@ const updateProduct = async (req, res) => {
         }
       }
 
+<<<<<<< HEAD
       if (typeof req.body.attributesName === "object") {
         const a = req.body.attributesName.map((name, i) => {
           const b = req.body.attributesValue.map((value) => {
@@ -226,6 +315,21 @@ const updateProduct = async (req, res) => {
         variants.attributes.push(a);
       }
 
+=======
+    if(typeof req.body.attributesName === 'object')
+    {
+      const a = req.body.attributesName.map((name, i) => {
+        const b = req.body.attributesValue.map(value => {
+          return value
+        })
+        return {
+          name: name,
+          value: b[i]
+        }
+    })
+      variants.attributes.push(a)
+    }
+>>>>>>> Products-125
       const parseObject = {
         name: req.body.productName,
         description: req.body.productDescription,
@@ -245,7 +349,7 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: req.body.variants ? req.body.variants : [],
+        variants: req.body.variant_id ? [variants] : [],
         hasSpecialVar: req.body.productHasSpecialVar,
       };
       parseObject.variants.push(variants);
@@ -271,6 +375,7 @@ const updateProduct = async (req, res) => {
         switch (img[0]) {
           case "h":
             return {
+<<<<<<< HEAD
               type: "images",
               url: img,
             };
@@ -337,6 +442,73 @@ const updateProduct = async (req, res) => {
         success: true,
       };
       return res.send(data);
+=======
+              type: 'images',
+              url: img
+            }
+              break;
+              case '<':
+              return {
+                type: 'video',
+                url: img
+              }
+                break;
+            default:
+              break;
+          }
+        })
+        if(req?.files['newProductImages']?.length > 0){
+            req?.files['newProductImages']?.map((img, i) => {
+              newResult.push({
+                type: 'images',
+                url : img.transforms[0].location
+              })
+            })
+          }
+          console.log(newResult)
+          if(req.body.video != ''){
+            const currentVideo = newResult.find(result => result.type === 'video');
+            if(currentVideo){
+              currentVideo.url = req.body.video
+            } else{
+              newResult.push({
+                type: 'video',
+                url: req.body.video
+              })
+            }
+          }
+    const parseObject = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      considerations: req.body.considerations,
+      sources:{
+      images: newResult,
+      // video: req.body.video
+      }, //images from Products
+      publicPrice: {
+        from: req.body.publicPriceFrom,
+        to: req.body.publicPriceTo,
+      }, //price
+      prixerPrice: {
+        from: req.body.prixerPriceFrom,
+        to: req.body.prixerPriceTo,
+      }, //prixerPrice
+      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      active: req.body.active,
+      variants: req.body.variants ? req.body.variants : [],
+      hasSpecialVar: req.body.hasSpecialVar,
+    };
+    const productResult = await productServices.updateProduct(
+      parseObject,
+      req.params.id
+    );
+    data = {
+      productResult,
+      success: true,
+    };
+    return res.send(data);
+>>>>>>> Products-125
     }
   } catch (err) {
     console.log(err);
