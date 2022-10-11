@@ -150,8 +150,14 @@ const updateProduct = async (req, res) => {
       }
     })
 
+    console.log(req.body.images)
 
       const newVariantResult = typeof req.body.images === 'string' ?
+      [{
+        type: 'images',
+        url: req.body.images
+      }]
+      :
       req.body.images.map((img,  i) => {
         switch (img[0]) {
           case 'h':
@@ -174,8 +180,6 @@ const updateProduct = async (req, res) => {
         break;
     }
   })
-      :
-      [req.body.images]
 
     const variants = {
       _id: req.body.variant_id,
@@ -299,7 +303,6 @@ const updateProduct = async (req, res) => {
               })
             })
           }
-          console.log(newResult)
           if(req.body.video != ''){
             const currentVideo = newResult.find(result => result.type === 'video');
             if(currentVideo){
