@@ -263,7 +263,7 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: req.body.variant_id ? [] : [],
+        variants: productsVariants != undefined ? productsVariants : [],
         hasSpecialVar: req.body.productHasSpecialVar,
       };
       parseObject.variants.push(variants);
@@ -341,7 +341,7 @@ const updateProduct = async (req, res) => {
       }, //prixerPrice
       attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
       active: req.body.active,
-      variants: req.body.variants ? productsVariants : [],
+      variants: req.body.variants != undefined ? productsVariants : [],
       hasSpecialVar: req.body.hasSpecialVar,
     };
     const productResult = await productServices.updateProduct(
