@@ -1,3 +1,15 @@
+const multer = require("multer");
+const multerS3 = require("multer-s3-transform");
+const dotenv = require("dotenv");
+const sharp = require("sharp");
+const aws = require("aws-sdk");
+const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
+const s3 = new aws.S3({
+  endpoint: spacesEndpoint,
+  accessKeyId: process.env.DO_ACCESS_KEY,
+  secretAccessKey: process.env.DO_ACCESS_SECRET,
+});
+
 const prixerServices = require("./prixerServices");
 const userControllers = require("../user/userControllers/userControllers");
 
@@ -77,7 +89,7 @@ const updatePrixer = async (req, res) => {
       country: req.body.country,
       city: req.body.city,
       username: req.body.username,
-      avatar: req.body.avatar,
+      avatar: req.body.avatar || req.file.transforms[0].location,
       description: req.body.description,
       status: req.body.status,
       termsAgree: req.body.termsAgree,
@@ -94,11 +106,11 @@ const updatePrixer = async (req, res) => {
     return res.send(updates);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 
 const updateVisibility = async (req, res) => {
-  console.log(req.body);
   try {
     const prixerData = {
       status: req.body.status,
@@ -123,6 +135,29 @@ const disablePrixer = async (req, res) => {
   }
 };
 
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.PUBLIC_BUCKET_NAME,
+    acl: "public-read",
+    shouldTransform: function (req, file, cb) {
+      req.body.Id = nanoid(7); //=> "5-JDFkc"
+      cb(null, /^image/i.test(file.mimetype));
+    },
+    transforms: [
+      {
+        id: "largeThumb",
+        key: function (req, file, cb) {
+          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+        },
+        transform: function (req, file, cb) {
+          cb(null, sharp().resize(320, 320).webp({ quality: 80 }));
+        },
+      },
+    ],
+  }),
+});
+
 module.exports = {
   createPrixer,
   readAllPrixers,
@@ -132,6 +167,7 @@ module.exports = {
   disablePrixer,
   readAllPrixersFull,
   readAllPrixersFullv2,
+  upload,
 };
 
 //CRUD END
