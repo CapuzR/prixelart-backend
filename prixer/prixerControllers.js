@@ -17,6 +17,7 @@ const userControllers = require("../user/userControllers/userControllers");
 
 const createPrixer = async (req, res) => {
   try {
+    const imageAvatar = req.file.transforms[0].location;
     const prixerData = {
       specialtyArt: req.body.specialtyArt,
       instagram: req.body.instagram,
@@ -28,7 +29,7 @@ const createPrixer = async (req, res) => {
       city: req.body.city,
       description: req.body.description,
       userId: req.user.id,
-      avatar: req.body.avatar,
+      avatar: imageAvatar,
       username: req.user.username,
       status: req.body.status,
       termsAgree: req.body.termsAgree,
@@ -36,6 +37,7 @@ const createPrixer = async (req, res) => {
 
     res.send(await prixerServices.createPrixer(prixerData));
   } catch (e) {
+    console.log(e);
     res.status(500).send(e);
   }
 };
