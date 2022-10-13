@@ -26,6 +26,7 @@ const ArtSchema = Schema({
   originalPhotoPpi: { type: String, required: false },
   artLocation: { type: String, required: false },
   crops: { type: Array, required: true },
+  points: {type: Number, required: false}
 });
 
 ArtSchema.index(
