@@ -273,7 +273,23 @@ const updateArt = async (artId, artData) => {
   }
 };
 
-const disableArt = (prixerData) => {};
+const disableArt = async (artId, artData) => {
+  try {
+    const toUpdateArt = await Art.findOne({ artId });
+
+    toUpdateArt.disabledReason = artData.disabledReason;
+    toUpdateArt.visible = artData.visible;
+
+    const updatedArt = await toUpdateArt.save();
+    if (!updatedArt) {
+      return console.log("Art update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 
 const deleteArt = async (artId) => {
   try {
