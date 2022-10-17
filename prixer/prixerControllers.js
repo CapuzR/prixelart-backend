@@ -36,6 +36,7 @@ const createPrixer = async (req, res) => {
 
     res.send(await prixerServices.createPrixer(prixerData));
   } catch (e) {
+    console.log(e)
     res.status(500).send(e);
   }
 };
