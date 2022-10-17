@@ -25,8 +25,9 @@ const ArtSchema = Schema({
   originalPhotoIso: { type: String, required: false },
   originalPhotoPpi: { type: String, required: false },
   artLocation: { type: String, required: false },
+  disabledReason: { type: String, required: false },
+  visible: { type: Boolean, required: false },
   crops: { type: Array, required: true },
-  disableReason: {type: String, required: false},
   points: {type: Number, required: false}
 });
 
