@@ -11,6 +11,7 @@ const prixerControllers = require("./prixerControllers");
 
 router.post(
   "/prixer-registration",
+  upload.single("avatar"),
   userMdw.ensureAuthenticated,
   prixerControllers.createPrixer
 );

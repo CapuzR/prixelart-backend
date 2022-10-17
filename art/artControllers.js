@@ -33,6 +33,7 @@ const updateArt = async (req, res) => {
   } catch (err) {
     console.log(err)
     res.status(500).send(err);
+    console.log(err);
   }
 };
 // const updateArt = async (req, res) => {
@@ -160,15 +161,6 @@ const readOneById = async (req, res) => {
   }
 };
 
-// const deleteArt = async (req, res) => {
-//   try {
-//     const readedArt = await artServices.deleteArt(req.artId);
-//     res.send(readedArt);
-//   } catch (error) {
-//     res.status(500).send(err);
-//   }
-// };
-
 async function deleteArt(req, res) {
   try {
     const artResult = await artServices.deleteArt(req.params.id);
@@ -183,16 +175,25 @@ async function deleteArt(req, res) {
   }
 }
 
-// const deleteArt = async (req, res) => {
-//   try {
-//     const artResult = await artServices.deleteArt(req.params.id);
-//     data = {
-//       artResult,
-//       success: true,
-//     };
-//   } catch (error) {
-//     res.status(500).send(err);
-//   }
+const disableArt = async (req, res) => {
+  try {
+    const artData = {
+      disabledReason: req.body.disabledReason,
+      visible: req.body.visible,
+    };
+    const artResult = await artServices.disableArt(req.params.id, artData);
+    data = {
+      data: {
+        artResult,
+        success: true,
+      },
+    };
+    return res.send(artResult);
+  } catch (error) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
 
 module.exports = {
   createArt,
@@ -206,6 +207,7 @@ module.exports = {
   getOneById,
   readOneById,
   deleteArt,
+  disableArt,
 };
 
 // //CRUD END

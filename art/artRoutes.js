@@ -34,6 +34,10 @@ router.delete(
   userMdw.ensureAuthenticated,
   artControllers.deleteArt
 );
-// router.post('/art/disable', userMdw.ensureAuthenticated, artControllers.disableArt);
+router.put(
+  "/art/disable/:id",
+  userMdw.ensureAuthenticated,
+  artControllers.disableArt
+);
 
 module.exports = router;

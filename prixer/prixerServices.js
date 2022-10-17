@@ -18,6 +18,7 @@ const createPrixer = async (prixerData) => {
       };
     }
   } catch (e) {
+    console.log(e);
     return {
       success: false,
       message:
