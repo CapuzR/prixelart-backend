@@ -1,8 +1,7 @@
 const Art = require("./artModel");
-const insensitives = require("../utils/insensitives");
 const { organizeArtData } = require("../utils/util");
 const ObjectId = require("mongoose").Types.ObjectId;
-
+const accents = require("remove-accents");
 //CRUD
 const createArt = async (artData) => {
   const isArt = false;
@@ -154,21 +153,19 @@ const readAllArts = async () => {
 
 const readByQuery = async (query) => {
   try {
-    const text = query.text;
-    const readedArts = await Art.find({
-      $or: [
-        { title: { $regex: text, $options: "i" } },
-        { description: { $regex: text, $options: "i" } },
-        { tags: { $regex: text, $options: "i" } },
-        { artId: { $regex: text, $options: "i" } },
-      ],
-    })
+    const text = accents.remove(query.text).toLowerCase();
+    const readedArts = await Art.find({})
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
-    if (readedArts) {
+    const filterArts = readedArts.filter((art, index) => {
+      const artTitle = accents.remove(art.title).toLowerCase();
+      const artDescription = accents.remove(art.description).toLowerCase();
+      return artTitle.includes(text) || artDescription.includes(text);
+    });
+    if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
-        arts: readedArts,
+        arts: filterArts,
       };
       return data;
     } else {
@@ -176,13 +173,50 @@ const readByQuery = async (query) => {
         info: "No hay artes registrados",
         arts: null,
       };
-      return data;
+      return [];
     }
   } catch (error) {
     console.log(error);
     return error;
   }
 };
+
+// const readByQuery = async (query) => {
+//   try {
+//     const text = query.text.toLowerCase();
+//     const readedArts = await Art.find({
+//       $or: [
+//         { title: { $regex: text, $options: "i" } },
+//         { description: { $regex: text, $options: "i" } },
+//         { tags: { $regex: text, $options: "i" } },
+//         { artId: { $regex: text, $options: "i" } },
+//       ],
+//     })
+//       .select(
+//         "-_id -__v -imageUrl -crops -status"
+//       )
+//       .exec();
+//     for (const { title: t, description: d } of readedArts) {
+//       console.log(accents.remove(t + ", " + d).toLowerCase());
+//     }
+//     if (readedArts) {
+//       const data = {
+//         info: "Todos los artes disponibles",
+//         arts: readedArts,
+//       };
+//       return data;
+//     } else {
+//       const data = {
+//         info: "No hay artes registrados",
+//         arts: null,
+//       };
+//       return data;
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     return error;
+//   }
+// };
 
 const readAllByUserId = async (userId) => {
   try {
