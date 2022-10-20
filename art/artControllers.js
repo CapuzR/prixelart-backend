@@ -177,19 +177,17 @@ async function deleteArt(req, res) {
 
 const disableArt = async (req, res) => {
   try {
-    const artData = {
-      disabledReason: req.body.disabledReason,
-      visible: req.body.visible,
-    };
-    const artResult = await artServices.disableArt(req.params.id, artData);
+    console.log(req.body)
+    const artResult = await artServices.disableArt(req.params.id, req.body);
     data = {
       data: {
         artResult,
         success: true,
       },
     };
+    console.log(data)
     return res.send(artResult);
-  } catch (error) {
+  } catch (err) {
     res.status(500).send(err);
     console.log(err);
   }
