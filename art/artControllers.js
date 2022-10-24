@@ -193,6 +193,15 @@ const disableArt = async (req, res) => {
   }
 };
 
+const rankArt = async (req, res) => {
+  try {
+    console.log(req.body)
+  } catch (err) {
+    console.log(err)
+    res.status(500).send(err)
+  }
+}
+
 module.exports = {
   createArt,
   readAllArts,
