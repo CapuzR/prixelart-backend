@@ -39,5 +39,9 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   artControllers.disableArt
 );
+router.put(
+  '/art/rank/:id',
+   adminAuthServices.ensureAuthenticated,
+    artControllers.rankArt)
 
 module.exports = router;

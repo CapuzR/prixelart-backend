@@ -28,7 +28,7 @@ const ArtSchema = Schema({
   disabledReason: { type: String, required: false },
   visible: { type: Boolean, default: true },
   crops: { type: Array, required: true },
-  points: {type: Number, required: false}
+  points: {type: Number, default: 50}
 });
 
 ArtSchema.index(

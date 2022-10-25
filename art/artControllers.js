@@ -95,7 +95,6 @@ const readByQuery = async (req, res) => {
 
 const readByUsernameByQuery = async (req, res) => {
   try {
-
     req.body.username = req.query.username;
     const user = await userControllers.readUserByUsername(req);
     const query = {
@@ -177,7 +176,6 @@ async function deleteArt(req, res) {
 
 const disableArt = async (req, res) => {
   try {
-    console.log(req.body)
     const artResult = await artServices.disableArt(req.params.id, req.body);
     data = {
       data: {
@@ -196,6 +194,13 @@ const disableArt = async (req, res) => {
 const rankArt = async (req, res) => {
   try {
     console.log(req.body)
+    const artRankResult = await artServices.rankArt(req.params.id, req.body)
+    data = {
+      artRankResult,
+      succes: true
+    }
+    console.log(data)
+    return res.send(artRankResult);
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
@@ -215,6 +220,7 @@ module.exports = {
   readOneById,
   deleteArt,
   disableArt,
+  rankArt
 };
 
 // //CRUD END
