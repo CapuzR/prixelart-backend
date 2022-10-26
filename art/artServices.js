@@ -181,43 +181,6 @@ const readByQuery = async (query) => {
   }
 };
 
-// const readByQuery = async (query) => {
-//   try {
-//     const text = query.text.toLowerCase();
-//     const readedArts = await Art.find({
-//       $or: [
-//         { title: { $regex: text, $options: "i" } },
-//         { description: { $regex: text, $options: "i" } },
-//         { tags: { $regex: text, $options: "i" } },
-//         { artId: { $regex: text, $options: "i" } },
-//       ],
-//     })
-//       .select(
-//         "-_id -__v -imageUrl -crops -status"
-//       )
-//       .exec();
-//     for (const { title: t, description: d } of readedArts) {
-//       console.log(accents.remove(t + ", " + d).toLowerCase());
-//     }
-//     if (readedArts) {
-//       const data = {
-//         info: "Todos los artes disponibles",
-//         arts: readedArts,
-//       };
-//       return data;
-//     } else {
-//       const data = {
-//         info: "No hay artes registrados",
-//         arts: null,
-//       };
-//       return data;
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return error;
-//   }
-// };
-
 const readAllByUserId = async (userId) => {
   try {
     const readedArts = await Art.find({ userId: userId })
@@ -228,7 +191,31 @@ const readAllByUserId = async (userId) => {
         info: "El Prixer sí tiene artes registrados",
         arts: readedArts,
       };
+      return data;
+    } else {
+      const data = {
+        info: "El Prixer no tiene artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 
+const readAllByUserIdV2 = async (username) => {
+  try {
+    const readedArts = await Art.find({ prixerUsername: username })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    if (readedArts) {
+      const data = {
+        info: "El Prixer sí tiene artes registrados",
+        arts: readedArts,
+        username: username,
+      };
       return data;
     } else {
       const data = {
@@ -352,6 +339,7 @@ module.exports = {
   readByQuery,
   randomArts,
   readAllByUserId,
+  readAllByUserIdV2,
   getOneById,
   readOneById,
   updateArt,

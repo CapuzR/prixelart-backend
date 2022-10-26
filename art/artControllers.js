@@ -117,6 +117,7 @@ const readAllByPrixerId = async (req, res) => {
     const readedArts = await artServices.readAllByUserId(req.body.userId);
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
