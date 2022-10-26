@@ -183,7 +183,6 @@ const disableArt = async (req, res) => {
         success: true,
       },
     };
-    console.log(data)
     return res.send(artResult);
   } catch (err) {
     res.status(500).send(err);
@@ -193,13 +192,11 @@ const disableArt = async (req, res) => {
 
 const rankArt = async (req, res) => {
   try {
-    console.log(req.body)
     const artRankResult = await artServices.rankArt(req.params.id, req.body)
     data = {
       artRankResult,
       succes: true
     }
-    console.log(data)
     return res.send(artRankResult);
   } catch (err) {
     console.log(err)
