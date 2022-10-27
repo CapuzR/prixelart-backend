@@ -7,6 +7,7 @@ const createArt = async (req, res, next) => {
   try {
     res.send(await artServices.createArt(req.body));
   } catch (e) {
+    console.log(err);
     res.status(500).send(e);
   }
 };
@@ -30,6 +31,7 @@ const updateArt = async (req, res) => {
     };
     return res.send(artResult);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
     console.log(err);
   }
@@ -73,6 +75,7 @@ const readAllArts = async (req, res) => {
     const readedArts = await artServices.readAllArts();
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -85,6 +88,7 @@ const readByQuery = async (req, res) => {
     const readedArts = await artServices.readByQuery(query);
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -99,6 +103,7 @@ const readByUsernameByQuery = async (req, res) => {
     const readedArts = await artServices.readByUserIdByQuery(user._id, query);
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -108,6 +113,7 @@ const randomArts = async (req, res) => {
     const randomArts = await artServices.randomArts();
     res.send(randomArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -128,6 +134,7 @@ const readAllByUsername = async (req, res) => {
     const readedArts = await artServices.readAllByUserId(user._id);
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -138,6 +145,7 @@ const getOneById = async (req, res) => {
     const readedArts = await artServices.getOneById(art.artId);
     res.send(readedArts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -147,6 +155,7 @@ const readOneById = async (req, res) => {
     const readedArt = await artServices.readOneById(req.body.id);
     res.send(readedArt);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -160,17 +169,14 @@ async function deleteArt(req, res) {
     };
     return res.send(data);
   } catch (error) {
+    console.log(err);
     res.status(500).send(err);
   }
 }
 
 const disableArt = async (req, res) => {
   try {
-    const artData = {
-      disabledReason: req.body.disabledReason,
-      visible: req.body.visible,
-    };
-    const artResult = await artServices.disableArt(req.params.id, artData);
+    const artResult = await artServices.disableArt(req.params.id, req.body);
     data = {
       data: {
         artResult,
@@ -178,9 +184,23 @@ const disableArt = async (req, res) => {
       },
     };
     return res.send(artResult);
-  } catch (error) {
+  } catch (err) {
     res.status(500).send(err);
     console.log(err);
+  }
+};
+
+const rankArt = async (req, res) => {
+  try {
+    const artRankResult = await artServices.rankArt(req.params.id, req.body);
+    data = {
+      artRankResult,
+      succes: true,
+    };
+    return res.send(artRankResult);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
   }
 };
 
@@ -197,6 +217,7 @@ module.exports = {
   readOneById,
   deleteArt,
   disableArt,
+  rankArt,
 };
 
 // //CRUD END

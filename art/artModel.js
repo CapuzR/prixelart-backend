@@ -26,8 +26,9 @@ const ArtSchema = Schema({
   originalPhotoPpi: { type: String, required: false },
   artLocation: { type: String, required: false },
   disabledReason: { type: String, required: false },
-  visible: { type: Boolean, required: false },
+  visible: { type: Boolean, default: true },
   crops: { type: Array, required: true },
+  points: {type: Number, default: 50}
 });
 
 ArtSchema.index(

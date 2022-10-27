@@ -40,6 +40,7 @@ const readOneById = async (artSystemId) => {
   try {
     const readedArt = await Art.findOne({ _id: artSystemId })
       .select("-_id -__v -imageUrl")
+      .sort({ points: -1, visible: -1 })
       .exec();
     if (readedArt) {
       const data = {
@@ -65,7 +66,9 @@ const randomArts = async () => {
   try {
     const docCount = await Art.estimatedDocumentCount();
     var random = Math.floor(Math.random() * docCount);
-    const readedArts = await Art.findOne().skip(random).exec();
+    const readedArts = await Art.findOne()
+      .sort({ points: -1, visible: -1 })
+      .exec();
     if (readedArts) {
       const data = {
         info: "Sorpresa...",
@@ -104,6 +107,7 @@ const readByUserIdByQuery = async (userId, query) => {
       ],
     })
       .select("-_id -__v -imageUrl -crops -status")
+      .sort({ points: -1, visible: -1 })
       .exec();
     if (readedArts) {
       const data = {
@@ -127,6 +131,7 @@ const readByUserIdByQuery = async (userId, query) => {
 const readAllArts = async () => {
   try {
     const readedArts = await Art.find({})
+      .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
@@ -155,6 +160,16 @@ const readByQuery = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
     const readedArts = await Art.find({})
+      // const text = query.text;
+      // const readedArts = await Art.find({
+      //   $or: [
+      //     { title: { $regex: text, $options: "i" } },
+      //     { description: { $regex: text, $options: "i" } },
+      //     { tags: { $regex: text, $options: "i" } },
+      //     { artId: { $regex: text, $options: "i" } },
+      //   ],
+      // })
+      .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     const filterArts = readedArts.filter((art, index) => {
@@ -185,7 +200,11 @@ const readAllByUserId = async (userId) => {
   try {
     const readedArts = await Art.find({ userId: userId })
       .select("-_id -__v -imageUrl -crops -status")
+      .sort({ points: -1, visible: -1 })
       .exec();
+
+    console.log(readedArts);
+
     if (readedArts) {
       const data = {
         info: "El Prixer sí tiene artes registrados",
@@ -233,6 +252,7 @@ const readAllByUserIdV2 = async (username) => {
 const getOneById = async (artId) => {
   try {
     const readedArts = await Art.find({ artId: artId })
+      .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
@@ -312,6 +332,24 @@ const disableArt = async (artId, artData) => {
   }
 };
 
+const rankArt = async (artId, artData) => {
+  try {
+    const fromRank = await Art.findOne({ artId });
+
+    fromRank.points = parseInt(artData.points);
+
+    const artRankUpdated = await fromRank.save();
+
+    if (!artRankUpdated) {
+      return "Art update error";
+    }
+    return "Actualización realizada con éxito";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const deleteArt = async (artId) => {
   try {
     await Art.findOneAndDelete({ artId: artId });
@@ -346,4 +384,5 @@ module.exports = {
   disableArt,
   deleteArt,
   removeArt,
+  rankArt,
 };

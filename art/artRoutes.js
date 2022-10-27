@@ -5,7 +5,7 @@ const router = express.Router();
 const userMdw = require("../user/userMiddlewares");
 const artControllers = require("./artControllers");
 const artMiddlewares = require("./artMiddlewares");
-
+const adminAuthServices = require('../admin/adminServices/adminAuthServices');
 //TODO
 
 router.post(
@@ -37,8 +37,12 @@ router.delete(
 );
 router.put(
   "/art/disable/:id",
-  userMdw.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   artControllers.disableArt
 );
+router.put(
+  '/art/rank/:id',
+   adminAuthServices.ensureAuthenticated,
+    artControllers.rankArt)
 
 module.exports = router;
