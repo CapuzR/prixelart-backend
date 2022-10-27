@@ -40,7 +40,7 @@ const readOneById = async (artSystemId) => {
   try {
     const readedArt = await Art.findOne({ _id: artSystemId })
       .select("-_id -__v -imageUrl")
-      .sort({ points: -1, visible: -1 })
+      // .sort({ points: -1, visible: -1 })
       .exec();
     if (readedArt) {
       const data = {
@@ -107,7 +107,7 @@ const readByUserIdByQuery = async (userId, query) => {
       ],
     })
       .select("-_id -__v -imageUrl -crops -status")
-      .sort({ points: -1, visible: -1 })
+      // .sort({ points: -1, visible: -1 })
       .exec();
     if (readedArts) {
       const data = {
@@ -169,7 +169,7 @@ const readByQuery = async (query) => {
       //     { artId: { $regex: text, $options: "i" } },
       //   ],
       // })
-      .sort({ points: -1, visible: -1 })
+      // .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     const filterArts = readedArts.filter((art, index) => {
@@ -200,16 +200,13 @@ const readAllByUserId = async (userId) => {
   try {
     const readedArts = await Art.find({ userId: userId })
       .select("-_id -__v -imageUrl -crops -status")
-      .sort({ points: -1, visible: -1 })
       .exec();
-
-    console.log(readedArts);
-
     if (readedArts) {
       const data = {
         info: "El Prixer sí tiene artes registrados",
         arts: readedArts,
       };
+
       return data;
     } else {
       const data = {
@@ -252,7 +249,7 @@ const readAllByUserIdV2 = async (username) => {
 const getOneById = async (artId) => {
   try {
     const readedArts = await Art.find({ artId: artId })
-      .sort({ points: -1, visible: -1 })
+      // .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
