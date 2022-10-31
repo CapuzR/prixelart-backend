@@ -285,7 +285,7 @@ const updateProduct = async (req, res) => {
           : typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images;
-      const newResult = imagesResult.map((img, i) => {
+      const newResult = imagesResult?.map((img, i) => {
         switch (img[0]) {
           case "h":
             return {

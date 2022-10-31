@@ -11,6 +11,7 @@ const s3 = new aws.S3({
 });
 
 const prixerServices = require("./prixerServices");
+const artServices = require("../art/artServices");
 const userControllers = require("../user/userControllers/userControllers");
 
 //CRUD
@@ -49,6 +50,7 @@ const readPrixer = async (req, res) => {
     res.send(readedPrixer);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 
@@ -58,6 +60,7 @@ const readAllPrixers = async (req, res) => {
     res.send(readedPrixers);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 
@@ -67,15 +70,29 @@ const readAllPrixersFull = async (req, res) => {
     res.send(readedPrixers);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 
 const readAllPrixersFullv2 = async (req, res) => {
   try {
     const readedPrixers = await prixerServices.readAllPrixersFull();
+    const prixers = readedPrixers.prixers;
+    const promises = prixers.map((prixer) =>
+      artServices.readAllByUserIdV2(prixer.username)
+    );
+    const promiseResult = await Promise.all(promises);
+    const prixerFilter = prixers.filter((prixer) =>
+      promiseResult.find(
+        (group) => prixer.username === group.username && group.arts.length > 0
+      )
+    );
+    readedPrixers.prixers = prixerFilter;
+
     res.send(readedPrixers);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 
@@ -91,7 +108,7 @@ const updatePrixer = async (req, res) => {
       country: req.body.country,
       city: req.body.city,
       username: req.body.username,
-      avatar: req.body.avatar || req.file.transforms[0].location,
+      avatar: req.body.avatar,
       description: req.body.description,
       status: req.body.status,
       termsAgree: req.body.termsAgree,

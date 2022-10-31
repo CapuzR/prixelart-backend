@@ -156,6 +156,7 @@ const readAllPrixersFullv2 = async () => {
         info: "Prixers disponibles",
         prixers: data,
       };
+
       return prixers;
     } else {
       const data = {
