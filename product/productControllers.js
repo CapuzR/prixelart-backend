@@ -285,6 +285,7 @@ const updateProduct = async (req, res) => {
           : typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images;
+
       const newResult = imagesResult?.map((img, i) => {
         switch (img[0]) {
           case "h":
@@ -296,7 +297,7 @@ const updateProduct = async (req, res) => {
               case '<':
               return {
                 type: 'video',
-                url: img
+                url: img 
               }
                 break;
             default:
@@ -305,23 +306,33 @@ const updateProduct = async (req, res) => {
         })
         if(req?.files['newProductImages']?.length > 0){
             req?.files['newProductImages']?.map((img, i) => {
-              newResult.push({
+              newResult?.push({
                 type: 'images',
                 url : img.transforms[0].location
               })
             })
           }
-          if(req.body.video != ''){
+          if(req.body.video === ''){
             const currentVideo = newResult.find(result => result.type === 'video');
             if(currentVideo){
-              currentVideo.url = req.body.video
-            } else{
-              newResult.push({
-                type: 'video',
-                url: req.body.video
-              })
+              const indexVideo = newResult.indexOf(currentVideo)
+              console.log(indexVideo)
+              imagesResult.splice(indexVideo, 1)
             }
+          } else{
+              const currentVideo = newResult.find(result => result.type === 'video');
+              if(currentVideo){
+                currentVideo.url = req.body.video
+              } else{
+                newResult.push({
+                  type: 'video',
+                  url: req.body.video
+                })
+              }
           }
+
+      console.log(imagesResult)
+      console.log(newResult)
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
