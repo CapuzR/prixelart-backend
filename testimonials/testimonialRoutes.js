@@ -12,6 +12,7 @@ const {
   deleteTestimonial,
 } = require("./testimonialController");
 const express = require("express");
+const { updatePosition } = require("./testimonialServices");
 const testimonialRoutes = express.Router();
 
 testimonialRoutes.get("/testimonial/read-all", readAllTestimonials);
@@ -27,6 +28,8 @@ testimonialRoutes.put(
   updateTestimonial
 );
 testimonialRoutes.put("/testimonial/update-home/:id", updateVisibility);
+testimonialRoutes.put("/testimonial/update-position/:id", updatePosition);
+
 testimonialRoutes.delete("/testimonial/read/:id", deleteTestimonial);
 
 module.exports = testimonialRoutes;
