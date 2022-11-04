@@ -15,12 +15,12 @@ preferencesRoutes.get("/carousel", readAllImagesCarousel);
 preferencesRoutes.get("/carousel/:id", readImageCarousel);
 preferencesRoutes.post(
   "/carousel",
-  upload.single("bannerImages"),
+  upload.fields([{name: "bannerImagesDesktop", maxCount: 1}, {name: "bannerImagesMobile", maxCount: 1}]),
   createImageCarousel
 );
 preferencesRoutes.put(
   "/carousel/:id",
-  upload.single("newBannerImages"),
+  upload.fields([{name: "bannerImagesDesktop", maxCount: 1}, {name: "bannerImagesMobile", maxCount: 1}]),
   updateImageCarousel
 );
 preferencesRoutes.delete("/carousel/:id", deleteImageCarousel);

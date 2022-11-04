@@ -27,12 +27,21 @@ const upload = multer({
     },
     transforms: [
       {
-        id: "largeThumb",
+        id: "desktopThumb",
         key: function (req, file, cb) {
           cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
         },
         transform: function (req, file, cb) {
           cb(null, sharp().resize(1300, null).webp({ quality: 80 }));
+        },
+      },
+      {
+        id: "mobileThumb",
+        key: function (req, file, cb) {
+          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+        },
+        transform: function (req, file, cb) {
+          cb(null, sharp().resize(1536, 2730).webp({ quality: 80 }));
         },
       },
     ],
@@ -41,6 +50,7 @@ const upload = multer({
 
 const readAllImagesCarousel = async (req, res) => {
   const imagesCarousels = await Carousel.find();
+  console.log(imagesCarousels)
   res.json({ imagesCarousels });
 };
 
@@ -50,28 +60,72 @@ const readImageCarousel = async (req, res) => {
 };
 
 const createImageCarousel = async (req, res) => {
-  if (req.file) {
-    const urlImg = req.file.transforms[0].location;
+  try{
+  if (req.files['bannerImagesDesktop']) {
     const imagesCarousel = new Carousel({
-      carouselImages: urlImg,
+      images: {
+        type: 'desktop',
+        url: req.files['bannerImagesDesktop'][0].transforms[0].location
+      }
     });
     await imagesCarousel.save();
     res.json({
       status: "Process sucessfull",
       body: req.body,
-      file: urlImg,
     });
-  } else {
+  } else if(req.files['bannerImagesMobile']){
+    const imagesCarousel = new Carousel({
+      images: {
+        type: 'mobile',
+        url: req.files['bannerImagesMobile'][0].transforms[1].location
+      }
+    });
+    await imagesCarousel.save();
+    res.json({
+      status: "Process sucessfull",
+      body: req.body,
+    });
+    console.log(imagesCarousel)
+  }else {
     res.json({ status: "must send a file" });
+  }
+  }catch(err){
+    console.log(err)
+    return res.send(err)
   }
 };
 
 const updateImageCarousel = async (req, res) => {
-  const newUrlImage = req.file.transforms[0].location;
-  await Carousel.findByIdAndUpdate(req.params.id, {
-    carouselImages: newUrlImage,
-  });
-  res.json({ status: "Image Updated" });
+  try{
+    if (req.files['bannerImagesDesktop']) {
+      await Carousel.findByIdAndUpdate(req.params.id, {
+        images: {
+          type: 'desktop',
+          url: req.files['bannerImagesDesktop'][0].transforms[0].location
+        }
+      });
+      res.json({
+        status: "Image updated",
+        body: req.body,
+      });
+    } else if(req.files['bannerImagesMobile']){
+      await Carousel.findByIdAndUpdate(req.params.id, {
+        images: {
+          type: 'mobile',
+          url: req.files['bannerImagesMobile'][0].transforms[1].location
+        }
+      });
+      res.json({
+        status: "Image updated",
+        body: req.body,
+      });
+    }else {
+      res.json({ status: "must send a file" });
+    }
+    }catch(err){
+      console.log(err)
+      return res.send(err)
+    }
 };
 
 const deleteImageCarousel = async (req, res) => {
