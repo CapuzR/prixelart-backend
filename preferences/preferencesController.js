@@ -41,7 +41,6 @@ const upload = multer({
 
 const readAllImagesCarousel = async (req, res) => {
   const imagesCarousels = await Carousel.find();
-  console.log(imagesCarousels)
   res.json({ imagesCarousels });
 };
 
