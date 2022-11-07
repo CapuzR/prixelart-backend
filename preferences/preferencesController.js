@@ -35,15 +35,6 @@ const upload = multer({
           cb(null, sharp().resize(1300, null).webp({ quality: 80 }));
         },
       },
-      {
-        id: "mobileThumb",
-        key: function (req, file, cb) {
-          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
-        },
-        transform: function (req, file, cb) {
-          cb(null, sharp().resize(1536, 2730).webp({ quality: 80 }));
-        },
-      },
     ],
   }),
 });
@@ -77,7 +68,7 @@ const createImageCarousel = async (req, res) => {
     const imagesCarousel = new Carousel({
       images: {
         type: 'mobile',
-        url: req.files['bannerImagesMobile'][0].transforms[1].location
+        url: req.files['bannerImagesMobile'][0].transforms[0].location
       }
     });
     await imagesCarousel.save();
