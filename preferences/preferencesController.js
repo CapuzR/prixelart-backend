@@ -102,7 +102,7 @@ const updateImageCarousel = async (req, res) => {
       await Carousel.findByIdAndUpdate(req.params.id, {
         images: {
           type: 'mobile',
-          url: req.files['bannerImagesMobile'][0].transforms[1].location
+          url: req.files['bannerImagesMobile'][0].transforms[0].location
         }
       });
       res.json({
