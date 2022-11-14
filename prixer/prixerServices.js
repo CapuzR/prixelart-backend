@@ -47,16 +47,29 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["city"] = readedPrixer.city;
   prixer["avatar"] = readedPrixer.avatar;
   prixer["status"] = readedPrixer.status;
-  prixer["termsAgree"] = readedUser.termsAgree;
+  prixer["termsAgree"] = readedPrixer.termsAgree;
 
   return prixer;
 };
 
 const readPrixer = async (prixerData) => {
   //Este prixerData.id debería cambiarse por prixerData.userId. Hay que validar dónde está y cambiarlo (Incluyendo los tests).
-  let readedPrixer = await Prixer.findOne({ userId: prixerData.id }).exec();
+  let readedPrixer = await Prixer.findOne({
+    username: prixerData.username,
+  }).exec();
   if (readedPrixer) {
-    const readedUser = await userService.readUserById({ id: prixerData.id });
+    const readedUser = await userService.readUserById({ id: prixerData._id });
+    const prixer = await mergePrixerAndUser(readedPrixer, readedUser);
+    return prixer;
+  }
+
+  return readedPrixer;
+};
+
+const readPrixerbyId = async (user) => {
+  let readedPrixer = await Prixer.findOne({ userId: user._id }).exec();
+  if (readedPrixer) {
+    const readedUser = await userService.readUserById({ id: user._id });
     const prixer = await mergePrixerAndUser(readedPrixer, readedUser);
     return prixer;
   }
@@ -217,6 +230,42 @@ const updateVisibility = async (prixerId, prixerData) => {
   }
 };
 
+const updateTermsAgreeGeneral = async (prixerId, prixerData) => {
+  try {
+    const toUpdatePrixer = await Prixer.find({
+      _id: prixerId,
+    });
+    toUpdatePrixer.termsAgree = prixerData.termsAgree;
+
+    const updatedPrixer = await toUpdatePrixer.save();
+    if (!updatedPrixer) {
+      return console.log("Prixer update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const updateTermsAgree = async (prixerId, prixerData) => {
+  try {
+    const toUpdatePrixer = await Prixer.findOne({
+      username: prixerId,
+    });
+
+    toUpdatePrixer.termsAgree = prixerData.termsAgree;
+    const updatedPrixer = await toUpdatePrixer.save();
+    if (!updatedPrixer) {
+      return console.log("Prixer update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const disablePrixer = (prixerData) => {};
 
 const removePrixers = async () => {
@@ -234,8 +283,11 @@ module.exports = {
   readAllPrixers,
   readAllPrixersFullv2,
   readPrixer,
+  readPrixerbyId,
   updatePrixer,
   updateVisibility,
+  updateTermsAgreeGeneral,
+  updateTermsAgree,
   disablePrixer,
   removePrixers,
   readAllPrixersFull,

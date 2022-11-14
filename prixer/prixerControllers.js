@@ -45,8 +45,19 @@ const createPrixer = async (req, res) => {
 
 const readPrixer = async (req, res) => {
   try {
-    const user = await userControllers.readUserByUsername(req);
+    const user = await userControllers.readUserByUsername(req.body.username);
     const readedPrixer = await prixerServices.readPrixer(user);
+    res.send(readedPrixer);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
+const getPrixer = async (req, res) => {
+  try {
+    const user = await userControllers.readUserByUsername(req.params.id);
+    const readedPrixer = await prixerServices.readPrixerbyId(user);
     res.send(readedPrixer);
   } catch (err) {
     res.status(500).send(err);
@@ -145,6 +156,38 @@ const updateVisibility = async (req, res) => {
   }
 };
 
+const updateTermsAgreeGeneral = async (req, res) => {
+  try {
+    const prixerData = {
+      termsAgree: req.body.termsAgree,
+    };
+    const updates = await prixerServices.updateTermsAgreeGeneral(
+      req.params.id,
+      prixerData
+    );
+    return res.send(updates);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
+const updateTermsAgree = async (req, res) => {
+  try {
+    const prixerData = {
+      termsAgree: req.body.termsAgree,
+    };
+    const updates = await prixerServices.updateTermsAgree(
+      req.params.id,
+      prixerData
+    );
+    return res.send(updates);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const disablePrixer = async (req, res) => {
   try {
     const disabledUser = await prixerServices.disablePrixer(req.body);
@@ -181,8 +224,11 @@ module.exports = {
   createPrixer,
   readAllPrixers,
   readPrixer,
+  getPrixer,
   updatePrixer,
   updateVisibility,
+  updateTermsAgree,
+  updateTermsAgreeGeneral,
   disablePrixer,
   readAllPrixersFull,
   readAllPrixersFullv2,

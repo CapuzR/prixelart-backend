@@ -91,28 +91,41 @@ const randomArts = async () => {
 
 const readByUserIdByQuery = async (userId, query) => {
   try {
-    const text = query.text;
-    const readedArts = await Art.find({
-      $and: [
-        {
-          userId: userId,
-        },
-        {
-          $or: [
-            { title: { $regex: text, $options: "i" } },
-            { description: { $regex: text, $options: "i" } },
-            { tags: { $regex: text, $options: "i" } },
-          ],
-        },
-      ],
-    })
+    const text = accents.remove(query.text).toLowerCase();
+    const readedArts = await Art.find({ userId: userId })
+      // $and: [
+      //   {
+      //     userId: userId,
+      //   },
+      //   {
+      //     $or: [
+      //       { title: { $regex: text, $options: "i" } },
+      //       { description: { $regex: text, $options: "i" } },
+      //       { category: { $regex: text, $options: "i" } },
+      //       { tags: { $regex: text, $options: "i" } },
+      //     ],
+      //   },
+      // ],
+
       .select("-_id -__v -imageUrl -crops -status")
       // .sort({ points: -1, visible: -1 })
       .exec();
-    if (readedArts) {
+    const filterArts = readedArts.filter((art, index) => {
+      const artTitle = accents.remove(art.title).toLowerCase();
+      const artDescription = accents.remove(art.description).toLowerCase();
+      const artTags = accents.remove(art.tags).toLowerCase();
+      const artCategory = accents.remove(art.category).toLowerCase();
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artCategory.includes(text) ||
+        artTags.includes(text)
+      );
+    });
+    if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
-        arts: readedArts,
+        arts: filterArts,
       };
       return data;
     } else {
@@ -173,9 +186,17 @@ const readByQuery = async (query) => {
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     const filterArts = readedArts.filter((art, index) => {
+      const artTagsList = art.tags;
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
-      return artTitle.includes(text) || artDescription.includes(text);
+      // const artTags = accents.remove(art.tags).toLowerCase();
+      const artCategory = accents.remove(art.category).toLowerCase();
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artCategory.includes(text)
+        // artTags.includes(text)
+      );
     });
     if (filterArts) {
       const data = {
@@ -188,7 +209,7 @@ const readByQuery = async (query) => {
         info: "No hay artes registrados",
         arts: null,
       };
-      return [];
+      return data;
     }
   } catch (error) {
     console.log(error);

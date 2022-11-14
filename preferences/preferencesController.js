@@ -6,6 +6,7 @@ const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const { Carousel } = require("./preferencesModel");
 const { termsAndConditions } = require("./preferencesModel");
+const prixerModel = require("../prixer/prixerModel");
 
 dotenv.config();
 
@@ -139,6 +140,7 @@ const updateTermsAndConditions = async (req, res) => {
     const updating = await termsAndConditions.findOne({ _id: result[0]._id });
     updating.termsAndConditions = req.body.termsAndConditions;
     await updating.save();
+    const changeTerms = await prixerModel.updateMany({}, { termsAgree: false });
     res.send({ terms: updating });
   } catch (error) {
     console.log(error);
