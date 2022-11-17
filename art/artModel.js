@@ -8,7 +8,7 @@ const ArtSchema = Schema({
   title: { type: String, required: true },
   category: { type: String, required: false },
   description: { type: String, required: true },
-  tags: { type: [String], required: true },
+  tags: { type: Array, required: true },
   imageUrl: { type: String, required: true },
   thumbnailUrl: { type: String, required: false },
   largeThumbUrl: { type: String, required: true },
@@ -28,7 +28,7 @@ const ArtSchema = Schema({
   disabledReason: { type: String, required: false },
   visible: { type: Boolean, default: true },
   crops: { type: Array, required: true },
-  points: {type: Number, default: 50}
+  points: { type: Number, default: 50 },
 });
 
 ArtSchema.index(

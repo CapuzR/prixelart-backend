@@ -6,6 +6,7 @@ const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const { Carousel } = require("./preferencesModel");
 const { termsAndConditions } = require("./preferencesModel");
+const prixerModel = require("../prixer/prixerModel");
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ const upload = multer({
     },
     transforms: [
       {
-        id: "largeThumb",
+        id: "desktopThumb",
         key: function (req, file, cb) {
           cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
         },
@@ -50,28 +51,72 @@ const readImageCarousel = async (req, res) => {
 };
 
 const createImageCarousel = async (req, res) => {
-  if (req.file) {
-    const urlImg = req.file.transforms[0].location;
+  try{
+  if (req.files['bannerImagesDesktop']) {
     const imagesCarousel = new Carousel({
-      carouselImages: urlImg,
+      images: {
+        type: 'desktop',
+        url: req.files['bannerImagesDesktop'][0].transforms[0].location
+      }
     });
     await imagesCarousel.save();
     res.json({
       status: "Process sucessfull",
       body: req.body,
-      file: urlImg,
     });
-  } else {
+  } else if(req.files['bannerImagesMobile']){
+    const imagesCarousel = new Carousel({
+      images: {
+        type: 'mobile',
+        url: req.files['bannerImagesMobile'][0].transforms[0].location
+      }
+    });
+    await imagesCarousel.save();
+    res.json({
+      status: "Process sucessfull",
+      body: req.body,
+    });
+    console.log(imagesCarousel)
+  }else {
     res.json({ status: "must send a file" });
+  }
+  }catch(err){
+    console.log(err)
+    return res.send(err)
   }
 };
 
 const updateImageCarousel = async (req, res) => {
-  const newUrlImage = req.file.transforms[0].location;
-  await Carousel.findByIdAndUpdate(req.params.id, {
-    carouselImages: newUrlImage,
-  });
-  res.json({ status: "Image Updated" });
+  try{
+    if (req.files['bannerImagesDesktop']) {
+      await Carousel.findByIdAndUpdate(req.params.id, {
+        images: {
+          type: 'desktop',
+          url: req.files['bannerImagesDesktop'][0].transforms[0].location
+        }
+      });
+      res.json({
+        status: "Image updated",
+        body: req.body,
+      });
+    } else if(req.files['bannerImagesMobile']){
+      await Carousel.findByIdAndUpdate(req.params.id, {
+        images: {
+          type: 'mobile',
+          url: req.files['bannerImagesMobile'][0].transforms[0].location
+        }
+      });
+      res.json({
+        status: "Image updated",
+        body: req.body,
+      });
+    }else {
+      res.json({ status: "must send a file" });
+    }
+    }catch(err){
+      console.log(err)
+      return res.send(err)
+    }
 };
 
 const deleteImageCarousel = async (req, res) => {
@@ -95,6 +140,7 @@ const updateTermsAndConditions = async (req, res) => {
     const updating = await termsAndConditions.findOne({ _id: result[0]._id });
     updating.termsAndConditions = req.body.termsAndConditions;
     await updating.save();
+    const changeTerms = await prixerModel.updateMany({}, { termsAgree: false });
     res.send({ terms: updating });
   } catch (error) {
     console.log(error);

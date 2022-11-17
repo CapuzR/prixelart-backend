@@ -313,14 +313,15 @@ const updateProduct = async (req, res) => {
             })
           }
           if(req.body.video === ''){
-            const currentVideo = newResult.find(result => result.type === 'video');
+            const currentVideo = 
+            newResult.find(result => result?.type === 'video');
             if(currentVideo){
               const indexVideo = newResult.indexOf(currentVideo)
-              console.log(indexVideo)
-              imagesResult.splice(indexVideo, 1)
+              newResult.splice(indexVideo, 1)
             }
           } else{
-              const currentVideo = newResult.find(result => result.type === 'video');
+            const currentVideo = 
+            newResult.find(result => result?.type === 'video')
               if(currentVideo){
                 currentVideo.url = req.body.video
               } else{
@@ -330,9 +331,6 @@ const updateProduct = async (req, res) => {
                 })
               }
           }
-
-      console.log(imagesResult)
-      console.log(newResult)
     const parseObject = {
       name: req.body.name,
       description: req.body.description,

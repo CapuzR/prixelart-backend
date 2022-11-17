@@ -104,6 +104,24 @@ const updateVisibility = async (testimonialId, testimonialData) => {
   }
 };
 
+const updatePosition = async (e, testimonialId, testimonialData, x, y, z) => {
+  try {
+    const toUpdateTestimonial = await Testimonial.findOne({
+      _id: testimonialId,
+    });
+    toUpdateTestimonial.position = testimonialData.position;
+
+    const updatedTestimonial = await toUpdateTestimonial.save();
+    if (!updatedTestimonial) {
+      return console.log("Testimonial update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 const deleteTestimonial = async (testimonialId) => {
   try {
     await Testimonial.findByIdAndDelete(testimonialId);
@@ -120,5 +138,6 @@ module.exports = {
   readAllTestimonials,
   updateTestimonial,
   updateVisibility,
+  updatePosition,
   deleteTestimonial,
 };

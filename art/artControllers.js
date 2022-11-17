@@ -5,9 +5,10 @@ const userControllers = require("../user/userControllers/userControllers");
 
 const createArt = async (req, res, next) => {
   try {
+    if (req.body.tags) req.body.tags = req.body.tags.split(",");
     res.send(await artServices.createArt(req.body));
   } catch (e) {
-    console.log(err);
+    console.log(e);
     res.status(500).send(e);
   }
 };
@@ -130,7 +131,7 @@ const readAllByPrixerId = async (req, res) => {
 
 const readAllByUsername = async (req, res) => {
   try {
-    const user = await userControllers.readUserByUsername(req);
+    const user = await userControllers.readUserByUsername(req.body.username);
     const readedArts = await artServices.readAllByUserId(user._id);
     res.send(readedArts);
   } catch (err) {
