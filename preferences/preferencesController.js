@@ -52,6 +52,10 @@ const readImageCarousel = async (req, res) => {
 
 const createImageCarousel = async (req, res) => {
   try{
+    console.log("req.body", req.body);
+    console.log("req.files", req.files);
+    console.log("bannerImagesDesktop", req.files['bannerImagesDesktop']);
+    console.log("bannerImagesMobile", req.files['bannerImagesMobile']);
   if (req.files['bannerImagesDesktop']) {
     const imagesCarousel = new Carousel({
       images: {

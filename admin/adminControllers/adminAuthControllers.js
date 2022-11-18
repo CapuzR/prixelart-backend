@@ -24,9 +24,7 @@ const createAdmin = async(req, res)=> {
 const adminLogin = async(req, res) => {
 
     try{
-      console.log(req.body);
       const auth = await adminAuthServices.authenticate(req.body);
-      console.log(auth);
       if(auth.error_info) {
         return res.send(auth);    
       }
