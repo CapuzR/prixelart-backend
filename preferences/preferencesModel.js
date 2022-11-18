@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const carouselSchema = Schema({
   images: 
     {
-       type: Object, required: true 
+       type: Object, required: false 
     },
 });
 
