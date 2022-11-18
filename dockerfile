@@ -15,7 +15,7 @@ EXPOSE 8000
 CMD ["npm", "start"]
 # RUN npm run start
 
-# Stage - Productio
+# Stage - Production
 # FROM nginx:1.17-alpine
 # RUN rm /etc/nginx/conf.d/default.conf
 # # COPY nginx.conf /etc/nginx/conf.d/default.conf
