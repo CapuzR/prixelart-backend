@@ -109,6 +109,7 @@ const readAllPrixersFullv2 = async (req, res) => {
 
 const updatePrixer = async (req, res) => {
   try {
+    console.log("req.body", req.body);
     const prixer = {
       specialtyArt: req.body.specialtyArt,
       instagram: req.body.instagram,
