@@ -132,25 +132,27 @@ const updateProduct = async (req, res) => {
       }]
       :
       req.body.productImages.map((img,  i) => {
-      switch (img[0]) {
-        case 'h':
-        return objParse = {
-          type: 'images',
-          url: img
-        }
-          break;
+      if (img) {
+        switch (img[0]) {
+          case 'h':
+          return objParse = {
+            type: 'images',
+            url: img
+          }
+            break;
           case '<':
           return objParse = {
             type: 'video',
             url: img
           }
+              break;
+          default:
+          return objParse ={
+            type: 'images',
+            url: img
+          }
             break;
-        default:
-        return objParse ={
-          type: 'images',
-          url: img
         }
-          break;
       }
     })
       req.body.images !== undefined?
@@ -313,15 +315,19 @@ const updateProduct = async (req, res) => {
             })
           }
           if(req.body.video === ''){
-            const currentVideo = 
-            newResult.find(result => result?.type === 'video');
+            const currentVideo = null;
+            if (newResult){
+              currentVideo = newResult.find(result => result?.type === 'video');
+            };
             if(currentVideo){
               const indexVideo = newResult.indexOf(currentVideo)
               newResult.splice(indexVideo, 1)
             }
           } else{
-            const currentVideo = 
-            newResult.find(result => result?.type === 'video')
+            const currentVideo = null;
+            if (newResult){
+              currentVideo = newResult.find(result => result?.type === 'video')
+            };
               if(currentVideo){
                 currentVideo.url = req.body.video
               } else{
