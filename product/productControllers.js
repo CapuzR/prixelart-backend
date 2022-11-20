@@ -222,7 +222,7 @@ const updateProduct = async (req, res) => {
         });
       }
       if(req.body.video != ''){
-        const currentVideo = newResult.find(result => result.type === 'video');
+        let currentVideo = newResult.find(result => result.type === 'video');
         if(currentVideo){
           currentVideo.url = req.body.video
         } else{
@@ -315,7 +315,7 @@ const updateProduct = async (req, res) => {
             })
           }
           if(req.body.video === ''){
-            const currentVideo = null;
+            let currentVideo = null;
             if (newResult){
               currentVideo = newResult.find(result => result?.type === 'video');
             };
@@ -324,7 +324,7 @@ const updateProduct = async (req, res) => {
               newResult.splice(indexVideo, 1)
             }
           } else{
-            const currentVideo = null;
+            let currentVideo = null;
             if (newResult){
               currentVideo = newResult.find(result => result?.type === 'video')
             };
