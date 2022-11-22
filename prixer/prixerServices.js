@@ -185,6 +185,7 @@ const readAllPrixersFullv2 = async () => {
 };
 
 const updatePrixer = async (prixerData, userData) => {
+  console.log(prixerData);
   try {
     const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
     toUpdatePrixer.specialtyArt = prixerData.specialtyArt.split(",");
