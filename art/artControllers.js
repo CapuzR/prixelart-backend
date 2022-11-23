@@ -94,6 +94,33 @@ const readByQuery = async (req, res) => {
   }
 };
 
+const readByCategory = async (req, res) => {
+  try {
+    const category = {
+      category: req.query.category,
+    };
+    const readedArts = await artServices.readByCategory(category);
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
+const readByQueryAndCategory = async (req, res) => {
+  try {
+    const query = {
+      text: req.query.text,
+      category: req.query.category,
+    };
+    const readedArts = await artServices.readByQueryAndCategory(query);
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const readByUsernameByQuery = async (req, res) => {
   try {
     req.body.username = req.query.username;
@@ -210,6 +237,8 @@ module.exports = {
   readAllArts,
   readByUsernameByQuery,
   readByQuery,
+  readByCategory,
+  readByQueryAndCategory,
   randomArts,
   updateArt,
   readAllByPrixerId,
