@@ -304,6 +304,12 @@ const updateProduct = async (req, res) => {
               break;
           }
         })
+
+        console.log(newResult)
+        console.log(imagesResult)
+        console.log(req.body.video)
+        console.log(req.body.images)
+
         if(req?.files['newProductImages']?.length > 0){
             req?.files['newProductImages']?.map((img, i) => {
               newResult?.push({
