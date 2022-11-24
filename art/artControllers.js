@@ -123,8 +123,7 @@ const readByQueryAndCategory = async (req, res) => {
 
 const readByUsernameByQuery = async (req, res) => {
   try {
-    req.body.username = req.query.username;
-    const user = await userControllers.readUserByUsername(req);
+    const user = await userControllers.readUserByUsername(req.query.username);
     const query = {
       text: req.query.text,
     };
