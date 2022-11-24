@@ -4,7 +4,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const carouselSchema = Schema({
-  carouselImages: { type: [String], required: true },
+  images: 
+    {
+       type: Object, required: true 
+    },
 });
 
 const termsAndConditionsSchema = Schema({
