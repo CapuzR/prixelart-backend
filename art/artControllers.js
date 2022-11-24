@@ -96,8 +96,8 @@ const readByQuery = async (req, res) => {
 
 const readByUsernameByQuery = async (req, res) => {
   try {
-    req.body.username = req.query.username;
-    const user = await userControllers.readUserByUsername(req);
+    const username = req.query.username;
+    const user = await userControllers.readUserByUsername(username);
     const query = {
       text: req.query.text,
     };

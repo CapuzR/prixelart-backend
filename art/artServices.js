@@ -113,13 +113,13 @@ const readByUserIdByQuery = async (userId, query) => {
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
-      const artTags = accents.remove(art.tags).toLowerCase();
+      // const artTags = accents.remove(art.tags).toLowerCase();
       const artCategory = accents.remove(art.category).toLowerCase();
       return (
         artTitle.includes(text) ||
         artDescription.includes(text) ||
-        artCategory.includes(text) ||
-        artTags.includes(text)
+        artCategory.includes(text)
+        // artTags.includes(text)
       );
     });
     if (filterArts) {
