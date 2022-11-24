@@ -280,8 +280,9 @@ const updateProduct = async (req, res) => {
       return res.send(data);
     } else {
       const imagesResult =
-        req?.files["newProductImages"]?.length > 0
-          ? typeof req.body.images === "string"
+      req.files["newProductImages"] !== [undefined] 
+      && req.files["newProductImages"]?.length > 0 ? 
+           typeof req.body.images === "string"
             ? [req.body.images]
             : req.body.images
           : typeof req.body.images === "string"
@@ -306,6 +307,7 @@ const updateProduct = async (req, res) => {
               break;
           }
         })
+
         if(req?.files['newProductImages']?.length > 0){
             req?.files['newProductImages']?.map((img, i) => {
               newResult?.push({

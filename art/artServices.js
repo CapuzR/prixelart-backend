@@ -190,11 +190,17 @@ const readByQuery = async (query) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       // const artTags = accents.remove(art.tags).toLowerCase();
-      const artCategory = accents.remove(art.category).toLowerCase();
+      if (art.category) {
+        const artCategory = accents.remove(art.category).toLowerCase();
+        return (
+          artTitle.includes(text) ||
+          artDescription.includes(text) ||
+          artCategory.includes(text)
+          // artTags.includes(text)
+        );
+      }
       return (
-        artTitle.includes(text) ||
-        artDescription.includes(text) ||
-        artCategory.includes(text)
+        artTitle.includes(text) || artDescription.includes(text)
         // artTags.includes(text)
       );
     });
