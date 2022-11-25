@@ -152,9 +152,10 @@ const updateProduct = async (req, res) => {
         }
           break;
       }
-    })
-      req.body.images !== undefined?
-      newVariantResult = typeof req.body.images === 'string' ?
+    });
+    let newVariantResult;
+      if(req.body.images !== undefined){
+       let newVariantResult = typeof req.body.images === 'string' ?
       [{
         type: 'images',
         url: req.body.images
@@ -181,9 +182,10 @@ const updateProduct = async (req, res) => {
       }
         break;
     }
-  })
-      :
-      ''
+    });
+    return newVariantResult;
+  }
+ 
     const variants = {
       _id: req.body.variant_id,
       variantImage: req.body.images ? newVariantResult : [],
@@ -210,8 +212,7 @@ const updateProduct = async (req, res) => {
         equation: req.body.variantPrixerPriceEq
       }
     }
-
-    if(req?.files['variantImage']?.length > 0){
+    if(req.files['variantImage'].length >= 0 || req.files['variantImage'].length === 0){
         req.files['variantImage'].map((img, i) => {
           variants.variantImage.push({
             type: "images",
@@ -263,10 +264,9 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: productsVariants != undefined ? productsVariants : [],
+        variants: variants,
         hasSpecialVar: req.body.productHasSpecialVar,
       };
-      parseObject.variants.push(variants);
       const productResult = await productServices.updateProduct(
         parseObject,
         req.params.id
