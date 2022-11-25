@@ -153,7 +153,8 @@ const updateProduct = async (req, res) => {
           break;
       }
     });
-    req.body.images !== undefined?
+    let newVariantResult;
+    if(req.body.images !== undefined){
     newVariantResult = typeof req.body.images === 'string' ?
     [{
       type: 'images',
@@ -182,8 +183,9 @@ const updateProduct = async (req, res) => {
       break;
   }
 })
-    :
-    ''
+
+  return newVariantResult;
+}
  
     const variants = {
       _id: req.body.variant_id,
@@ -219,17 +221,25 @@ const updateProduct = async (req, res) => {
           });
         });
       }
-      if(req.body.video != ''){
-        const currentVideo = newResult.find(result => result.type === 'video');
+      if(req.body.video !== ''){
+        const currentVideo = newVariantResult?.find(result => result.type === 'video');
         if(currentVideo){
-          currentVideo.url = req.body.video
+          currentVideo.url = req.body.video;
         } else{
+          const currentVideo = newVariantResult?.find(result => result?.type === 'video');
+          if(currentVideo && req.body.video === ''){
+            const indexVideo = newVariantResult.indexOf(currentVideo)
+            newVariantResult.splice(indexVideo, 1)
+          } else{
           variants.variantImage.push({
             type: 'video',
             url: req.body.video
           })
+          }
         }
       } 
+
+      console.log(variants)
 
     if(typeof req.body.attributesName === 'object')
     {
