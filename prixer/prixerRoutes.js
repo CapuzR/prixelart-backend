@@ -1,11 +1,11 @@
 "use strict";
 const { upload } =
-  // avatarUpload,
+  // avatarUpload
   require("../preferences/preferencesController");
 
 const express = require("express");
 const router = express.Router();
-const prixerMiddlewares = require("./prixerMiddlewares");
+// const prixerMiddlewares = require("./prixerMiddlewares");
 const userMdw = require("../user/userMiddlewares");
 const prixerControllers = require("./prixerControllers");
 const prixerServices = require("./prixerServices");
@@ -23,6 +23,7 @@ router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
 router.post(
   "/prixer/update",
   upload.single("avatar"),
+  // prixerMiddlewares.avatarUpload,
   userMdw.ensureAuthenticated,
   prixerControllers.updatePrixer
 );
