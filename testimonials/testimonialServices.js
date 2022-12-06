@@ -104,7 +104,7 @@ const updateVisibility = async (testimonialId, testimonialData) => {
   }
 };
 
-const updatePosition = async (e, testimonialId, testimonialData, x, y, z) => {
+const updatePosition = async (testimonialId, testimonialData) => {
   try {
     const toUpdateTestimonial = await Testimonial.findOne({
       _id: testimonialId,

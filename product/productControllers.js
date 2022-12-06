@@ -154,38 +154,41 @@ const updateProduct = async (req, res) => {
             break;
         }
       }
-    })
-      req.body.images !== undefined?
-      newVariantResult = typeof req.body.images === 'string' ?
-      [{
-        type: 'images',
-        url: req.body.images
-      }]
-      :
-      req.body.images.map((img,  i) => {
-        switch (img[0]) {
-          case 'h':
-          return objParse = {
-            type: 'images',
-            url: img
-          }
-        break;
-        case '<':
+    });
+    let newVariantResult;
+    if(req.body.images !== undefined){
+    newVariantResult = typeof req.body.images === 'string' ?
+    [{
+      type: 'images',
+      url: req.body.images
+    }]
+    :
+    req.body.images.map((img,  i) => {
+      switch (img[0]) {
+        case 'h':
         return objParse = {
-          type: 'video',
+          type: 'images',
           url: img
         }
-          break;
-      default:
-      return objParse ={
-        type: 'images',
+      break;
+      case '<':
+      return objParse = {
+        type: 'video',
         url: img
       }
         break;
+    default:
+    return objParse ={
+      type: 'images',
+      url: img
     }
-  })
-      :
-      ''
+      break;
+  }
+})
+
+  return newVariantResult;
+}
+ 
     const variants = {
       _id: req.body.variant_id,
       variantImage: req.body.images ? newVariantResult : [],
@@ -212,8 +215,7 @@ const updateProduct = async (req, res) => {
         equation: req.body.variantPrixerPriceEq
       }
     }
-
-    if(req?.files['variantImage']?.length > 0){
+    if(req.files['variantImage']?.length > 0){
         req.files['variantImage'].map((img, i) => {
           variants.variantImage.push({
             type: "images",
@@ -221,17 +223,25 @@ const updateProduct = async (req, res) => {
           });
         });
       }
-      if(req.body.video != ''){
-        let currentVideo = newResult.find(result => result.type === 'video');
+      if(req.body.video !== ''){
+        const currentVideo = newVariantResult?.find(result => result.type === 'video');
         if(currentVideo){
-          currentVideo.url = req.body.video
+          currentVideo.url = req.body.video;
         } else{
+          const currentVideo = newVariantResult?.find(result => result?.type === 'video');
+          if(currentVideo && req.body.video === ''){
+            const indexVideo = newVariantResult.indexOf(currentVideo)
+            newVariantResult.splice(indexVideo, 1)
+          } else{
           variants.variantImage.push({
             type: 'video',
             url: req.body.video
           })
+          }
         }
-      }
+      } 
+
+      console.log(variants)
 
     if(typeof req.body.attributesName === 'object')
     {
@@ -265,10 +275,9 @@ const updateProduct = async (req, res) => {
         }, //prixerPrice
         attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
         active: req.body.productActive,
-        variants: productsVariants != undefined ? productsVariants : [],
+        variants: variants,
         hasSpecialVar: req.body.productHasSpecialVar,
       };
-      parseObject.variants.push(variants);
       const productResult = await productServices.updateProduct(
         parseObject,
         req.params.id

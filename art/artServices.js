@@ -93,35 +93,23 @@ const readByUserIdByQuery = async (userId, query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
     const readedArts = await Art.find({ userId: userId })
-      // $and: [
-      //   {
-      //     userId: userId,
-      //   },
-      //   {
-      //     $or: [
-      //       { title: { $regex: text, $options: "i" } },
-      //       { description: { $regex: text, $options: "i" } },
-      //       { category: { $regex: text, $options: "i" } },
-      //       { tags: { $regex: text, $options: "i" } },
-      //     ],
-      //   },
-      // ],
-
       .select("-_id -__v -imageUrl -crops -status")
-      // .sort({ points: -1, visible: -1 })
       .exec();
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
-      // const artTags = accents.remove(art.tags).toLowerCase();
-      const artCategory = accents.remove(art.category).toLowerCase();
-      return (
-        artTitle.includes(text) ||
-        artDescription.includes(text) ||
-        artCategory.includes(text)
-        // artTags.includes(text)
-      );
+      if (art.category) {
+        const artCategory = accents.remove(art.category).toLowerCase();
+
+        return (
+          artTitle.includes(text) ||
+          artDescription.includes(text) ||
+          artCategory.includes(text)
+        );
+      }
+      return artTitle.includes(text) || artDescription.includes(text);
     });
+
     if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
@@ -169,45 +157,96 @@ const readAllArts = async () => {
   }
 };
 
+const readByQueryAndCategory = async (query) => {
+  try {
+    const text = accents.remove(query.text).toLowerCase();
+    const category = query.category;
+    const readedArts = await Art.find({ category: category })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    const filterArts = readedArts.filter((art, index) => {
+      const artTitle = accents.remove(art.title).toLowerCase();
+      const artDescription = accents.remove(art.description).toLowerCase();
+      if (art.category) {
+        const artCategory = accents.remove(art.category).toLowerCase();
+
+        return (
+          artTitle.includes(text) ||
+          artDescription.includes(text) ||
+          artCategory.includes(text)
+        );
+      }
+      return artTitle.includes(text) || artDescription.includes(text);
+    });
+
+    if (filterArts) {
+      const data = {
+        info: "Todos los artes disponibles",
+        arts: filterArts,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const readByQuery = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
     const readedArts = await Art.find({})
-      // const text = query.text;
-      // const readedArts = await Art.find({
-      //   $or: [
-      //     { title: { $regex: text, $options: "i" } },
-      //     { description: { $regex: text, $options: "i" } },
-      //     { tags: { $regex: text, $options: "i" } },
-      //     { artId: { $regex: text, $options: "i" } },
-      //   ],
-      // })
-      // .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     const filterArts = readedArts.filter((art, index) => {
-      const artTagsList = art.tags;
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
-      // const artTags = accents.remove(art.tags).toLowerCase();
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
           artCategory.includes(text)
-          // artTags.includes(text)
         );
       }
-      return (
-        artTitle.includes(text) || artDescription.includes(text)
-        // artTags.includes(text)
-      );
+      return artTitle.includes(text) || artDescription.includes(text);
     });
+
     if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
         arts: filterArts,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const readByCategory = async (query) => {
+  try {
+    const category = query.category;
+    const readedArts = await Art.find({ category: category })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    if (readedArts) {
+      const data = {
+        info: "Todos los artes disponibles",
+        arts: readedArts,
       };
       return data;
     } else {
@@ -398,7 +437,9 @@ module.exports = {
   createArt,
   readByUserIdByQuery,
   readAllArts,
+  readByQueryAndCategory,
   readByQuery,
+  readByCategory,
   randomArts,
   readAllByUserId,
   readAllByUserIdV2,

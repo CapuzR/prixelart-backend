@@ -10,9 +10,10 @@ const {
   updateTestimonial,
   updateVisibility,
   deleteTestimonial,
+  updatePosition,
 } = require("./testimonialController");
 const express = require("express");
-const { updatePosition } = require("./testimonialServices");
+// const { updatePosition } = require("./testimonialServices");
 const testimonialRoutes = express.Router();
 
 testimonialRoutes.get("/testimonial/read-all", readAllTestimonials);
