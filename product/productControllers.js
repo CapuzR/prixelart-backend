@@ -323,14 +323,7 @@ const updateProduct = async (req, res) => {
               })
             })
           }
-          if(req.body.video === ''){
-            const currentVideo = 
-            newResult.find(result => result?.type === 'video');
-            if(currentVideo){
-              const indexVideo = newResult.indexOf(currentVideo)
-              newResult.splice(indexVideo, 1)
-            }
-          } else{
+          if(req.body.video !== ''){
             const currentVideo = 
             newResult.find(result => result?.type === 'video')
               if(currentVideo){
@@ -364,6 +357,11 @@ const updateProduct = async (req, res) => {
       variants: req.body.variants != undefined ? productsVariants : [],
       hasSpecialVar: req.body.hasSpecialVar,
     };
+
+    // console.log(parseObject.sources.images);
+    // console.log(imagesResult);
+    // console.log(newResult);
+
     const productResult = await productServices.updateProduct(
       parseObject,
       req.params.id
