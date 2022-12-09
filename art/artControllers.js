@@ -34,7 +34,6 @@ const updateArt = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
-    console.log(err);
   }
 };
 // const updateArt = async (req, res) => {
@@ -121,13 +120,43 @@ const readByQueryAndCategory = async (req, res) => {
   }
 };
 
-const readByUsernameByQuery = async (req, res) => {
+const readByUsernameQueryAndCategory = async (req, res) => {
   try {
-    const user = await userControllers.readUserByUsername(req.query.username);
+    const user = req.query.username;
+    const query = {
+      text: req.query.text,
+      category: req.query.category,
+    };
+    const readedArts = await artServices.readByUserIdQueryAndCategory(
+      user,
+      query
+    );
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+const readByUsernameAndCategory = async (req, res) => {
+  try {
+    const user = req.query.username;
+    const query = {
+      category: req.query.category,
+    };
+    const readedArts = await artServices.readByUserIdAndCategory(user, query);
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+const readByUsernameAndQuery = async (req, res) => {
+  try {
+    const user = req.query.username;
     const query = {
       text: req.query.text,
     };
-    const readedArts = await artServices.readByUserIdByQuery(user._id, query);
+    const readedArts = await artServices.readByUserIdByQuery(user, query);
     res.send(readedArts);
   } catch (err) {
     console.log(err);
@@ -234,7 +263,9 @@ const rankArt = async (req, res) => {
 module.exports = {
   createArt,
   readAllArts,
-  readByUsernameByQuery,
+  readByUsernameAndQuery,
+  readByUsernameQueryAndCategory,
+  readByUsernameAndCategory,
   readByQuery,
   readByCategory,
   readByQueryAndCategory,

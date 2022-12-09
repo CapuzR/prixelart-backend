@@ -57,8 +57,8 @@ const readOneById = async (artSystemId) => {
       return data;
     }
   } catch (e) {
-    console.log(error);
-    return error;
+    console.log(e);
+    return e;
   }
 };
 
@@ -89,10 +89,82 @@ const randomArts = async () => {
   }
 };
 
-const readByUserIdByQuery = async (userId, query) => {
+const readByUserIdByQuery = async (user, query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
-    const readedArts = await Art.find({ userId: userId })
+    const readedArts = await Art.find({ prixerUsername: user })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    const filterArts = readedArts.filter((art, index) => {
+      const artTitle = accents.remove(art.title).toLowerCase();
+      const artDescription = accents.remove(art.description).toLowerCase();
+      if (art.category) {
+        const artCategory = accents.remove(art.category).toLowerCase();
+
+        return (
+          artTitle.includes(text) ||
+          artDescription.includes(text) ||
+          artCategory.includes(text)
+        );
+      }
+      return artTitle.includes(text) || artDescription.includes(text);
+    });
+
+    if (filterArts) {
+      const data = {
+        info: "Todos los artes del Prixer disponibles",
+        arts: filterArts,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const readByUserIdAndCategory = async (user, query) => {
+  try {
+    const category = query.category;
+    const readedArts = await Art.find({
+      prixerUsername: user,
+      category: category,
+    })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    if (readedArts) {
+      const data = {
+        info: "Todos los artes del Prixer disponibles",
+        arts: readedArts,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const readByUserIdQueryAndCategory = async (user, query) => {
+  try {
+    const text = accents.remove(query.text).toLowerCase();
+    const category = query.category;
+    const readedArts = await Art.find({
+      prixerUsername: user,
+      category: category,
+    })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     const filterArts = readedArts.filter((art, index) => {
@@ -436,6 +508,8 @@ const removeArt = async () => {
 module.exports = {
   createArt,
   readByUserIdByQuery,
+  readByUserIdAndCategory,
+  readByUserIdQueryAndCategory,
   readAllArts,
   readByQueryAndCategory,
   readByQuery,
