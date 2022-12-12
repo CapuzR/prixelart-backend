@@ -91,7 +91,7 @@ const randomArts = async () => {
 
 const readByUserIdByQuery = async (user, query) => {
   try {
-    const text = accents.remove(query.text).toLowerCase();
+    const text = accents.remove(query).toLowerCase();
     const readedArts = await Art.find({ prixerUsername: user })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
@@ -131,10 +131,9 @@ const readByUserIdByQuery = async (user, query) => {
 
 const readByUserIdAndCategory = async (user, query) => {
   try {
-    const category = query.category;
     const readedArts = await Art.find({
       prixerUsername: user,
-      category: category,
+      category: query,
     })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();

@@ -140,9 +140,7 @@ const readByUsernameQueryAndCategory = async (req, res) => {
 const readByUsernameAndCategory = async (req, res) => {
   try {
     const user = req.query.username;
-    const query = {
-      category: req.query.category,
-    };
+    const query = req.query.category;
     const readedArts = await artServices.readByUserIdAndCategory(user, query);
     res.send(readedArts);
   } catch (err) {
@@ -153,9 +151,7 @@ const readByUsernameAndCategory = async (req, res) => {
 const readByUsernameAndQuery = async (req, res) => {
   try {
     const user = req.query.username;
-    const query = {
-      text: req.query.text,
-    };
+    const query = req.query.text;
     const readedArts = await artServices.readByUserIdByQuery(user, query);
     res.send(readedArts);
   } catch (err) {
