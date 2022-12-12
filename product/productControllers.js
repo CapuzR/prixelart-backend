@@ -338,6 +338,7 @@ const updateProduct = async (req, res) => {
         const currentVideo = newResult.find(
           (result) => result?.type === "video"
         );
+        // console.log(currentVideo)
         if (currentVideo) {
           currentVideo.url = req.body.video;
         } else {
