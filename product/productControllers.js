@@ -108,6 +108,7 @@ const readAllProducts = async (req, res) => {
     const readedProducts = await productServices.readAllProducts();
     res.send(readedProducts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -117,145 +118,153 @@ const readAllProductsAdmin = async (req, res) => {
     const readedProducts = await productServices.readAllProductsAdmin();
     res.send(readedProducts);
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
 
 const updateProduct = async (req, res) => {
   try {
-    const productsVariants = JSON.parse(req.body.variants)
-    if(req.body.variant_id !== undefined){
-      const newResult = typeof req.body.productImages === 'string' ?
-      [{
-        type:'images',
-        url: req.body.productImages
-      }]
-      :
-      req.body.productImages.map((img,  i) => {
-      if (img) {
-        switch (img[0]) {
-          case 'h':
-          return objParse = {
-            type: 'images',
-            url: img
-          }
-            break;
-          case '<':
-          return objParse = {
-            type: 'video',
-            url: img
-          }
-              break;
-          default:
-          return objParse ={
-            type: 'images',
-            url: img
-          }
-            break;
-        }
-      }
-    });
-    let newVariantResult;
-    if(req.body.images !== undefined){
-    newVariantResult = typeof req.body.images === 'string' ?
-    [{
-      type: 'images',
-      url: req.body.images
-    }]
-    :
-    req.body.images.map((img,  i) => {
-      switch (img[0]) {
-        case 'h':
-        return objParse = {
-          type: 'images',
-          url: img
-        }
-      break;
-      case '<':
-      return objParse = {
-        type: 'video',
-        url: img
-      }
-        break;
-    default:
-    return objParse ={
-      type: 'images',
-      url: img
-    }
-      break;
-  }
-})
+    const productsVariants = JSON.parse(req.body.variants);
+    if (req.body.variant_id !== undefined) {
+      const newResult =
+        typeof req.body.productImages === "string"
+          ? [
+              {
+                type: "images",
+                url: req.body.productImages,
+              },
+            ]
+          : req.body.productImages.map((img, i) => {
+              switch (img[0]) {
+                case "h":
+                  return (objParse = {
+                    type: "images",
+                    url: img,
+                  });
+                  break;
+                case "<":
+                  return (objParse = {
+                    type: "video",
+                    url: img,
+                  });
+                  break;
+                default:
+                  return (objParse = {
+                    type: "images",
+                    url: img,
+                  });
+                  break;
+              }
+            });
+      let newVariantResult;
+      if (req.body.images !== undefined) {
+        newVariantResult =
+          typeof req.body.images === "string"
+            ? [
+                {
+                  type: "images",
+                  url: req.body.images,
+                },
+              ]
+            : req.body.images.map((img, i) => {
+                switch (img[0]) {
+                  case "h":
+                    return (objParse = {
+                      type: "images",
+                      url: img,
+                    });
+                    break;
+                  case "<":
+                    return (objParse = {
+                      type: "video",
+                      url: img,
+                    });
+                    break;
+                  default:
+                    return (objParse = {
+                      type: "images",
+                      url: img,
+                    });
+                    break;
+                }
+              });
 
-  return newVariantResult;
-}
- 
-    const variants = {
-      _id: req.body.variant_id,
-      variantImage: req.body.images ? newVariantResult : [],
-      active: req.body.variantActive,
-      name: req.body.variantName,
-      description: req.body.variantDescription,
-      category: req.body.variantCategory,
-      considerations: req.body.variantConsiderations,
-      attributes: typeof req.body.attributesName  === 'string' ? [{
-        name: req.body.attributesName,
-        value: req.body.attributesValue
-      }]
-      :
-      []
-      ,
-      publicPrice: {
-        from: req.body.variantPublicPriceFrom,
-        to: req.body.variantPublicPriceTo,
-        equation: req.body.variantPublicPriceEq
-      }, //price
-      prixerPrice: {
-        from: req.body.variantPrixerPriceFrom,
-        to: req.body.variantPrixerPriceTo,
-        equation: req.body.variantPrixerPriceEq
+        return newVariantResult;
       }
-    }
-    if(req.files['variantImage']?.length > 0){
-        req.files['variantImage'].map((img, i) => {
+
+      const variants = {
+        _id: req.body.variant_id,
+        variantImage: req.body.images ? newVariantResult : [],
+        active: req.body.variantActive,
+        name: req.body.variantName,
+        description: req.body.variantDescription,
+        category: req.body.variantCategory,
+        considerations: req.body.variantConsiderations,
+        attributes:
+          typeof req.body.attributesName === "string"
+            ? [
+                {
+                  name: req.body.attributesName,
+                  value: req.body.attributesValue,
+                },
+              ]
+            : [],
+        publicPrice: {
+          from: req.body.variantPublicPriceFrom,
+          to: req.body.variantPublicPriceTo,
+          equation: req.body.variantPublicPriceEq,
+        }, //price
+        prixerPrice: {
+          from: req.body.variantPrixerPriceFrom,
+          to: req.body.variantPrixerPriceTo,
+          equation: req.body.variantPrixerPriceEq,
+        },
+      };
+      if (req.files["variantImage"]?.length > 0) {
+        req.files["variantImage"].map((img, i) => {
           variants.variantImage.push({
             type: "images",
             url: img.transforms[0].location,
           });
         });
       }
-      if(req.body.video !== ''){
-        const currentVideo = newVariantResult?.find(result => result.type === 'video');
-        if(currentVideo){
+      if (req.body.video !== "") {
+        const currentVideo = newVariantResult?.find(
+          (result) => result.type === "video"
+        );
+        if (currentVideo) {
           currentVideo.url = req.body.video;
-        } else{
-          const currentVideo = newVariantResult?.find(result => result?.type === 'video');
-          if(currentVideo && req.body.video === ''){
-            const indexVideo = newVariantResult.indexOf(currentVideo)
-            newVariantResult.splice(indexVideo, 1)
-          } else{
-          variants.variantImage.push({
-            type: 'video',
-            url: req.body.video
-          })
+        } else {
+          const currentVideo = newVariantResult?.find(
+            (result) => result?.type === "video"
+          );
+          if (currentVideo && req.body.video === "") {
+            const indexVideo = newVariantResult.indexOf(currentVideo);
+            newVariantResult.splice(indexVideo, 1);
+          } else {
+            variants.variantImage.push({
+              type: "video",
+              url: req.body.video,
+            });
           }
         }
-      } 
+      }
 
-      console.log(variants)
+      console.log(variants);
 
-    if(typeof req.body.attributesName === 'object')
-    {
-      const a = req.body.attributesName.map((name, i) => {
-        const b = req.body.attributesValue.map(value => {
-          return value
-        })
-        return {
-          name: name,
-          value: b[i]
-        }
-    })
-      variants.attributes.push(a)
-    }
+      if (typeof req.body.attributesName === "object") {
+        const a = req.body.attributesName.map((name, i) => {
+          const b = req.body.attributesValue.map((value) => {
+            return value;
+          });
+          return {
+            name: name,
+            value: b[i],
+          };
+        });
+        variants.attributes.push(a);
+      }
       const parseObject = {
         name: req.body.productName,
         description: req.body.productDescription,
@@ -289,9 +298,9 @@ const updateProduct = async (req, res) => {
       return res.send(data);
     } else {
       const imagesResult =
-      req.files["newProductImages"] !== [undefined] 
-      && req.files["newProductImages"]?.length > 0 ? 
-           typeof req.body.images === "string"
+        req.files["newProductImages"] !== [undefined] &&
+        req.files["newProductImages"]?.length > 0
+          ? typeof req.body.images === "string"
             ? [req.body.images]
             : req.body.images
           : typeof req.body.images === "string"
@@ -302,83 +311,79 @@ const updateProduct = async (req, res) => {
         switch (img[0]) {
           case "h":
             return {
-              type: 'images',
-              url: img
-            }
-              break;
-              case '<':
-              return {
-                type: 'video',
-                url: img 
-              }
-                break;
-            default:
-              break;
-          }
-        })
+              type: "images",
+              url: img,
+            };
+            break;
+          case "<":
+            return {
+              type: "video",
+              url: img,
+            };
+            break;
+          default:
+            break;
+        }
+      });
 
-        if(req?.files['newProductImages']?.length > 0){
-            req?.files['newProductImages']?.map((img, i) => {
-              newResult?.push({
-                type: 'images',
-                url : img.transforms[0].location
-              })
-            })
-          }
-          if(req.body.video === ''){
-            let currentVideo = null;
-            if (newResult){
-              currentVideo = newResult.find(result => result?.type === 'video');
-            };
-            if(currentVideo){
-              const indexVideo = newResult.indexOf(currentVideo)
-              newResult.splice(indexVideo, 1)
-            }
-          } else{
-            let currentVideo = null;
-            if (newResult){
-              currentVideo = newResult.find(result => result?.type === 'video')
-            };
-              if(currentVideo){
-                currentVideo.url = req.body.video
-              } else{
-                newResult.push({
-                  type: 'video',
-                  url: req.body.video
-                })
-              }
-          }
-    const parseObject = {
-      name: req.body.name,
-      description: req.body.description,
-      category: req.body.category,
-      considerations: req.body.considerations,
-      sources:{
-      images: newResult,
-      // video: req.body.video
-      }, //images from Products
-      publicPrice: {
-        from: req.body.publicPriceFrom,
-        to: req.body.publicPriceTo,
-      }, //price
-      prixerPrice: {
-        from: req.body.prixerPriceFrom,
-        to: req.body.prixerPriceTo,
-      }, //prixerPrice
-      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
-      active: req.body.active,
-      variants: req.body.variants != undefined ? productsVariants : [],
-      hasSpecialVar: req.body.hasSpecialVar,
-    };
-    const productResult = await productServices.updateProduct(
-      parseObject,
-      req.params.id
-    );
-    data = {
-      productResult,
-      success: true,
-    };
-    return res.send(data);
+      if (req?.files["newProductImages"]?.length > 0) {
+        req?.files["newProductImages"]?.map((img, i) => {
+          newResult?.push({
+            type: "images",
+            url: img.transforms[0].location,
+          });
+        });
+      }
+      if (req.body.video !== "") {
+        const currentVideo = newResult.find(
+          (result) => result?.type === "video"
+        );
+        // console.log(currentVideo)
+        if (currentVideo) {
+          currentVideo.url = req.body.video;
+        } else {
+          newResult.push({
+            type: "video",
+            url: req.body.video,
+          });
+        }
+      }
+      const parseObject = {
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        considerations: req.body.considerations,
+        sources: {
+          images: newResult,
+          // video: req.body.video
+        }, //images from Products
+        publicPrice: {
+          from: req.body.publicPriceFrom,
+          to: req.body.publicPriceTo,
+        }, //price
+        prixerPrice: {
+          from: req.body.prixerPriceFrom,
+          to: req.body.prixerPriceTo,
+        }, //prixerPrice
+        attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+        active: req.body.active,
+        variants: req.body.variants != undefined ? productsVariants : [],
+        hasSpecialVar: req.body.hasSpecialVar,
+      };
+
+      // console.log(parseObject.sources.images);
+      // console.log(imagesResult);
+      // console.log(newResult);
+
+      const productResult = await productServices.updateProduct(
+        parseObject,
+        req.params.id
+      );
+      data = {
+        productResult,
+        success: true,
+      };
+      return res.send(data);
     }
   } catch (err) {
     console.log(err);

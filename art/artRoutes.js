@@ -25,8 +25,16 @@ router.get(
 );
 router.get("/art/read-by-category", artControllers.readByCategory);
 router.get(
-  "/art/read-by-username-by-query",
-  artControllers.readByUsernameByQuery
+  "/art/read-by-username-query-and-category",
+  artControllers.readByUsernameQueryAndCategory
+);
+router.get(
+  "/art/read-by-username-and-category",
+  artControllers.readByUsernameAndCategory
+);
+router.get(
+  "/art/read-by-username-and-query",
+  artControllers.readByUsernameAndQuery
 );
 router.post("/art/read-by-id", artControllers.readOneById);
 router.get("/art/random", artControllers.randomArts);
