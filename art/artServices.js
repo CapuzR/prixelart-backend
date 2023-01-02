@@ -4,6 +4,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const accents = require("remove-accents");
 //CRUD
 const createArt = async (artData) => {
+  console.log(artData);
   const isArt = false;
   try {
     if (isArt) {

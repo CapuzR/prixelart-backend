@@ -11,8 +11,9 @@ const ConsumerSchema = Schema({
   username: { type: String, required: true },
   phone: { type: String, required: true },
   email: { type: String, required: true },
-  billingAddress: { type: String, required: true }, //Arreglo
-  shippingAddress: { type: String, required: true }, //Arreglo,
+  address: { type: String, required: true },
+  shippingAddress: { type: String, required: true },
+  billingAddress: { type: String, required: true },
   contactedBy: { type: Object, required: true },
   birthdate: { type: Date, required: false },
   instagram: { type: String, required: false },
