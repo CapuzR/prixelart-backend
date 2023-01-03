@@ -16,13 +16,13 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readOrder
 );
-router.post(
+router.get(
   "/order/read-all",
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllOrders
 );
-router.post(
-  "/order/update:id",
+router.put(
+  "/order/update/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.updateOrder
 );
