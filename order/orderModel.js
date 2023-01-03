@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const OrderSchema = Schema({
-  orderId: { type: Number, required: true },
+  orderId: { type: String, required: true },
   // active: {type: String, required: true},
   // consumerId: {type: String, required: true},
   orderType: { type: String, required: true },
