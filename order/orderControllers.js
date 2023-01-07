@@ -25,6 +25,7 @@ const readAllOrders = async (req, res) => {
     res.send(readedOrders);
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 };
 

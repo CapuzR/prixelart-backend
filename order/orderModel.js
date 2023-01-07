@@ -12,8 +12,8 @@ const OrderSchema = Schema({
   createdBy: { type: Object, required: true },
   subtotal: { type: Number, required: true },
   tax: { type: Number, required: true },
-  total: { type: Number, required: true }, //Arreglo
-  shippingAddress: { type: String, required: true }, //Arreglo,
+  total: { type: Number, required: true },
+  shippingAddress: { type: String, required: true },
   billingAddress: { type: String, required: true },
   requests: { type: Array, required: true },
   orderPaymentMethod: { type: String, required: true },

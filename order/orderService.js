@@ -44,6 +44,15 @@ const readOrderByUsername = async (username) => {
 
 const readAllOrders = async () => {
   let readedOrder = await Order.find({}).select("-_id").exec();
+  let ordersv2 = readedOrder.sort(function (a, b) {
+    if (a.createdOn < b.createdOn) {
+      return 1;
+    }
+    if (a.createdOn > b.createdOn) {
+      return -1;
+    }
+    return 0;
+  });
   if (readedOrder) {
     const data = {
       info: "Todas las órdenes disponibles",
@@ -56,7 +65,7 @@ const readAllOrders = async () => {
       info: "No hay órdenes registradas",
       orders: null,
     };
-    return false;
+    return data;
   }
 };
 
