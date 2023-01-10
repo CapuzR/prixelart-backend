@@ -16,7 +16,7 @@ const OrderSchema = Schema({
   shippingAddress: { type: String, required: true },
   billingAddress: { type: String, required: true },
   requests: { type: Array, required: true },
-  orderPaymentMethod: { type: String, required: true },
+  orderPaymentMethod: { type: String, required: false },
   status: { type: String, required: true },
   shippingPhone: { type: String, required: false },
   internalShippingMethod: { type: String, required: false }, //(Yalo, DH, etc)

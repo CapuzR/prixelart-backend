@@ -182,6 +182,7 @@ const readAllByPrixerId = async (req, res) => {
 
 const readAllByUsername = async (req, res) => {
   try {
+    console.log(req);
     const user = await userControllers.readUserByUsername(req.body.username);
     const readedArts = await artServices.readAllByUserId(user._id);
     res.send(readedArts);
