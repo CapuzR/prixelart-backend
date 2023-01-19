@@ -9,6 +9,7 @@ const ConsumerSchema = Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   username: { type: String, required: false },
+  ci: { type: String, required: true },
   phone: { type: String, required: false },
   email: { type: String, required: false },
   address: { type: String, required: false },

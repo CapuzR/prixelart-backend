@@ -95,6 +95,8 @@ const readByUserIdByQuery = async (user, query) => {
     const readedArts = await Art.find({ prixerUsername: user })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query });
+
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
@@ -115,8 +117,13 @@ const readByUserIdByQuery = async (user, query) => {
         artLocation.includes(text)
       );
     });
-
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
         arts: filterArts,
@@ -172,11 +179,11 @@ const readByUserIdQueryAndCategory = async (user, query) => {
     })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query.text });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
-
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
@@ -193,8 +200,13 @@ const readByUserIdQueryAndCategory = async (user, query) => {
         artLocation.includes(text)
       );
     });
-
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
         arts: filterArts,
@@ -248,11 +260,12 @@ const readByQueryAndCategory = async (query) => {
     const readedArts = await Art.find({ category: category })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query.text });
+
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
-
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
@@ -269,8 +282,13 @@ const readByQueryAndCategory = async (query) => {
         artLocation.includes(text)
       );
     });
-
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
         arts: filterArts,
@@ -295,6 +313,7 @@ const readByQuery = async (query) => {
     const readedArts = await Art.find({})
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query.text });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
@@ -315,7 +334,13 @@ const readByQuery = async (query) => {
       );
     });
 
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
         arts: filterArts,

@@ -13,15 +13,11 @@ const OrderSchema = Schema({
   subtotal: { type: Number, required: true },
   tax: { type: Number, required: true },
   total: { type: Number, required: true },
-  shippingAddress: { type: String, required: true },
-  billingAddress: { type: String, required: true },
+  basicData: { type: Object, required: true },
+  shippingData: { type: Object, required: false },
+  billingData: { type: Object, required: false },
   requests: { type: Array, required: true },
-  orderPaymentMethod: { type: String, required: false },
   status: { type: String, required: true },
-  shippingPhone: { type: String, required: false },
-  internalShippingMethod: { type: String, required: false }, //(Yalo, DH, etc)
-  domesticShippingMethod: { type: String, required: false }, //(Tealca, Zoom, etc)
-  internationalShippingMethod: { type: String, required: false }, //(DHL, FedEx, Particular, etc)
   generalProductionStatus: { type: String, required: false },
   paymentStatus: { type: String, required: false }, //(Por pagar, Pagado parcialmente, Pagado)
   shippingStatus: { type: String, required: false }, //(No entregado, Entregado)

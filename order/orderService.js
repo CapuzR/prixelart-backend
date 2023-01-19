@@ -3,6 +3,7 @@ const PaymentMethod = require("./paymentMethodModel");
 const OrderPayment = require("./orderPaymentModel");
 const dotenv = require("dotenv");
 dotenv.config();
+const emailSender = require("../utils/emailSender");
 
 //Order
 const createOrder = async (orderData) => {
@@ -24,10 +25,35 @@ const createOrder = async (orderData) => {
     //         message: 'Disculpa, el correo del usuario ya está registrado.'
     //     };
     // }
+
     let newOrder = await new Order(orderData).save();
+
+    const templates = {
+      "order sent": "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
+    };
+    const message = {
+      to: "iamwar2070@gmail.com",
+      // dhenriquez@prixelart.com,
+      // ventas.prixelart@gmail.com,
+      // ventas2.prixelart@gmail.com
+      from: {
+        email: "prixers@prixelart.com",
+        name: "Prixelart",
+      },
+      templateId: templates["order sent"],
+      dynamic_template_data: {
+        firstname: orderData.firstname,
+        lastname: orderData.lastname,
+        requests: orderData.requests,
+        requestDate: orderData.createdOn,
+        total: orderData.total,
+        paymentMethod: orderData.orderPaymentMethod,
+      },
+    };
     return {
       res: { success: true },
       Order: newOrder,
+      email: emailSender.sendEmail(message),
     };
   } catch (e) {
     console.log(e);
