@@ -129,7 +129,6 @@ const deleteOrder = async (orderId) => {
 //Payment Methods
 const createPaymentMethod = async (paymentMethodData) => {
   try {
-    console.log(paymentMethodData);
     const readedPaymentMethodById = await readPaymentMethodById(
       paymentMethodData.id
     );
@@ -152,15 +151,13 @@ const createPaymentMethod = async (paymentMethodData) => {
         message: "Disculpa, esta forma de pago ya está registrada.",
       };
     }
-    console.log(paymentMethodData);
     let newPaymentMethod = await new PaymentMethod(paymentMethodData).save();
-    console.log(newPaymentMethod);
     return {
       res: { success: true, paymentMethodId: newPaymentMethod._id },
       newPaymentMethod: newPaymentMethod,
     };
   } catch (e) {
-    return "Incapaz de crear el usuario, intenta de nuevo o consulta a soporte.";
+    return "Incapaz de crear método de pago, intenta de nuevo o consulta a soporte.";
   }
 };
 
@@ -171,28 +168,30 @@ const readPaymentMethodByName = async (name) => {
   return await PaymentMethod.findOne({ name: name }).exec();
 };
 
-const readAllPaymentMethods = async () => {
-  let readedPaymentMethods = await PaymentMethod.find({}).exec();
-  if (readedPaymentMethods) {
+const readAllPaymentMethods = async (active) => {
+  if (active) {
+    let readedPaymentMethods = await PaymentMethod.find({
+      active: true,
+    }).exec();
+    return readedPaymentMethods;
+  } else {
+    let readedPaymentMethods = await PaymentMethod.find({}).exec();
     return readedPaymentMethods;
   }
-  return false;
 };
 
 const updatePaymentMethod = async (paymentMethodData) => {
   try {
-    const readedPaymentMethodByName = await readPaymentMethodByName(
-      paymentMethodData.name
-    );
-
-    if (readedPaymentMethodByName) {
-      return {
-        success: false,
-        info: "error_email",
-        message: "Disculpa, el nombre en la forma de pago ya está registrado.",
-      };
-    }
-
+    // const readedPaymentMethodByName = await readPaymentMethodByName(
+    //   paymentMethodData.name
+    // );
+    // if (readedPaymentMethodByName) {
+    //   return {
+    //     success: false,
+    //     info: "error_email",
+    //     message: "Disculpa, el nombre en la forma de pago ya está registrado.",
+    //   };
+    // }
     const toUpdatePaymentMethod = await readPaymentMethodById(
       paymentMethodData.id
     );
@@ -207,8 +206,7 @@ const updatePaymentMethod = async (paymentMethodData) => {
     return {
       success: false,
       message:
-        e +
-        "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
+        "Disculpa. No se pudo actualizar esta forma de pago, inténtalo de nuevo por favor.",
     };
   }
 };

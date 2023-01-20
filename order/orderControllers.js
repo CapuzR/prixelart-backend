@@ -80,6 +80,18 @@ const readAllPaymentMethods = async (req, res) => {
   }
 };
 
+const readAllPaymentMethodsV2 = async (req, res) => {
+  try {
+    const active = true;
+    const readedPaymentMethods = await orderServices.readAllPaymentMethods(
+      active
+    );
+    res.send(readedPaymentMethods);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 const updatePaymentMethod = async (req, res) => {
   try {
     const updatedPaymentMethod = await orderServices.updatePaymentMethod(
@@ -141,6 +153,7 @@ module.exports = {
   createPaymentMethod,
   readPaymentMethod,
   readAllPaymentMethods,
+  readAllPaymentMethodsV2,
   updatePaymentMethod,
   createOrderPayment,
   readOrderPayment,

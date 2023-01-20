@@ -48,6 +48,10 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllPaymentMethods
 );
+router.get(
+  "/payment-method/read-all-v2",
+  orderControllers.readAllPaymentMethodsV2
+);
 router.post(
   "/payment-method/update",
   adminAuthServices.ensureAuthenticated,
