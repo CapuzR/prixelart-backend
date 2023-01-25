@@ -1,3 +1,4 @@
+// const { result } = require("underscore");
 const orderServices = require("./orderService");
 
 //Order
@@ -102,7 +103,47 @@ const updatePaymentMethod = async (req, res) => {
     res.status(500).send(err);
   }
 };
+//Shipping method
 
+const createShippingMethod = async (req, res) => {
+  try {
+    const result = await orderServices.createShippingMethod(req.body);
+    res.send(result);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const readAllShippingMethod = async (req, res) => {
+  try {
+    const readedShippingMethods = await orderServices.readAllShippingMethod();
+    res.send(readedShippingMethods);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const readAllShippingMethodV2 = async (req, res) => {
+  try {
+    const active = true;
+    const readedShippingMethods = await orderServices.readAllShippingMethod(
+      active
+    );
+    res.send(readedShippingMethods);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+const updateShippingMethod = async (req, res) => {
+  try {
+    const updateShippingMethod = await orderServices.updateShippingMethod(
+      req.body
+    );
+    res.send(updateShippingMethod);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
 //Order
 const createOrderPayment = async (req, res) => {
   try {
@@ -155,6 +196,10 @@ module.exports = {
   readAllPaymentMethods,
   readAllPaymentMethodsV2,
   updatePaymentMethod,
+  createShippingMethod,
+  readAllShippingMethod,
+  readAllShippingMethodV2,
+  updateShippingMethod,
   createOrderPayment,
   readOrderPayment,
   readAllOrderPayments,

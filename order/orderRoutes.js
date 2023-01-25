@@ -43,7 +43,7 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readPaymentMethod
 );
-router.post(
+router.get(
   "/payment-method/read-all",
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllPaymentMethods
@@ -52,10 +52,33 @@ router.get(
   "/payment-method/read-all-v2",
   orderControllers.readAllPaymentMethodsV2
 );
-router.post(
+router.put(
   "/payment-method/update",
   adminAuthServices.ensureAuthenticated,
   orderControllers.updatePaymentMethod
+);
+// Shipping method
+
+router.post(
+  "/shipping-method/create",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.createShippingMethod
+);
+
+router.get(
+  "/shipping-method/read-all",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.readAllShippingMethod
+);
+
+router.get(
+  "/shipping-method/read-all-v2",
+  orderControllers.readAllShippingMethodV2
+);
+router.put(
+  "/shipping-method/update",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.updateShippingMethod
 );
 
 // Order Payment
