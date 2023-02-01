@@ -11,6 +11,17 @@ const createOrder = async (req, res) => {
   }
 };
 
+const sendEmail = async (req, res) => {
+  try {
+    const content = req.body;
+    const result = await orderServices.sendEmail(content);
+
+    res.send(result);
+  } catch (e) {
+    res.status(500).send(e);
+  }
+};
+
 const readOrder = async (req, res) => {
   try {
     const readedOrder = await orderServices.readOrderByEmail(req.body);
@@ -103,6 +114,22 @@ const updatePaymentMethod = async (req, res) => {
     res.status(500).send(err);
   }
 };
+
+const deletePaymentMethod = async (req, res) => {
+  try {
+    const paymentMethodForDelete = await orderServices.deletePaymentMethod(
+      req.params.id
+    );
+    data = {
+      paymentMethodForDelete,
+      success: true,
+    };
+    return res.send(data);
+  } catch {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
 //Shipping method
 
 const createShippingMethod = async (req, res) => {
@@ -142,6 +169,22 @@ const updateShippingMethod = async (req, res) => {
     res.send(updateShippingMethod);
   } catch (err) {
     res.status(500).send(err);
+  }
+};
+
+const deleteShippingMethod = async (req, res) => {
+  try {
+    const shippingMethodForDelete = await orderServices.deleteShippingMethod(
+      req.params.id
+    );
+    data = {
+      shippingMethodForDelete,
+      success: true,
+    };
+    return res.send(data);
+  } catch {
+    res.status(500).send(err);
+    console.log(err);
   }
 };
 //Order
@@ -187,6 +230,7 @@ const updateOrderPayment = async (req, res) => {
 
 module.exports = {
   createOrder,
+  sendEmail,
   readOrder,
   readAllOrders,
   updateOrder,
@@ -196,10 +240,12 @@ module.exports = {
   readAllPaymentMethods,
   readAllPaymentMethodsV2,
   updatePaymentMethod,
+  deletePaymentMethod,
   createShippingMethod,
   readAllShippingMethod,
   readAllShippingMethodV2,
   updateShippingMethod,
+  deleteShippingMethod,
   createOrderPayment,
   readOrderPayment,
   readAllOrderPayments,

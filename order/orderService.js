@@ -29,30 +29,68 @@ const createOrder = async (orderData) => {
         // "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
         templates["order-sent"],
 
-      dynamic_template_data: {
-        firstname: `${orderData.basicData.firstname}`,
-        lastname: `${orderData.basicData.lastname}`,
-        requests: `${orderData.requests}`,
-        requestDate: `${orderData.createdOn}`,
-        total: `${orderData.total}`,
-        paymentMethod: `${orderData.billingData.orderPaymentMethod}`,
-        biName: `${orderData.billingData.name}`,
-        biLastname: `${orderData.billingData.lastname}`,
-        biCi: `${orderData.billingData.ci}`,
-        Company: `${orderData.billingData.company}`,
-        biPhone: `${orderData.billingData.phone}`,
-        biAddress: `${orderData.billingData.address}`,
-        shName: `${orderData.shippingData.name}`,
-        shLastname: `${orderData.shippingData.lastname}`,
-        shPhone: `${orderData.shippingData.phone}`,
-        shAddress: `${orderData.shippingData.address}`,
-      },
+      // dynamic_template_data: {
+      //   firstname: `${orderData.basicData.firstname}`,
+      //   lastname: `${orderData.basicData.lastname}`,
+      //   requests: `${orderData.requests}`,
+      //   requestDate: `${orderData.createdOn}`,
+      //   total: `${orderData.total}`,
+      //   paymentMethod: `${orderData.billingData.orderPaymentMethod}`,
+      //   biName: `${orderData.billingData.name}`,
+      //   biLastname: `${orderData.billingData.lastname}`,
+      //   biCi: `${orderData.billingData.ci}`,
+      //   Company: `${orderData.billingData.company}`,
+      //   biPhone: `${orderData.billingData.phone}`,
+      //   biAddress: `${orderData.billingData.address}`,
+      //   shName: `${orderData.shippingData.name}`,
+      //   shLastname: `${orderData.shippingData.lastname}`,
+      //   shPhone: `${orderData.shippingData.phone}`,
+      //   shAddress: `${orderData.shippingData.address}`,
+      // },
     };
 
-    // return emailSender.sendEmail(message);
+    return await emailSender.sendEmail(message);
   } catch (e) {
-    console.log(info);
+    console.log(e);
     return "Incapaz de crear la orden, intenta de nuevo o consulta a soporte.";
+  }
+};
+
+const sendEmail = async (orderData) => {
+  try {
+    const templates = {
+      "order-sent": "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
+    };
+    const message = {
+      to: "lizard232010@hotmail.com",
+      from: {
+        email: "prixers@prixelart.com",
+        name: "Prixelart",
+      },
+      templateId: templates["order-sent"],
+      dynamic_template_data: {
+        firstname: `wario`,
+        lastname: `torres`,
+        requests: `tacos, burrito de carne y fresco`,
+        requestDate: `31/01/2023`,
+        total: `25$`,
+        paymentMethod: `Efectivo`,
+        biName: `war`,
+        biLastname: `g`,
+        biCi: `J-0000123434`,
+        Company: `MonsterInc`,
+        biPhone: `04149152323`,
+        biAddress: `torreta`,
+        shName: `juanito`,
+        shLastname: `alimaña`,
+        shPhone: `13413413413`,
+        shAddress: `Propa`,
+      },
+    };
+    return emailSender.sendEmail(message);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
   }
 };
 
@@ -205,6 +243,17 @@ const updatePaymentMethod = async (paymentMethodData) => {
     };
   }
 };
+
+const deletePaymentMethod = async (paymentMethodId) => {
+  try {
+    await PaymentMethod.findOneAndDelete({ _id: paymentMethodId });
+    return "Método de pago eliminado exitosamente";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 //Shipping method
 
 const createShippingMethod = async (shippingMethodData) => {
@@ -278,6 +327,18 @@ const updateShippingMethod = async (shippingMethodData) => {
       message:
         "Disculpa. No se pudo actualizar esta forma de envío, inténtalo de nuevo.",
     };
+  }
+};
+
+const deleteShippingMethod = async (shippingMethodId) => {
+  try {
+    console.log(shippingMethodId);
+
+    await ShippingMethod.findOneAndDelete({ _id: shippingMethodId });
+    return "Método de envío eliminado exitosamente";
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 //Order Payment
@@ -355,6 +416,7 @@ const updateOrderPayment = async (orderPaymentData) => {
 
 module.exports = {
   createOrder,
+  sendEmail,
   readOrderByEmail,
   readOrderByUsername,
   readAllOrders,
@@ -364,9 +426,11 @@ module.exports = {
   readPaymentMethodById,
   readAllPaymentMethods,
   updatePaymentMethod,
+  deletePaymentMethod,
   createShippingMethod,
   readAllShippingMethod,
   updateShippingMethod,
+  deleteShippingMethod,
   createOrderPayment,
   readOrderPaymentByEmail,
   readOrderPaymentByUsername,

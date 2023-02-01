@@ -124,6 +124,7 @@ const forgotPassword = async (email) => {
 
     return emailSender.sendEmail(message);
   } catch (e) {
+    console.log(e);
     res.status(500).send(e);
   }
 };

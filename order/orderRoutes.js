@@ -11,6 +11,8 @@ router.post(
   // adminAuthServices.ensureAuthenticated,
   orderControllers.createOrder
 );
+router.post("/order/sendEmail", orderControllers.sendEmail);
+
 router.post(
   "/order/read",
   adminAuthServices.ensureAuthenticated,
@@ -57,6 +59,11 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orderControllers.updatePaymentMethod
 );
+router.delete(
+  "/payment-method/delete/:id",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.deletePaymentMethod
+);
 // Shipping method
 
 router.post(
@@ -81,6 +88,11 @@ router.put(
   orderControllers.updateShippingMethod
 );
 
+router.delete(
+  "/shipping-method/delete/:id",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.deleteShippingMethod
+);
 // Order Payment
 router.post(
   "/order-payment/create",
