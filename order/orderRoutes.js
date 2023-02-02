@@ -6,11 +6,7 @@ const orderControllers = require("./orderControllers");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 // Order
-router.post(
-  "/order/create",
-  // adminAuthServices.ensureAuthenticated,
-  orderControllers.createOrder
-);
+router.post("/order/create", orderControllers.createOrder);
 router.post("/order/sendEmail", orderControllers.sendEmail);
 
 router.post(
@@ -18,7 +14,7 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readOrder
 );
-router.get(
+router.post(
   "/order/read-all",
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllOrders
@@ -45,7 +41,7 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readPaymentMethod
 );
-router.get(
+router.post(
   "/payment-method/read-all",
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllPaymentMethods
@@ -72,7 +68,7 @@ router.post(
   orderControllers.createShippingMethod
 );
 
-router.get(
+router.post(
   "/shipping-method/read-all",
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllShippingMethod

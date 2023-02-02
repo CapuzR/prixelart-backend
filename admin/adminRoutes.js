@@ -24,7 +24,7 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   adminControllers.readAllAdmins
 );
-router.get(
+router.post(
   "/admin/product/read-all",
   adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
