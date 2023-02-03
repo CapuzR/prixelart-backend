@@ -7,7 +7,7 @@ const createProduct = async (productData) => {
     if (newProduct) {
       return {
         success: true,
-        productData: null,
+        productData: newProduct,
       };
     } else {
       return {

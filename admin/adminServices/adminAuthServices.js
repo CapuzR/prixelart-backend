@@ -118,7 +118,8 @@ const generateToken = (admin) => {
 };
 
 const ensureAuthenticated = (req, res, next) => {
-  console.log(req.cookies);
+  console.log(req.body);
+
   try {
     const adminToken =
       req.cookies.adminToken || req.body.adminToken || undefined;

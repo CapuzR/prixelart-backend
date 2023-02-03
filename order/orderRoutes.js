@@ -55,7 +55,7 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orderControllers.updatePaymentMethod
 );
-router.delete(
+router.put(
   "/payment-method/delete/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.deletePaymentMethod
@@ -84,7 +84,7 @@ router.put(
   orderControllers.updateShippingMethod
 );
 
-router.delete(
+router.put(
   "/shipping-method/delete/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.deleteShippingMethod

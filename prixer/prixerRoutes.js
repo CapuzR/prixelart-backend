@@ -6,9 +6,11 @@ const { upload } =
 const express = require("express");
 const router = express.Router();
 // const prixerMiddlewares = require("./prixerMiddlewares");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const userMdw = require("../user/userMiddlewares");
 const prixerControllers = require("./prixerControllers");
 const prixerServices = require("./prixerServices");
+
 router.post(
   "/prixer-registration",
   upload.single("avatar"),
@@ -27,7 +29,11 @@ router.post(
   userMdw.ensureAuthenticated,
   prixerControllers.updatePrixer
 );
-router.put("/prixer/update-home/:id", prixerControllers.updateVisibility);
+router.put(
+  "/prixer/update-home/:id",
+  adminAuthServices.ensureAuthenticated,
+  prixerControllers.updateVisibility
+);
 router.put("/prixer/update-terms/:id", prixerControllers.updateTermsAgree);
 router.put(
   "/prixer/update-home/updateTermsAgree/:id",
