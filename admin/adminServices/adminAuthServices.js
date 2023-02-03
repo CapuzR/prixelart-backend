@@ -118,11 +118,12 @@ const generateToken = (admin) => {
 };
 
 const ensureAuthenticated = (req, res, next) => {
-  console.log(req.body);
-
+  console.log(req.body, "este es el body");
+  console.log(req.cookies, "esta es la cookie");
   try {
     const adminToken =
       req.cookies.adminToken || req.body.adminToken || undefined;
+    console.log(adminToken);
     if (!adminToken) {
       return res.send({
         success: false,
