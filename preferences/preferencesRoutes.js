@@ -7,6 +7,9 @@ const {
   deleteImageCarousel,
   readTermsAndConditions,
   updateTermsAndConditions,
+  readDollarValue,
+  updateDollarValue,
+  deleteDollar,
 } = require("./preferencesController");
 const express = require("express");
 const preferencesRoutes = express.Router();
@@ -45,4 +48,11 @@ preferencesRoutes.put(
   updateTermsAndConditions
 );
 
+preferencesRoutes.get("/dollarValue/read", readDollarValue);
+preferencesRoutes.post(
+  "/dollarValue/update",
+  adminAuthServices.ensureAuthenticated,
+  updateDollarValue
+);
+preferencesRoutes.delete("dollarValue/delete/:id", deleteDollar);
 module.exports = preferencesRoutes;

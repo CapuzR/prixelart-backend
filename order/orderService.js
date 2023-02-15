@@ -144,7 +144,28 @@ const updateOrder = async (id, status) => {
       success: false,
       message:
         e +
-        "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
+        "Disculpa. No se pudo actualizar esta orden, inténtalo de nuevo por favor.",
+    };
+  }
+};
+
+const updateOrderPayStatus = async (id, payStatus) => {
+  try {
+    const toUpdateOrder = await Order.findOne({ orderId: id });
+    toUpdateOrder.payStatus = payStatus;
+    const updatedOrder = await toUpdateOrder.save();
+    if (!updatedOrder) {
+      return console.log("Order update error: " + err);
+    }
+
+    return updatedOrder;
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message:
+        e +
+        "Disculpa. No se pudo actualizar esta orden, inténtalo de nuevo por favor.",
     };
   }
 };
@@ -421,6 +442,7 @@ module.exports = {
   readOrderByUsername,
   readAllOrders,
   updateOrder,
+  updateOrderPayStatus,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethodById,

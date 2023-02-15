@@ -53,6 +53,18 @@ const updateOrder = async (req, res) => {
   }
 };
 
+const updateOrderPayStatus = async (req, res) => {
+  try {
+    const updatedOrder = await orderServices.updateOrderPayStatus(
+      req.params.id,
+      req.body.payStatus
+    );
+    return res.send(updatedOrder);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 const deleteOrder = async (req, res) => {
   const orderForDelete = await orderServices.deleteOrder(req.params.id);
   data = {
@@ -234,6 +246,7 @@ module.exports = {
   readOrder,
   readAllOrders,
   updateOrder,
+  updateOrderPayStatus,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethod,

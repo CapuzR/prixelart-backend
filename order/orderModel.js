@@ -18,8 +18,8 @@ const OrderSchema = Schema({
   billingData: { type: Object, required: false },
   requests: { type: Array, required: true },
   status: { type: String, required: true },
+  payStatus: { type: String, required: false },
   generalProductionStatus: { type: String, required: false },
-  paymentStatus: { type: String, required: false }, //(Por pagar, Pagado parcialmente, Pagado)
   shippingStatus: { type: String, required: false }, //(No entregado, Entregado)
   observations: { type: String, required: false },
   isSaleByPrixer: { type: Boolean, required: false },

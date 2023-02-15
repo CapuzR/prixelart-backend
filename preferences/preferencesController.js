@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
-const { Carousel } = require("./preferencesModel");
+const { Carousel, dollarValue } = require("./preferencesModel");
 const { termsAndConditions } = require("./preferencesModel");
 const prixerModel = require("../prixer/prixerModel");
 
@@ -51,72 +51,72 @@ const readImageCarousel = async (req, res) => {
 };
 
 const createImageCarousel = async (req, res) => {
-  try{
-  if (req.files['bannerImagesDesktop']) {
-    const imagesCarousel = new Carousel({
-      images: {
-        type: 'desktop',
-        url: req.files['bannerImagesDesktop'][0].transforms[0].location
-      }
-    });
-    await imagesCarousel.save();
-    res.json({
-      status: "Process sucessfull",
-      body: req.body,
-    });
-  } else if(req.files['bannerImagesMobile']){
-    const imagesCarousel = new Carousel({
-      images: {
-        type: 'mobile',
-        url: req.files['bannerImagesMobile'][0].transforms[0].location
-      }
-    });
-    await imagesCarousel.save();
-    res.json({
-      status: "Process sucessfull",
-      body: req.body,
-    });
-    console.log(imagesCarousel)
-  }else {
-    res.json({ status: "must send a file" });
-  }
-  }catch(err){
-    console.log(err)
-    return res.send(err)
+  try {
+    if (req.files["bannerImagesDesktop"]) {
+      const imagesCarousel = new Carousel({
+        images: {
+          type: "desktop",
+          url: req.files["bannerImagesDesktop"][0].transforms[0].location,
+        },
+      });
+      await imagesCarousel.save();
+      res.json({
+        status: "Process sucessfull",
+        body: req.body,
+      });
+    } else if (req.files["bannerImagesMobile"]) {
+      const imagesCarousel = new Carousel({
+        images: {
+          type: "mobile",
+          url: req.files["bannerImagesMobile"][0].transforms[0].location,
+        },
+      });
+      await imagesCarousel.save();
+      res.json({
+        status: "Process sucessfull",
+        body: req.body,
+      });
+      console.log(imagesCarousel);
+    } else {
+      res.json({ status: "must send a file" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.send(err);
   }
 };
 
 const updateImageCarousel = async (req, res) => {
-  try{
-    if (req.files['bannerImagesDesktop']) {
+  try {
+    if (req.files["bannerImagesDesktop"]) {
       await Carousel.findByIdAndUpdate(req.params.id, {
         images: {
-          type: 'desktop',
-          url: req.files['bannerImagesDesktop'][0].transforms[0].location
-        }
+          type: "desktop",
+          url: req.files["bannerImagesDesktop"][0].transforms[0].location,
+        },
       });
       res.json({
         status: "Image updated",
         body: req.body,
       });
-    } else if(req.files['bannerImagesMobile']){
+    } else if (req.files["bannerImagesMobile"]) {
       await Carousel.findByIdAndUpdate(req.params.id, {
         images: {
-          type: 'mobile',
-          url: req.files['bannerImagesMobile'][0].transforms[0].location
-        }
+          type: "mobile",
+          url: req.files["bannerImagesMobile"][0].transforms[0].location,
+        },
       });
       res.json({
         status: "Image updated",
         body: req.body,
       });
-    }else {
+    } else {
       res.json({ status: "must send a file" });
     }
-    }catch(err){
-      console.log(err)
-      return res.send(err)
-    }
+  } catch (err) {
+    console.log(err);
+    return res.send(err);
+  }
 };
 
 const deleteImageCarousel = async (req, res) => {
@@ -148,6 +148,40 @@ const updateTermsAndConditions = async (req, res) => {
   }
 };
 
+const readDollarValue = async (req, res) => {
+  try {
+    const result = await dollarValue.find();
+    res.send({ dollarValue: result[0].dollarValue });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: 505 });
+  }
+};
+const updateDollarValue = async (req, res) => {
+  try {
+    const result = await dollarValue.find();
+    const updating = await dollarValue.findOne({ _id: result[0]._id });
+    updating.dollarValue = req.body.dollarValue;
+    await updating.save();
+
+    return {
+      success: true,
+      newDollar: updating,
+    };
+  } catch (error) {
+    console.log(error);
+    res.send({ message: 505 });
+  }
+};
+const deleteDollar = async (req, res) => {
+  try {
+    await dollarValue.findOneAndDelete({ _id: req.params.id });
+    return "dolar eliminado";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 module.exports = {
   createImageCarousel,
   upload,
@@ -157,4 +191,7 @@ module.exports = {
   deleteImageCarousel,
   readTermsAndConditions,
   updateTermsAndConditions,
+  readDollarValue,
+  updateDollarValue,
+  deleteDollar,
 };
