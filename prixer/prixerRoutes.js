@@ -13,8 +13,8 @@ const prixerServices = require("./prixerServices");
 
 router.post(
   "/prixer-registration",
-  upload.single("avatar"),
   userMdw.ensureAuthenticated,
+  upload.single("avatar"),
   prixerControllers.createPrixer
 );
 router.post("/prixer/read", prixerControllers.readPrixer);

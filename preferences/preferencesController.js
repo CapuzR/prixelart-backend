@@ -24,6 +24,13 @@ const upload = multer({
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
       req.body.Id = nanoid(7); //=> "5-JDFkc"
+      // req.body.avatar =
+      //   process.env.PUBLIC_BUCKET_URL +
+      //   "/" +
+      //   file.fieldname +
+      //   "-" +
+      //   req.body.Id +
+      //   "-large.webp";
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [

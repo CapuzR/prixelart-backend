@@ -204,7 +204,7 @@ const updatePrixer = async (prixerData, userData) => {
       return console.log("Prixer update error: " + err);
     }
     const updatedUser = await userService.updateUser(userData);
-    const prixer = await mergePrixerAndUser(updatedPrixer, updatedUser);
+    const prixer = mergePrixerAndUser(updatedPrixer, updatedUser);
 
     return prixer;
   } catch (e) {

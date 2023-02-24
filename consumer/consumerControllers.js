@@ -2,7 +2,6 @@ const consumerServices = require("./consumerService");
 
 const createConsumer = async (req, res) => {
   try {
-    // console.log(req.body);
     const result = await consumerServices.createConsumer(req.body);
     //   if(result.res.success) {
     // const consumerToken = consumerServices.generateToken(result.newConsumer);

@@ -2,10 +2,8 @@ const Consumer = require("./consumerModel");
 const dotenv = require("dotenv");
 dotenv.config();
 
-//Voy por aqui!! Incapaz de crear el usuario.
 const createConsumer = async (consumerData) => {
   try {
-    // console.log(consumerData);
     // const readedConsumerByEmail = await readConsumerByEmail(consumerData);
     // const readedConsumerByUsername = await readConsumerByUsername(consumerData.username);
     // if(readedConsumerByUsername) {
@@ -25,10 +23,8 @@ const createConsumer = async (consumerData) => {
     // }
     // const salt = await bcrypt.genSalt(2);
     // const hash = await bcrypt.hash(adminData.password, salt);
-    // console.log('consumerData');
     // adminData.password = hash;
     let newConsumer = await new Consumer(consumerData).save();
-    // console.log('consumerData 1');
     return {
       res: { success: true, consumerId: newConsumer._id },
       newConsumer: newConsumer,

@@ -7,7 +7,7 @@ const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 // Order
 router.post("/order/create", orderControllers.createOrder);
-router.post("/order/sendEmail", orderControllers.sendEmail);
+// router.post("/order/sendEmail", orderControllers.sendEmail);
 
 router.post(
   "/order/read",

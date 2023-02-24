@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const ArtSchema = Schema({
   artId: { type: String, required: true },
   title: { type: String, required: true },
-  category: { type: String, required: true },
+  category: { type: String, required: false },
   description: { type: String, required: true },
   tags: { type: Array, required: true },
   imageUrl: { type: String, required: true },

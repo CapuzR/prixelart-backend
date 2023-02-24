@@ -48,7 +48,7 @@ jobs:
         echo "ADMIN_TOKEN_EXPIRE_TIME=${{ secrets.ADMIN_TOKEN_EXPIRE_TIME }}" >> .env
         echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> .env
     - name: Publish to Github Packages Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v4
       with:
         name: capuzR/prixelart-backend/backend
         registry: docker.pkg.github.com
@@ -62,10 +62,9 @@ jobs:
           GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
+        host: ${{ secrets.DIGITAL_OCEAN_IP }}
+        username: ${{ secrets.DIGITAL_OCEAN_USERNAME }}
+        password: ${{ secrets.DIGITAL_OCEAN_PASSWORD }}
         envs: GIT_USERNAME, GITHUB_TOKEN
         script: |
           docker stop $(docker ps -a -q)

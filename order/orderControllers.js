@@ -1,4 +1,3 @@
-// const { result } = require("underscore");
 const orderServices = require("./orderService");
 
 //Order
@@ -142,8 +141,8 @@ const deletePaymentMethod = async (req, res) => {
     console.log(err);
   }
 };
-//Shipping method
 
+//Shipping method
 const createShippingMethod = async (req, res) => {
   try {
     const result = await orderServices.createShippingMethod(req.body);
