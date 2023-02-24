@@ -167,8 +167,9 @@ const readDollarValue = async (req, res) => {
 const updateDollarValue = async (req, res) => {
   try {
     const result = await dollarValue.find();
-    if (result === undefined || result === [] || result === null) {
-      const newDollar = await new dollarValue(req.body.dollarValue).save();
+    if (result === []) {
+      let content = { dollarValue: req.body.dollarValue };
+      const newDollar = await new dollarValue(content).save();
       return {
         success: true,
         productData: newDollar,
