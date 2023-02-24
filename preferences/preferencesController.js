@@ -7,7 +7,7 @@ const { nanoid } = require("nanoid");
 const { Carousel, dollarValue } = require("./preferencesModel");
 const { termsAndConditions } = require("./preferencesModel");
 const prixerModel = require("../prixer/prixerModel");
-
+const preferenceService = require("./preferencesService");
 dotenv.config();
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -166,29 +166,15 @@ const readDollarValue = async (req, res) => {
 };
 const updateDollarValue = async (req, res) => {
   try {
-    const result = await dollarValue.find();
-    if (result === []) {
-      let content = { dollarValue: req.body.dollarValue };
-      const newDollar = await new dollarValue(content).save();
-      return {
-        success: true,
-        productData: newDollar,
-      };
-    } else {
-      const updating = await dollarValue.findOne({ _id: result[0]._id });
-      updating.dollarValue = req.body.dollarValue;
-      await updating.save();
-
-      return {
-        success: true,
-        newDollar: updating,
-      };
-    }
+    const result = await preferenceService.updateDollarValue(
+      req.body.dollarValue
+    );
+    res.send(result);
   } catch (error) {
-    console.log(error);
-    res.send({ message: 505 });
+    res.status(500).send(error);
   }
 };
+
 const deleteDollar = async (req, res) => {
   try {
     await dollarValue.findOneAndDelete({ _id: req.params.id });
