@@ -251,8 +251,6 @@ const updateProduct = async (req, res) => {
         }
       }
 
-      console.log(variants);
-
       if (typeof req.body.attributesName === "object") {
         const a = req.body.attributesName.map((name, i) => {
           const b = req.body.attributesValue.map((value) => {

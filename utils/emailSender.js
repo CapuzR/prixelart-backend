@@ -1,27 +1,42 @@
-const { builtinModules } = require('module');
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+// const { builtinModules } = require("module");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// sgMail
+//   .send(message)
+//   .then((response) => {
+//     console.log(response[0].statusCode);
+//     console.log(response[0].headers);
+//     return {
+//       success: true,
+//       info: "Envío de correo exitoso.",
+//     };
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//     return {
+//       success: false,
+//       info: "Error en envío de correo. Por favor inténtalo de nuevo.",
+//     };
+//   });
 
-const sendEmail = (message)=> {
-  return sgMail
-  .send(message)
-  .then((response) => {
+const sendEmail = async (message) => {
+  try {
+    const response = await sgMail.send(message);
     return {
       success: true,
-      info: 'Envío de correo exitoso.'
-    }
-  })
-  .catch((error) => {
+      info: "Envío de correo exitoso.",
+    };
+  } catch (error) {
+    console.log(error);
     return {
       success: false,
-      info: 'Error en envío de correo. Por favor inténtalo de nuevo.'
-    }
-  })
-}
+      info: "Error en envío de correo. Por favor inténtalo de nuevo.",
+    };
+  }
+};
 
-
-module.exports = { sendEmail }
+module.exports = { sendEmail };
 
 // const message = {
 //     from: 'noresponder@prixelart.com', // Sender address

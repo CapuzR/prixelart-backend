@@ -7,25 +7,52 @@ const {
   deleteImageCarousel,
   readTermsAndConditions,
   updateTermsAndConditions,
+  readDollarValue,
+  updateDollarValue,
+  deleteDollar,
 } = require("./preferencesController");
 const express = require("express");
 const preferencesRoutes = express.Router();
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 preferencesRoutes.get("/carousel", readAllImagesCarousel);
 preferencesRoutes.get("/carousel/:id", readImageCarousel);
 preferencesRoutes.post(
   "/carousel",
-  upload.fields([{name: "bannerImagesDesktop", maxCount: 1}, {name: "bannerImagesMobile", maxCount: 1}]),
+  adminAuthServices.ensureAuthenticated,
+  upload.fields([
+    { name: "bannerImagesDesktop", maxCount: 1 },
+    { name: "bannerImagesMobile", maxCount: 1 },
+  ]),
   createImageCarousel
 );
 preferencesRoutes.put(
   "/carousel/:id",
-  upload.fields([{name: "bannerImagesDesktop", maxCount: 1}, {name: "bannerImagesMobile", maxCount: 1}]),
+  adminAuthServices.ensureAuthenticated,
+  upload.fields([
+    { name: "bannerImagesDesktop", maxCount: 1 },
+    { name: "bannerImagesMobile", maxCount: 1 },
+  ]),
   updateImageCarousel
 );
-preferencesRoutes.delete("/carousel/:id", deleteImageCarousel);
+preferencesRoutes.delete(
+  "/carousel/:id",
+  adminAuthServices.ensureAuthenticated,
+  deleteImageCarousel
+);
 
 preferencesRoutes.get("/termsAndConditions/read", readTermsAndConditions);
-preferencesRoutes.put("/termsAndConditions/update", updateTermsAndConditions);
+preferencesRoutes.put(
+  "/termsAndConditions/update",
+  adminAuthServices.ensureAuthenticated,
+  updateTermsAndConditions
+);
 
+preferencesRoutes.get("/dollarValue/read", readDollarValue);
+preferencesRoutes.post(
+  "/dollarValue/update",
+  adminAuthServices.ensureAuthenticated,
+  updateDollarValue
+);
+preferencesRoutes.delete("dollarValue/delete/:id", deleteDollar);
 module.exports = preferencesRoutes;

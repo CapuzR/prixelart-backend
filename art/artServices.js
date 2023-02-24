@@ -4,6 +4,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const accents = require("remove-accents");
 //CRUD
 const createArt = async (artData) => {
+  console.log(artData);
   const isArt = false;
   try {
     if (isArt) {
@@ -95,22 +96,34 @@ const readByUserIdByQuery = async (user, query) => {
     const readedArts = await Art.find({ prixerUsername: user })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.findOne({ artId: query });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
+      const artLocation = accents.remove(art.artLocation).toLowerCase();
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
-          artCategory.includes(text)
+          artCategory.includes(text) ||
+          artLocation.includes(text)
         );
       }
-      return artTitle.includes(text) || artDescription.includes(text);
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artLocation.includes(text)
+      );
     });
-
-    if (filterArts) {
+    if (specifyArt !== null) {
+      const data = {
+        info: "El arte que buscas",
+        arts: [specifyArt],
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
         arts: filterArts,
@@ -166,22 +179,34 @@ const readByUserIdQueryAndCategory = async (user, query) => {
     })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query.text });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
+      const artLocation = accents.remove(art.artLocation).toLowerCase();
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
-          artCategory.includes(text)
+          artCategory.includes(text) ||
+          artLocation.includes(text)
         );
       }
-      return artTitle.includes(text) || artDescription.includes(text);
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artLocation.includes(text)
+      );
     });
-
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes del Prixer disponibles",
         arts: filterArts,
@@ -235,22 +260,35 @@ const readByQueryAndCategory = async (query) => {
     const readedArts = await Art.find({ category: category })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.find({ artId: query.text });
+
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
+      const artLocation = accents.remove(art.artLocation).toLowerCase();
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
-          artCategory.includes(text)
+          artCategory.includes(text) ||
+          artLocation.includes(text)
         );
       }
-      return artTitle.includes(text) || artDescription.includes(text);
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artLocation.includes(text)
+      );
     });
-
-    if (filterArts) {
+    if (specifyArt) {
+      const data = {
+        info: "El arte que buscas",
+        arts: specifyArt,
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
         arts: filterArts,
@@ -275,21 +313,33 @@ const readByQuery = async (query) => {
     const readedArts = await Art.find({})
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+    const specifyArt = await Art.findOne({ artId: query.text });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
+      const artLocation = accents.remove(art.artLocation).toLowerCase();
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
-          artCategory.includes(text)
+          artCategory.includes(text) ||
+          artLocation.includes(text)
         );
       }
-      return artTitle.includes(text) || artDescription.includes(text);
+      return (
+        artTitle.includes(text) ||
+        artDescription.includes(text) ||
+        artLocation.includes(text)
+      );
     });
-
-    if (filterArts) {
+    if (specifyArt !== null) {
+      const data = {
+        info: "El arte que buscas",
+        arts: [specifyArt],
+      };
+      return data;
+    } else if (filterArts) {
       const data = {
         info: "Todos los artes disponibles",
         arts: filterArts,

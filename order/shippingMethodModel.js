@@ -3,17 +3,17 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const PaymentMethodSchema = Schema({
+const ShippingMethodSchema = Schema({
   active: { type: Boolean, required: true },
   name: { type: String, required: true },
   createdOn: { type: Date, required: true },
   createdBy: { type: Object, required: true },
-  instructions: { type: String, required: true },
-  paymentData: { type: String, required: false },
+  price: { type: String, required: true },
+  //   instruccions: { type: String, required: false },
 });
 
 module.exports = mongoose.model(
-  "PaymentMethod",
-  PaymentMethodSchema,
-  "paymentMethod"
+  "ShippingMethod",
+  ShippingMethodSchema,
+  "shippingMethod"
 );

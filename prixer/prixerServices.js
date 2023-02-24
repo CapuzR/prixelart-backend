@@ -188,6 +188,7 @@ const updatePrixer = async (prixerData, userData) => {
   try {
     const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
     toUpdatePrixer.specialtyArt = prixerData.specialtyArt.split(",");
+    toUpdatePrixer.instagram = prixerData.instagram;
     toUpdatePrixer.facebook = prixerData.facebook;
     toUpdatePrixer.twitter = prixerData.twitter;
     toUpdatePrixer.dateOfBirth = prixerData.dateOfBirth;
