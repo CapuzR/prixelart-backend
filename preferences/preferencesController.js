@@ -167,14 +167,22 @@ const readDollarValue = async (req, res) => {
 const updateDollarValue = async (req, res) => {
   try {
     const result = await dollarValue.find();
-    const updating = await dollarValue.findOne({ _id: result[0]._id });
-    updating.dollarValue = req.body.dollarValue;
-    await updating.save();
+    if (result === undefined || result === [] || result === null) {
+      const newDollar = await new dollarValue(req.body.dollarValue).save();
+      return {
+        success: true,
+        productData: newDollar,
+      };
+    } else {
+      const updating = await dollarValue.findOne({ _id: result[0]._id });
+      updating.dollarValue = req.body.dollarValue;
+      await updating.save();
 
-    return {
-      success: true,
-      newDollar: updating,
-    };
+      return {
+        success: true,
+        newDollar: updating,
+      };
+    }
   } catch (error) {
     console.log(error);
     res.send({ message: 505 });
