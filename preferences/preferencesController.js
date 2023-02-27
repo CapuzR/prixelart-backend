@@ -158,6 +158,7 @@ const updateTermsAndConditions = async (req, res) => {
 const readDollarValue = async (req, res) => {
   try {
     const result = await dollarValue.find();
+    console.log(result);
     res.send({ dollarValue: result[0].dollarValue });
   } catch (error) {
     console.log(error);
