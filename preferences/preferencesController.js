@@ -23,14 +23,7 @@ const upload = multer({
     bucket: process.env.PUBLIC_BUCKET_NAME,
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
-      req.body.Id = nanoid(7); //=> "5-JDFkc"
-      // req.body.avatar =
-      //   process.env.PUBLIC_BUCKET_URL +
-      //   "/" +
-      //   file.fieldname +
-      //   "-" +
-      //   req.body.Id +
-      //   "-large.webp";
+      req.body.Id = nanoid(7);
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
@@ -158,7 +151,6 @@ const updateTermsAndConditions = async (req, res) => {
 const readDollarValue = async (req, res) => {
   try {
     const result = await dollarValue.find();
-    console.log(result);
     res.send({ dollarValue: result[0].dollarValue });
   } catch (error) {
     console.log(error);

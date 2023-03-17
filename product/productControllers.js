@@ -268,6 +268,7 @@ const updateProduct = async (req, res) => {
         description: req.body.productDescription,
         category: req.body.productCategory,
         considerations: req.body.productConsiderations,
+        productionTime: req.body.productionTime,
         sources: {
           images: newResult,
           // video: req.body.productPideo
@@ -298,31 +299,36 @@ const updateProduct = async (req, res) => {
       const imagesResult =
         req.files["newProductImages"] !== [undefined] &&
         req.files["newProductImages"]?.length > 0
-          ? typeof req.body.images === "string"
-            ? [req.body.images]
-            : req.body.images
+          ? req.body.images
+            ? req.body.images && req.files["newProductImages"]
+            : req.files["newProductImages"]
           : typeof req.body.images === "string"
           ? [req.body.images]
           : req.body.images;
 
-      const newResult = imagesResult?.map((img, i) => {
-        switch (img[0]) {
-          case "h":
-            return {
-              type: "images",
-              url: img,
-            };
-            break;
-          case "<":
-            return {
-              type: "video",
-              url: img,
-            };
-            break;
-          default:
-            break;
-        }
-      });
+      const newResult = [];
+      //  imagesResult?.map((img, i) => {
+      //   if (img === null || img === undefined) {
+      //     return;
+      //   } else {
+      //     switch (img[0]) {
+      //       case "h":
+      //         return {
+      //           type: "images",
+      //           url: img,
+      //         };
+      //         break;
+      //       case "<":
+      //         return {
+      //           type: "video",
+      //           url: img,
+      //         };
+      //         break;
+      //       default:
+      //         break;
+      //     }
+      //   }
+      // });
 
       if (req?.files["newProductImages"]?.length > 0) {
         req?.files["newProductImages"]?.map((img, i) => {
@@ -332,46 +338,45 @@ const updateProduct = async (req, res) => {
           });
         });
       }
-      if (req.body.video !== "") {
-        const currentVideo = newResult.find(
+
+      if (
+        req.body.video !== "" ||
+        req.body.video !== null ||
+        req.body.video !== undefined
+      ) {
+        const currentVideo = newResult?.find(
           (result) => result?.type === "video"
         );
-        // console.log(currentVideo)
         if (currentVideo) {
           currentVideo.url = req.body.video;
-        } else {
-          newResult.push({
-            type: "video",
-            url: req.body.video,
-          });
         }
+        // else {
+        //   newResult.push({
+        //     type: "video",
+        //     url: req.body.video,
+        //   });
+        // }
       }
       const parseObject = {
         name: req.body.name,
         description: req.body.description,
         category: req.body.category,
         considerations: req.body.considerations,
-        sources: {
-          images: newResult,
-          // video: req.body.video
-        }, //images from Products
+        productionTime: req.body.productionTime,
+        sources: { images: newResult },
         publicPrice: {
           from: req.body.publicPriceFrom,
           to: req.body.publicPriceTo,
-        }, //price
+        },
         prixerPrice: {
           from: req.body.prixerPriceFrom,
           to: req.body.prixerPriceTo,
-        }, //prixerPrice
-        attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+        },
+        attributes: req.body.attributes ? req.body.attributes : [],
         active: req.body.active,
         variants: req.body.variants != undefined ? productsVariants : [],
         hasSpecialVar: req.body.hasSpecialVar,
       };
-
-      // console.log(parseObject.sources.images);
-      // console.log(imagesResult);
-      // console.log(newResult);
 
       const productResult = await productServices.updateProduct(
         parseObject,
