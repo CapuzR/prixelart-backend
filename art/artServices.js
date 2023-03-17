@@ -4,7 +4,6 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const accents = require("remove-accents");
 //CRUD
 const createArt = async (artData) => {
-  console.log(artData);
   const isArt = false;
   try {
     if (isArt) {
@@ -39,8 +38,8 @@ const createArt = async (artData) => {
 
 const readOneById = async (artSystemId) => {
   try {
-    const readedArt = await Art.findOne({ _id: artSystemId })
-      .select("-_id -__v -imageUrl")
+    const readedArt = await Art.findOne({ artId: artSystemId })
+      // .select("-_id -__v -imageUrl")
       // .sort({ points: -1, visible: -1 })
       .exec();
     if (readedArt) {
@@ -318,13 +317,18 @@ const readByQuery = async (query) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
+      const artTags = art.tags.map((tag) => {
+        const tags = accents.remove(tag).toLowerCase();
+        return tags;
+      });
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
         return (
           artTitle.includes(text) ||
           artDescription.includes(text) ||
           artCategory.includes(text) ||
-          artLocation.includes(text)
+          artLocation.includes(text) ||
+          artTags.includes(text)
         );
       }
       return (

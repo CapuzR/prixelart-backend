@@ -20,6 +20,12 @@ router.post(
   orderControllers.readAllOrders
 );
 router.put(
+  "/order/addVoucher/:id",
+  // adminAuthServices.ensureAuthenticated,
+  orderControllers.upload.single("paymentVoucher"),
+  orderControllers.addVoucher
+);
+router.put(
   "/order/update/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.updateOrder

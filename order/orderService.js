@@ -11,6 +11,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 //Order
 const createOrder = async (orderData) => {
   try {
+    // console.log("servicio", orderData);
     const newOrder = await new Order(orderData).save();
 
     const templates = {
@@ -49,7 +50,10 @@ const createOrder = async (orderData) => {
       // },
     };
 
-    return await emailSender.sendEmail(message);
+    return {
+      res: { success: true, orderId: newOrder.orderId },
+      newOrder: newOrder,
+    };
   } catch (e) {
     console.log(e);
     return "Incapaz de crear la orden, intenta de nuevo o consulta a soporte.";
@@ -125,6 +129,25 @@ const readAllOrders = async () => {
       orders: null,
     };
     return data;
+  }
+};
+
+const addVoucher = async (id, paymentVoucher) => {
+  try {
+    const toUpdateOrder = await Order.findOne({ orderId: id });
+    toUpdateOrder.paymentVoucher = paymentVoucher;
+    const updatedOrder = await toUpdateOrder.save();
+    if (!updatedOrder) {
+      return console.log("Order update error: " + err);
+    }
+
+    return updatedOrder;
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: e + "Disculpa. No se pudo agregar el comprobante a esta orden.",
+    };
   }
 };
 
@@ -437,6 +460,7 @@ const updateOrderPayment = async (orderPaymentData) => {
 
 module.exports = {
   createOrder,
+  addVoucher,
   sendEmail,
   readOrderByEmail,
   readOrderByUsername,

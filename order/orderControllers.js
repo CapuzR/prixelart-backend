@@ -1,14 +1,80 @@
 const orderServices = require("./orderService");
+const multer = require("multer");
+const multerS3 = require("multer-s3-transform");
+const dotenv = require("dotenv");
+const sharp = require("sharp");
+const aws = require("aws-sdk");
+const { nanoid } = require("nanoid");
+dotenv.config();
 
+const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
+const s3 = new aws.S3({
+  endpoint: spacesEndpoint,
+  accessKeyId: process.env.DO_ACCESS_KEY,
+  secretAccessKey: process.env.DO_ACCESS_SECRET,
+});
 //Order
 const createOrder = async (req, res) => {
+  console.log(req.body, "controlador");
   try {
-    const result = await orderServices.createOrder(req.body);
+    const orderData = {
+      orderId: req.body.orderId,
+      orderType: req.body.orderType,
+      createdOn: req.body.createdOn,
+      createdBy: req.body.createdBy,
+      subtotal: req.body.subtotal,
+      tax: req.body.tax,
+      total: req.body.total,
+      basicData: req.body.basicData,
+      shippingData: req.body.shippingData,
+      billingData: req.body.billingData,
+      requests: req.body.requests,
+      status: req.body.status,
+      observations: req.body.observations,
+    };
+    const result = await orderServices.createOrder(orderData);
     res.send(result);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log("err", err);
+  }
+};
+
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.PUBLIC_BUCKET_NAME,
+    acl: "public-read",
+    shouldTransform: function (req, file, cb) {
+      req.body.Id = nanoid(7);
+      cb(null, /^image/i.test(file.mimetype));
+    },
+    transforms: [
+      {
+        id: "desktopThumb",
+        key: function (req, file, cb) {
+          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+        },
+        transform: function (req, file, cb) {
+          cb(null, sharp().resize(1300, null).webp({ quality: 80 }));
+        },
+      },
+    ],
+  }),
+});
+
+const addVoucher = async (req, res) => {
+  try {
+    const updatedOrder = await orderServices.addVoucher(
+      req.params.id,
+      req.file.transforms[0].location
+    );
+    return res.send(updatedOrder);
   } catch (err) {
     res.status(500).send(err);
   }
 };
+addVoucher;
 
 const sendEmail = async (req, res) => {
   try {
@@ -241,6 +307,8 @@ const updateOrderPayment = async (req, res) => {
 
 module.exports = {
   createOrder,
+  upload,
+  addVoucher,
   sendEmail,
   readOrder,
   readAllOrders,

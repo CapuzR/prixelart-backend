@@ -20,7 +20,7 @@ router.put(
 router.get("/product/read-all", productControllers.readAllProducts);
 router.put(
   "/product/update/:id",
-  //   adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   productControllers.upload.fields([
     { name: "newProductImages", maxCount: 4 },
     { name: "variantImage", maxCount: 4 },

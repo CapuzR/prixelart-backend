@@ -204,7 +204,7 @@ const getOneById = async (req, res) => {
 
 const readOneById = async (req, res) => {
   try {
-    const readedArt = await artServices.readOneById(req.body.id);
+    const readedArt = await artServices.readOneById(req.body._id);
     res.send(readedArt);
   } catch (err) {
     console.log(err);
