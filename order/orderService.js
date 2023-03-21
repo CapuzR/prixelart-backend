@@ -79,16 +79,6 @@ const sendEmail = async (orderData) => {
         requestDate: `31/01/2023`,
         total: `25$`,
         paymentMethod: `Efectivo`,
-        biName: `war`,
-        biLastname: `g`,
-        biCi: `J-0000123434`,
-        Company: `MonsterInc`,
-        biPhone: `04149152323`,
-        biAddress: `torreta`,
-        shName: `juanito`,
-        shLastname: `alimaña`,
-        shPhone: `13413413413`,
-        shAddress: `Propa`,
       },
     };
     return emailSender.sendEmail(message);

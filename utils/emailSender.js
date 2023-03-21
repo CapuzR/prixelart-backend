@@ -23,6 +23,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const sendEmail = async (message) => {
   try {
     const response = await sgMail.send(message);
+    console.log(response);
     return {
       success: true,
       info: "Envío de correo exitoso.",
