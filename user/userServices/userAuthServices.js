@@ -100,6 +100,7 @@ const forgotPassword = async (email) => {
     const templates = {
       "forgot-password": "d-319b1f51b2424604b5e4951473205496",
     };
+    console.log(user.email);
     const message = {
       to: user.email,
       from: {
