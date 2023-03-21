@@ -19,14 +19,14 @@ const upload = multer({
     bucket: process.env.PUBLIC_BUCKET_NAME,
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
-      req.body.Id = nanoid(7); //=> "5-JDFkc"
+      // req.body.Id = nanoid(7); //=> "5-JDFkc"
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
       {
         id: "largeThumb",
         key: function (req, file, cb) {
-          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+          cb(null, file.fieldname + "-" + nanoid(7) + "-large.webp");
         },
         transform: function (req, file, cb) {
           cb(null, sharp().resize(300, 300).webp({ quality: 80 }));
@@ -296,43 +296,29 @@ const updateProduct = async (req, res) => {
       };
       return res.send(data);
     } else {
-      const imagesResult =
-        req.files["newProductImages"] !== [undefined] &&
-        req.files["newProductImages"]?.length > 0
-          ? req.body.images
-            ? req.body.images && req.files["newProductImages"]
-            : req.files["newProductImages"]
-          : typeof req.body.images === "string"
-          ? [req.body.images]
-          : req.body.images;
+      let newResult = [];
+      const previousImg = req.body.images.split(" ");
 
-      const newResult = [];
-      //  imagesResult?.map((img, i) => {
-      //   if (img === null || img === undefined) {
-      //     return;
-      //   } else {
-      //     switch (img[0]) {
-      //       case "h":
-      //         return {
-      //           type: "images",
-      //           url: img,
-      //         };
-      //         break;
-      //       case "<":
-      //         return {
-      //           type: "video",
-      //           url: img,
-      //         };
-      //         break;
-      //       default:
-      //         break;
-      //     }
-      //   }
-      // });
+      if (
+        previousImg &&
+        typeof previousImg === "string" &&
+        previousImg.includes("newProductImages")
+      ) {
+        newResult.push({ type: "images", url: previousImg });
+      } else if (
+        previousImg &&
+        typeof previousImg !== "string" &&
+        previousImg.length > 1
+      ) {
+        previousImg.map((img, i) => {
+          img.includes("newProductImages") &&
+            newResult.push({ type: "images", url: img.replace(/[,]/gi, "") });
+        });
+      }
 
-      if (req?.files["newProductImages"]?.length > 0) {
-        req?.files["newProductImages"]?.map((img, i) => {
-          newResult?.push({
+      if (req.files["newProductImages"] !== undefined) {
+        req.files["newProductImages"].map((img, i) => {
+          newResult.push({
             type: "images",
             url: img.transforms[0].location,
           });
@@ -344,19 +330,12 @@ const updateProduct = async (req, res) => {
         req.body.video !== null ||
         req.body.video !== undefined
       ) {
-        const currentVideo = newResult?.find(
-          (result) => result?.type === "video"
-        );
-        if (currentVideo) {
-          currentVideo.url = req.body.video;
-        }
-        // else {
-        //   newResult.push({
-        //     type: "video",
-        //     url: req.body.video,
-        //   });
-        // }
+        newResult.push({
+          type: "video",
+          url: req.body.video,
+        });
       }
+
       const parseObject = {
         name: req.body.name,
         description: req.body.description,
