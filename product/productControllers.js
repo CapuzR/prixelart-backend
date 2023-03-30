@@ -193,9 +193,10 @@ const updateProduct = async (req, res) => {
         return newVariantResult;
       }
 
-      const variants = {
+      const variants = [];
+      variants.push({
         _id: req.body.variant_id,
-        variantImage: req.body.images ? newVariantResult : [],
+        variantImage: [],
         active: req.body.variantActive,
         name: req.body.variantName,
         description: req.body.variantDescription,
@@ -220,37 +221,27 @@ const updateProduct = async (req, res) => {
           to: req.body.variantPrixerPriceTo,
           equation: req.body.variantPrixerPriceEq,
         },
-      };
+      });
       if (req.files["variantImage"]?.length > 0) {
         req.files["variantImage"].map((img, i) => {
-          variants.variantImage.push({
+          variants[0].variantImage.push({
             type: "images",
             url: img.transforms[0].location,
           });
         });
       }
       if (req.body.video !== "") {
-        const currentVideo = newVariantResult?.find(
-          (result) => result.type === "video"
-        );
-        if (currentVideo) {
-          currentVideo.url = req.body.video;
-        } else {
-          const currentVideo = newVariantResult?.find(
-            (result) => result?.type === "video"
-          );
-          if (currentVideo && req.body.video === "") {
-            const indexVideo = newVariantResult.indexOf(currentVideo);
-            newVariantResult.splice(indexVideo, 1);
-          } else {
-            variants.variantImage.push({
-              type: "video",
-              url: req.body.video,
-            });
-          }
-        }
+        variants.variantImage.push({
+          type: "video",
+          url: req.body.video,
+        });
       }
 
+      if (productsVariants) {
+        productsVariants.map((prevVariant) => {
+          variants.push(prevVariant);
+        });
+      }
       if (typeof req.body.attributesName === "object") {
         const a = req.body.attributesName.map((name, i) => {
           const b = req.body.attributesValue.map((value) => {
@@ -325,17 +316,59 @@ const updateProduct = async (req, res) => {
         });
       }
 
-      if (
-        req.body.video !== "" ||
-        req.body.video !== null ||
-        req.body.video !== undefined
-      ) {
+      if (req.body.video !== undefined) {
         newResult.push({
           type: "video",
           url: req.body.video,
         });
       }
 
+      let variants = [];
+      if (productsVariants) {
+        variants = productsVariants;
+      }
+
+      const variant = {
+        _id: req.body.variant_id,
+        variantImage: req.body.images ? newVariantResult : [],
+        active: req.body.variantActive,
+        name: req.body.variantName,
+        description: req.body.variantDescription,
+        category: req.body.variantCategory,
+        considerations: req.body.variantConsiderations,
+        attributes:
+          typeof req.body.attributesName === "string"
+            ? [
+                {
+                  name: req.body.attributesName,
+                  value: req.body.attributesValue,
+                },
+              ]
+            : [],
+        publicPrice: {
+          from: req.body.variantPublicPriceFrom,
+          to: req.body.variantPublicPriceTo,
+          equation: req.body.variantPublicPriceEq,
+        }, //price
+        prixerPrice: {
+          from: req.body.variantPrixerPriceFrom,
+          to: req.body.variantPrixerPriceTo,
+          equation: req.body.variantPrixerPriceEq,
+        },
+      };
+
+      if (req.files["variantImage"]?.length > 0) {
+        req.files["variantImage"].map((img, i) => {
+          variants.variantImage.push({
+            type: "images",
+            url: img.transforms[0].location,
+          });
+        });
+      }
+
+      if (variant) {
+        variants.push(variant);
+      }
       const parseObject = {
         name: req.body.name,
         description: req.body.description,
@@ -353,7 +386,7 @@ const updateProduct = async (req, res) => {
         },
         attributes: req.body.attributes ? req.body.attributes : [],
         active: req.body.active,
-        variants: req.body.variants != undefined ? productsVariants : [],
+        variants: variants,
         hasSpecialVar: req.body.hasSpecialVar,
       };
 
