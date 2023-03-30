@@ -63,7 +63,8 @@ const createOrder = async (orderData) => {
 const sendEmail = async (orderData) => {
   try {
     const templates = {
-      "order-sent": "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
+      newOrder: "d-68b028bb495347059d343137d2517857",
+      "forgot-password": "d-319b1f51b2424604b5e4951473205496",
     };
     const message = {
       to: "lizard232010@hotmail.com",
@@ -71,14 +72,14 @@ const sendEmail = async (orderData) => {
         email: "prixers@prixelart.com",
         name: "Prixelart",
       },
-      templateId: templates["order-sent"],
+      templateId: templates["forgot-password"],
       dynamic_template_data: {
         firstname: `wario`,
-        lastname: `torres`,
-        requests: `tacos, burrito de carne y fresco`,
-        requestDate: `31/01/2023`,
-        total: `25$`,
-        paymentMethod: `Efectivo`,
+        // lastname: `torres`,
+        // requests: `tacos, burrito de carne y fresco`,
+        // requestDate: `31/01/2023`,
+        // total: `25$`,
+        // paymentMethod: `Efectivo`,
       },
     };
     return emailSender.sendEmail(message);
