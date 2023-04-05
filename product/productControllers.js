@@ -71,19 +71,18 @@ const createProduct = async (req, res, next) => {
       category: req.body.category,
       considerations: req.body.considerations,
       sources: {
-        // typeFile: req.body.typeFile,
         images: imagesResult,
         // video: req.body.video
-      }, //images from Products
+      },
       publicPrice: {
         from: req.body.publicPriceFrom,
         to: req.body.publicPriceTo,
-      }, //price
+      },
       prixerPrice: {
         from: req.body.prixerPriceFrom,
         to: req.body.prixerPriceTo,
-      }, //prixerPrice
-      attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+      },
+      attributes: req.body.attributes ? req.body.attributes : [],
       active: req.body.active,
       variants: req.body.variants ? req.body.variants : [],
       hasSpecialVar: req.body.hasSpecialVar,
@@ -157,47 +156,38 @@ const updateProduct = async (req, res) => {
                   break;
               }
             });
-      let newVariantResult;
-      if (req.body.images !== undefined) {
-        newVariantResult =
-          typeof req.body.images === "string"
-            ? [
-                {
-                  type: "images",
-                  url: req.body.images,
-                },
-              ]
-            : req.body.images.map((img, i) => {
-                switch (img[0]) {
-                  case "h":
-                    return (objParse = {
-                      type: "images",
-                      url: img,
-                    });
-                    break;
-                  case "<":
-                    return (objParse = {
-                      type: "video",
-                      url: img,
-                    });
-                    break;
-                  default:
-                    return (objParse = {
-                      type: "images",
-                      url: img,
-                    });
-                    break;
-                }
-              });
 
-        return newVariantResult;
-      }
+      // let newVariantResult = [];
+      // if (req.body.images !== undefined) {
+      //   newVariantResult =
+      //     typeof req.body.images === "string"
+      //       ? [
+      //           {
+      //             type: "images",
+      //             url: req.body.images,
+      //           },
+      //         ]
+      //       : req.body.images.length > 1 &&
+      //         req.body.images.map((img, i) => {
+      //           if (img.type === "images") {
+      //             newVariantResult.push({
+      //               type: "images",
+      //               url: img.url,
+      //             });
+      //           } else if (img.type === "video") {
+      //             newVariantResult.push({
+      //               type: "video",
+      //               url: img.url,
+      //             });
+      //           }
+      //         });
+      // }
 
       const variants = [];
-      variants.push({
+      const newVariant = {
         _id: req.body.variant_id,
         variantImage: [],
-        active: req.body.variantActive,
+        active: Boolean(req.body.variantActive),
         name: req.body.variantName,
         description: req.body.variantDescription,
         category: req.body.variantCategory,
@@ -221,27 +211,41 @@ const updateProduct = async (req, res) => {
           to: req.body.variantPrixerPriceTo,
           equation: req.body.variantPrixerPriceEq,
         },
-      });
+      };
+
       if (req.files["variantImage"]?.length > 0) {
         req.files["variantImage"].map((img, i) => {
-          variants[0].variantImage.push({
+          newVariant.variantImage.push({
             type: "images",
             url: img.transforms[0].location,
           });
         });
       }
-      if (req.body.video !== "") {
-        variants.variantImage.push({
+
+      const previousImg = req.body.images.split(" ");
+      if (previousImg !== undefined) {
+        previousImg &&
+          previousImg.map((img) => {
+            img.includes("variantImage") &&
+              newVariant.variantImage.push({
+                type: "images",
+                url: img.replace(/[,]/gi, ""),
+              });
+          });
+      }
+      if (req.body.video !== undefined && req.body.video !== "undefined") {
+        newVariant.variantImage.push({
           type: "video",
           url: req.body.video,
         });
       }
 
-      if (productsVariants) {
+      if (productsVariants !== []) {
         productsVariants.map((prevVariant) => {
           variants.push(prevVariant);
         });
       }
+
       if (typeof req.body.attributesName === "object") {
         const a = req.body.attributesName.map((name, i) => {
           const b = req.body.attributesValue.map((value) => {
@@ -252,8 +256,19 @@ const updateProduct = async (req, res) => {
             value: b[i],
           };
         });
-        variants.attributes.push(a);
+        newVariant.attributes.push(a);
       }
+
+      if (variants !== []) {
+        variants.map((variant, i) => {
+          if (variant._id === newVariant._id) {
+            variants.splice(i, 1, newVariant);
+          } else {
+            return;
+          }
+        });
+      }
+
       const parseObject = {
         name: req.body.productName,
         description: req.body.productDescription,
@@ -262,19 +277,24 @@ const updateProduct = async (req, res) => {
         productionTime: req.body.productionTime,
         sources: {
           images: newResult,
-          // video: req.body.productPideo
-        }, //images from Products
+        },
         publicPrice: {
           from: req.body.productPublicPriceFrom,
           to: req.body.productPublicPriceTo,
-        }, //price
+        },
         prixerPrice: {
           from: req.body.productPrixerPriceFrom,
           to: req.body.productPrixerPriceTo,
-        }, //prixerPrice
-        attributes: req.body.attributes ? req.body.attributes : [], //activeAttributes
+        },
+        attributes: req.body.attributes ? req.body.attributes : [],
         active: req.body.productActive,
-        variants: variants,
+        variants: variants.map((variant) => {
+          if (variant._id !== null && variant._id !== undefined) {
+            return variant;
+          } else {
+            undefined;
+          }
+        }),
         hasSpecialVar: req.body.productHasSpecialVar,
       };
       const productResult = await productServices.updateProduct(
@@ -296,11 +316,7 @@ const updateProduct = async (req, res) => {
         previousImg.includes("newProductImages")
       ) {
         newResult.push({ type: "images", url: previousImg });
-      } else if (
-        previousImg &&
-        typeof previousImg !== "string" &&
-        previousImg.length > 1
-      ) {
+      } else if (previousImg && previousImg.length > 1) {
         previousImg.map((img, i) => {
           img.includes("newProductImages") &&
             newResult.push({ type: "images", url: img.replace(/[,]/gi, "") });
@@ -328,9 +344,9 @@ const updateProduct = async (req, res) => {
         variants = productsVariants;
       }
 
-      const variant = {
+      const newVariant = {
         _id: req.body.variant_id,
-        variantImage: req.body.images ? newVariantResult : [],
+        variantImage: req.body.images ? newResult : [],
         active: req.body.variantActive,
         name: req.body.variantName,
         description: req.body.variantDescription,
@@ -349,7 +365,7 @@ const updateProduct = async (req, res) => {
           from: req.body.variantPublicPriceFrom,
           to: req.body.variantPublicPriceTo,
           equation: req.body.variantPublicPriceEq,
-        }, //price
+        },
         prixerPrice: {
           from: req.body.variantPrixerPriceFrom,
           to: req.body.variantPrixerPriceTo,
@@ -366,9 +382,16 @@ const updateProduct = async (req, res) => {
         });
       }
 
-      if (variant) {
-        variants.push(variant);
+      if (variants !== []) {
+        variants.map((variant, i) => {
+          if (variant._id === newVariant._id) {
+            variants.splice(i, 1, newVariant);
+          } else {
+            return;
+          }
+        });
       }
+
       const parseObject = {
         name: req.body.name,
         description: req.body.description,
@@ -389,7 +412,6 @@ const updateProduct = async (req, res) => {
         variants: variants,
         hasSpecialVar: req.body.hasSpecialVar,
       };
-
       const productResult = await productServices.updateProduct(
         parseObject,
         req.params.id
@@ -415,6 +437,11 @@ async function deleteProduct(req, res) {
   return res.send(data);
 }
 
+async function deleteVariant(req, res) {
+  const variantToDelete = await productServices.deleteVariant(req.body);
+  data = { variantToDelete, success: true };
+  return res.send(data);
+}
 module.exports = {
   upload,
   createProduct,
@@ -423,6 +450,7 @@ module.exports = {
   readAllProductsAdmin,
   updateProduct,
   deleteProduct,
+  deleteVariant,
 };
 
 // //CRUD END

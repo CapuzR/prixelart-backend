@@ -27,5 +27,10 @@ router.put(
   ]),
   productControllers.updateProduct
 );
+router.put(
+  "/product/deleteVariant",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.deleteVariant
+);
 
 module.exports = router;

@@ -15,7 +15,6 @@ const s3 = new aws.S3({
 });
 //Order
 const createOrder = async (req, res) => {
-  console.log(req.body, "controlador");
   try {
     const orderData = {
       orderId: req.body.orderId,
@@ -99,6 +98,17 @@ const readOrder = async (req, res) => {
 const readAllOrders = async (req, res) => {
   try {
     const readedOrders = await orderServices.readAllOrders();
+    res.send(readedOrders);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
+const readOrdersByPrixer = async (req, res) => {
+  try {
+    const prixer = req.body.prixer;
+    const readedOrders = await orderServices.readOrdersByPrixer(prixer);
     res.send(readedOrders);
   } catch (err) {
     res.status(500).send(err);
@@ -312,6 +322,7 @@ module.exports = {
   sendEmail,
   readOrder,
   readAllOrders,
+  readOrdersByPrixer,
   updateOrder,
   updateOrderPayStatus,
   deleteOrder,

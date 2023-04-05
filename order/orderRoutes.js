@@ -19,6 +19,7 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllOrders
 );
+router.post("/order/byPrixer", orderControllers.readOrdersByPrixer);
 router.put(
   "/order/addVoucher/:id",
   // adminAuthServices.ensureAuthenticated,

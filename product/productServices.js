@@ -1,3 +1,4 @@
+const { findById } = require("./productModel");
 const Product = require("./productModel");
 const Products = require("./products");
 
@@ -112,6 +113,29 @@ const deleteProduct = async (productId) => {
   }
 };
 
+const deleteVariant = async (data) => {
+  try {
+    const selectedProduct = data.id;
+    const indexVariant = data.i;
+
+    const productToUpdate = await Product.findById(selectedProduct);
+    productToUpdate.variants.splice(indexVariant, 1);
+    // productToUpdate.variants = [];
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      selectedProduct,
+      productToUpdate
+    );
+    if (!updatedProduct) {
+      return console.log("Cannot delete variant:" + err);
+    }
+    return "Variante eliminada con éxito";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 module.exports = {
   createProduct,
   readById,
@@ -119,4 +143,5 @@ module.exports = {
   readAllProductsAdmin,
   updateProduct,
   deleteProduct,
+  deleteVariant,
 };
