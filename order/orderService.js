@@ -11,45 +11,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 //Order
 const createOrder = async (orderData) => {
   try {
-    // console.log("servicio", orderData);
     const newOrder = await new Order(orderData).save();
-
-    const templates = {
-      "order-sent": "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
-    };
-    const message = {
-      to: "lizard232010@hotmail.com",
-      // dhenriquez@prixelart.com,
-      // ventas.prixelart@gmail.com,
-      // ventas2.prixelart@gmail.com
-      from: {
-        email: "prixers@prixelart.com",
-        name: "Prixelart",
-      },
-      templateId:
-        // "d-3e9eb5951e4b4aabb58bbc5bcc9acc40",
-        templates["order-sent"],
-
-      // dynamic_template_data: {
-      //   firstname: `${orderData.basicData.firstname}`,
-      //   lastname: `${orderData.basicData.lastname}`,
-      //   requests: `${orderData.requests}`,
-      //   requestDate: `${orderData.createdOn}`,
-      //   total: `${orderData.total}`,
-      //   paymentMethod: `${orderData.billingData.orderPaymentMethod}`,
-      //   biName: `${orderData.billingData.name}`,
-      //   biLastname: `${orderData.billingData.lastname}`,
-      //   biCi: `${orderData.billingData.ci}`,
-      //   Company: `${orderData.billingData.company}`,
-      //   biPhone: `${orderData.billingData.phone}`,
-      //   biAddress: `${orderData.billingData.address}`,
-      //   shName: `${orderData.shippingData.name}`,
-      //   shLastname: `${orderData.shippingData.lastname}`,
-      //   shPhone: `${orderData.shippingData.phone}`,
-      //   shAddress: `${orderData.shippingData.address}`,
-      // },
-    };
-
     return {
       res: { success: true, orderId: newOrder.orderId },
       newOrder: newOrder,
@@ -64,22 +26,20 @@ const sendEmail = async (orderData) => {
   try {
     const templates = {
       newOrder: "d-68b028bb495347059d343137d2517857",
-      "forgot-password": "d-319b1f51b2424604b5e4951473205496",
     };
     const message = {
-      to: "lizard232010@hotmail.com",
+      to: orderData.email,
       from: {
         email: "prixers@prixelart.com",
         name: "Prixelart",
       },
-      templateId: templates["forgot-password"],
+      templateId: templates["newOrder"],
       dynamic_template_data: {
-        firstname: `wario`,
-        // lastname: `torres`,
-        // requests: `tacos, burrito de carne y fresco`,
-        // requestDate: `31/01/2023`,
-        // total: `25$`,
-        // paymentMethod: `Efectivo`,
+        firstname: orderData.firstname,
+        lastname: orderData.lastname,
+        requests: orderData.requests,
+        orderId: orderData.orderId,
+        total: orderData.total,
       },
     };
     return emailSender.sendEmail(message);
@@ -113,6 +73,33 @@ const readAllOrders = async () => {
       orders: readedOrder,
     };
 
+    return data;
+  } else {
+    const data = {
+      info: "No hay órdenes registradas",
+      orders: null,
+    };
+    return data;
+  }
+};
+
+const readOrdersByPrixer = async (prixer) => {
+  let orders = await Order.find({ status: "Completada" });
+  let readedOrders = [];
+  orders.map((order) => {
+    order.requests?.map((item) => {
+      // const isPrixer = await order.basicData.
+
+      if (item.art.prixerUsername === prixer) {
+        readedOrders.push(item);
+      }
+    });
+  });
+  if (readedOrders) {
+    const data = {
+      info: "Las órdenes disponibles",
+      order: readedOrders,
+    };
     return data;
   } else {
     const data = {
@@ -456,6 +443,7 @@ module.exports = {
   readOrderByEmail,
   readOrderByUsername,
   readAllOrders,
+  readOrdersByPrixer,
   updateOrder,
   updateOrderPayStatus,
   deleteOrder,
