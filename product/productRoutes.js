@@ -7,14 +7,14 @@ const productControllers = require("./productControllers");
 
 router.post(
   "/product/create",
-  //   adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   productControllers.upload.array("productImages", 4),
   productControllers.createProduct
 );
 router.post("/product/read", productControllers.readById);
 router.put(
   "/product/delete/:id",
-  //   adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   productControllers.deleteProduct
 );
 router.get("/product/read-all", productControllers.readAllProducts);
@@ -26,6 +26,12 @@ router.put(
     { name: "variantImage", maxCount: 4 },
   ]),
   productControllers.updateProduct
+);
+router.put(
+  "/product/updateVariants/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.upload.array("variantImage", 4),
+  productControllers.updateVariants
 );
 router.put(
   "/product/deleteVariant",

@@ -12,7 +12,7 @@ const ProductSchema = Schema({
   sources: {
     // typeFile: {type: String, required: true},
     images: { type: Array, required: true },
-    // video: {type: String, required: false}
+    video: { type: String, required: false },
   }, //images from Products
   publicPrice: {
     from: { type: String, required: false },
