@@ -1,6 +1,4 @@
-const { findById } = require("./productModel");
 const Product = require("./productModel");
-const Products = require("./products");
 
 const createProduct = async (productData) => {
   try {

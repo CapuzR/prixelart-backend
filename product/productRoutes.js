@@ -18,6 +18,12 @@ router.put(
   productControllers.deleteProduct
 );
 router.get("/product/read-all", productControllers.readAllProducts);
+router.post(
+  "/product/read-all-admin",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.readAllProductsAdmin
+);
+
 router.put(
   "/product/update/:id",
   adminAuthServices.ensureAuthenticated,
