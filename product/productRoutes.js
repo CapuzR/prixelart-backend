@@ -20,7 +20,7 @@ router.put(
 router.get("/product/read-all", productControllers.readAllProducts);
 router.post(
   "/product/read-all-admin",
-  // adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
 );
 
