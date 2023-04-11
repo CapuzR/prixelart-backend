@@ -66,17 +66,22 @@ const readAllProducts = async () => {
 const readAllProductsAdmin = async () => {
   try {
     const readedProducts = await Product.find({}).exec();
+    const Products = await Product.find();
+    console.log(readedProducts, "readed products");
+    console.log(Products, "anterior servicio");
     if (readedProducts) {
       const data = {
         info: "Todos los productos disponibles",
         products: readedProducts,
       };
+      console.log(data, "data retornada");
       return data;
     } else {
       const data = {
         info: "No hay productos registrados",
         arts: null,
       };
+      console.log(data, "data retornada");
       return data;
     }
   } catch (error) {
