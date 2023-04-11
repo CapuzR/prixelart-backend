@@ -64,6 +64,7 @@ const readAllProducts = async () => {
   }
 };
 const readAllProductsAdmin = async () => {
+  console.log("está llegando fuera del try");
   try {
     const readedProducts = await Product.find({}).exec();
     const Products = await Product.find();
