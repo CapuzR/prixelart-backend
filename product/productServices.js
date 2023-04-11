@@ -65,7 +65,7 @@ const readAllProducts = async () => {
 };
 const readAllProductsAdmin = async () => {
   try {
-    const readedProducts = await Product.find();
+    const readedProducts = await Product.find({}).exec();
     if (readedProducts) {
       const data = {
         info: "Todos los productos disponibles",
