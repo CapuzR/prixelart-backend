@@ -18,9 +18,9 @@ router.put(
   productControllers.deleteProduct
 );
 router.get("/product/read-all", productControllers.readAllProducts);
-router.post(
+router.get(
   "/product/read-allv1",
-  adminAuthServices.ensureAuthenticated,
+  // adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
 );
 
