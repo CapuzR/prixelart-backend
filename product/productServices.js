@@ -64,23 +64,19 @@ const readAllProducts = async () => {
   }
 };
 const readAllProductsAdmin = async () => {
-  console.log("está llegando fuera del try");
   try {
     const readedProducts = await Product.find();
-    console.log(readedProducts, "readed products");
     if (readedProducts) {
       const data = {
         info: "Todos los productos disponibles",
         products: readedProducts,
       };
-      console.log(data, "data retornada");
       return data;
     } else {
       const data = {
         info: "No hay productos registrados",
         arts: null,
       };
-      console.log(data, "data retornada");
       return data;
     }
   } catch (error) {

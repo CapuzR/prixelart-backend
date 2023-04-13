@@ -113,9 +113,7 @@ const readAllProducts = async (req, res) => {
 };
 
 const readAllProductsAdmin = async (req, res) => {
-  console.log(req.body, "controlador");
   try {
-    console.log("dentro del try del controlador");
     const readedProducts = await productServices.readAllProductsAdmin();
     res.send(readedProducts);
   } catch (err) {
