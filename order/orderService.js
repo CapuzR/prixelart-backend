@@ -28,18 +28,25 @@ const sendEmail = async (orderData) => {
       newOrder: "d-68b028bb495347059d343137d2517857",
     };
     const message = {
-      to: orderData.email,
+      to: orderData.basicData.email,
       from: {
         email: "prixers@prixelart.com",
         name: "Prixelart",
       },
       templateId: templates["newOrder"],
       dynamic_template_data: {
-        firstname: orderData.firstname,
-        lastname: orderData.lastname,
+        firstname: orderData.basicData.firstname,
+        lastname: orderData.basicData.lastname,
+        basicData: orderData.basicData,
+        shippingData: orderData.shippingData,
+        billingData: orderData.billingData,
         requests: orderData.requests,
+        subtotal: orderData.subtotal,
+        tax: orderData.tax,
+        shippinCost: orderData.shippingCost,
         orderId: orderData.orderId,
         total: orderData.total,
+        observations: orderData.observations,
       },
     };
     return emailSender.sendEmail(message);
@@ -91,14 +98,14 @@ const readOrdersByPrixer = async (prixer) => {
       // const isPrixer = await order.basicData.
 
       if (item.art.prixerUsername === prixer) {
-        readedOrders.push(item);
+        readedOrders.push(order);
       }
     });
   });
   if (readedOrders) {
     const data = {
       info: "Las órdenes disponibles",
-      order: readedOrders,
+      orders: readedOrders,
     };
     return data;
   } else {
