@@ -17,12 +17,12 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteProduct
 );
-router.get("/product/read-all", productControllers.readAllProducts);
 router.get(
   "/product/read-allv1",
   // adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
 );
+router.get("/product/read-all", productControllers.readAllProducts);
 
 router.put(
   "/product/update/:id",
