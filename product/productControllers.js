@@ -41,23 +41,7 @@ const upload = multer({
 const createProduct = async (req, res, next) => {
   try {
     const imagesResult = [];
-    if (req.body.video && req.files) {
-      req.files.map((img, i) => {
-        imagesResult.push({
-          type: "images",
-          url: img.transforms[0].location,
-        });
-      });
-      imagesResult.push({
-        type: "video",
-        url: req.body.video,
-      });
-    } else if (req.body.video && req.files == undefined) {
-      imagesResult.push({
-        type: "video",
-        url: req.body.video,
-      });
-    } else {
+    if (req.files) {
       req.files.map((img, i) => {
         imagesResult.push({
           type: "images",
@@ -65,11 +49,18 @@ const createProduct = async (req, res, next) => {
         });
       });
     }
+    if (req.body.video) {
+      imagesResult.push({
+        type: "video",
+        url: req.body.video,
+      });
+    }
     const parseObject = {
       name: req.body.name,
       description: req.body.description,
       category: req.body.category,
       considerations: req.body.considerations,
+      productionTime: req.body.productionTime,
       sources: {
         images: imagesResult,
         // video: req.body.video
@@ -151,11 +142,12 @@ const updateProduct = async (req, res) => {
         });
       });
     }
-
-    const sources = {
-      images: newResult,
-      video: req.body.video,
-    };
+    if (req.body.video) {
+      newResult.push({
+        type: "video",
+        url: req.body.video,
+      });
+    }
 
     const parseObject = {
       name: req.body.name,
@@ -163,7 +155,7 @@ const updateProduct = async (req, res) => {
       category: req.body.category,
       considerations: req.body.considerations,
       productionTime: req.body.productionTime,
-      sources: sources,
+      sources: { images: newResult },
       publicPrice: {
         from: req.body.publicPriceFrom,
         to: req.body.publicPriceTo,
