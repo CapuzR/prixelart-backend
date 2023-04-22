@@ -27,15 +27,19 @@ const sendEmail = async (orderData) => {
     const templates = {
       newOrder: "d-68b028bb495347059d343137d2517857",
     };
+    const destination = orderData.basicData.email;
     const message = {
-      to: orderData.basicData.email,
+      to: destination,
+      // to: "lizard232010@hotmail.com",
       from: {
         email: "prixers@prixelart.com",
         name: "Prixelart",
       },
-      templateId: templates["newOrder"],
+      templateId: "d-68b028bb495347059d343137d2517857",
+      //  templates["newOrder"],
       dynamic_template_data: {
-        firstname: orderData.basicData.firstname,
+        name:
+          orderData.basicData.firstname + " " + orderData.basicData.lastname,
         lastname: orderData.basicData.lastname,
         basicData: orderData.basicData,
         shippingData: orderData.shippingData,
@@ -43,7 +47,7 @@ const sendEmail = async (orderData) => {
         requests: orderData.requests,
         subtotal: orderData.subtotal,
         tax: orderData.tax,
-        shippinCost: orderData.shippingCost,
+        shippingCost: orderData.shippingCost,
         orderId: orderData.orderId,
         total: orderData.total,
         observations: orderData.observations,
