@@ -146,7 +146,7 @@ function originalArtCb(request, res, next) {
       const publicArtUrl =
         process.env.PUBLIC_BUCKET_URL +
         "/" +
-        accents.remove(request.body.title.replace(/ /g, "_")).toLowerCase() +
+        accents.remove(request.body.title).replace(/ /g, "_").toLowerCase() +
         "-" +
         request.body.artId;
 

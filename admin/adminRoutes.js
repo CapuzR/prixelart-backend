@@ -8,7 +8,10 @@ const adminAuthServices = require("./adminServices/adminAuthServices");
 const productControllers = require("../product/productControllers");
 const preferencesRoutes = require("../preferences/preferencesRoutes");
 
+// Login
 router.post("/admin/login", adminAuthControllers.adminLogin);
+
+// Admin
 router.post(
   "/admin/create",
   adminAuthServices.ensureAuthenticated,
@@ -40,4 +43,22 @@ router.use(
   preferencesRoutes
 );
 
+router.delete(
+  "/admin/delete/:username",
+  adminAuthServices.ensureAuthenticated,
+  adminControllers.deleteAdmin
+);
+
+// Admin Roles
+router.post(
+  "/adminRole/create",
+  adminAuthServices.ensureAuthenticated,
+  adminControllers.createAdminRole
+);
+
+router.post(
+  "/admin/read-roles",
+  adminAuthServices.ensureAuthenticated,
+  adminControllers.readAdminRoles
+);
 module.exports = router;
