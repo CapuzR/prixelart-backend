@@ -59,6 +59,7 @@ const authenticate = async (adminData) => {
       } else {
         const payload = {
           username: admin.username,
+          area: admin.area,
           firstName: admin.firstName,
           lastName: admin.lastName,
           phone: admin.phone,
