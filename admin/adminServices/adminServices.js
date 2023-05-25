@@ -31,9 +31,9 @@ const readAdminByUsername = async (username) => {
   return await Admin.findOne({ username: username }).exec();
 };
 
-const updateAdmin = async (adminData) => {
+const updateAdmin = async (id, adminData) => {
   try {
-    const toUpdateAdmin = await Admin.findOne({ email: adminData.email });
+    const toUpdateAdmin = await Admin.findOne({ _id: id });
     toUpdateAdmin.set(adminData);
     const updatedAdmin = await toUpdateAdmin.save();
     if (!updatedAdmin) {
@@ -86,6 +86,32 @@ const readAdminRoles = async () => {
     return false;
   }
 };
+
+const updateAdminRole = async (id, role) => {
+  try {
+    const toUpdate = await adminRole.findOne({ _id: id });
+    toUpdate.set(role);
+    const updatedAdminRole = await toUpdate.save();
+    if (!updatedAdminRole) {
+      return console.log("Art update error: " + err);
+    }
+    return "Actualización realizada con éxito." + updatedAdminRole;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+const deleteAdminRole = async (id) => {
+  try {
+    const toDeleteAdminRole = await adminRole.findOneAndDelete({ _id: id });
+    return toDeleteAdminRole;
+  } catch (e) {
+    return {
+      success: false,
+      message: e,
+    };
+  }
+};
 module.exports = {
   readAdminById,
   readAllAdmins,
@@ -96,4 +122,6 @@ module.exports = {
   deleteAdmin,
   createAdminRole,
   readAdminRoles,
+  updateAdminRole,
+  deleteAdminRole,
 };

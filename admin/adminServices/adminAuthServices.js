@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const adminServices = require("./adminServices");
 const dotenv = require("dotenv");
+const adminRoleModel = require("../adminRoleModel");
 dotenv.config();
 
 const createAdmin = async (adminData) => {
@@ -148,9 +149,59 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
+const checkPermissions = async (req, res) => {
+  try {
+    let token;
+    if (req.body?.adminToken !== undefined) {
+      token = req.body.adminToken;
+      if (token) {
+        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+          let readedRole = await adminRoleModel.findOne({ area: decoded.area });
+          if (err) {
+            return res
+              .status(500)
+              .send({ auth: false, message: "Falló autenticación de token." });
+          } else {
+            res.send({ readedRole });
+            // return readedRole;
+          }
+        });
+      }
+    } else {
+      token = req;
+      if (token) {
+        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+          let readedRole = await adminRoleModel.findOne({
+            area: decoded.area,
+          });
+          if (err) {
+            return res.status(500).send({
+              auth: false,
+              message: "Falló autenticación de token.",
+            });
+          } else {
+            // console.log(readedRole);
+            return readedRole;
+            // res.send({ readedRole });
+          }
+        });
+      }
+    }
+  } catch (e) {
+    res.status(500).send({
+      success: false,
+      error_info: "auth error",
+      error_message:
+        "No has iniciado sesión. Por favor inicia sesión para continuar.",
+    });
+    console.log(e);
+  }
+};
+
 module.exports = {
   createAdmin,
   authenticate,
   generateToken,
   ensureAuthenticated,
+  checkPermissions,
 };

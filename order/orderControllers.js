@@ -97,7 +97,7 @@ const readOrder = async (req, res) => {
 
 const readAllOrders = async (req, res) => {
   try {
-    const readedOrders = await orderServices.readAllOrders();
+    const readedOrders = await orderServices.readAllOrders(req.body.adminToken);
     res.send(readedOrders);
   } catch (err) {
     res.status(500).send(err);
@@ -119,6 +119,7 @@ const readOrdersByPrixer = async (req, res) => {
 const updateOrder = async (req, res) => {
   try {
     const updatedOrder = await orderServices.updateOrder(
+      req.body.adminToken,
       req.params.id,
       req.body.status
     );
@@ -131,6 +132,7 @@ const updateOrder = async (req, res) => {
 const updateOrderPayStatus = async (req, res) => {
   try {
     const updatedOrder = await orderServices.updateOrderPayStatus(
+      req.body.adminToken,
       req.params.id,
       req.body.payStatus
     );

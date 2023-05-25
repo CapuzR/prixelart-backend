@@ -7,6 +7,10 @@ dotenv.config();
 const emailSender = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const jwt = require("jsonwebtoken");
+const adminRoleModel = require("../admin/adminRoleModel");
+
+const { response } = require("express");
 
 //Order
 const createOrder = async (orderData) => {
@@ -45,11 +49,19 @@ const sendEmail = async (orderData) => {
         shippingData: orderData.shippingData,
         billingData: orderData.billingData,
         requests: orderData.requests,
-        subtotal: orderData.subtotal,
-        tax: orderData.tax,
-        shippingCost: orderData.shippingCost,
+        subtotal: orderData.subtotal.toLocaleString("de-DE", {
+          minimumFractionDigits: 2,
+        }),
+        tax: orderData.tax.toLocaleString("de-DE", {
+          minimumFractionDigits: 2,
+        }),
+        shippingCost: orderData.shippingCost.toLocaleString("de-DE", {
+          minimumFractionDigits: 2,
+        }),
         orderId: orderData.orderId,
-        total: orderData.total,
+        total: orderData.total.toLocaleString("de-DE", {
+          minimumFractionDigits: 2,
+        }),
         observations: orderData.observations,
       },
     };
@@ -81,7 +93,7 @@ const readAllOrders = async () => {
   if (readedOrder) {
     const data = {
       info: "Todas las órdenes disponibles",
-      orders: readedOrder,
+      orders: ordersv2,
     };
 
     return data;
@@ -140,16 +152,46 @@ const addVoucher = async (id, paymentVoucher) => {
   }
 };
 
-const updateOrder = async (id, status) => {
+const updateOrder = async (adminToken, id, status) => {
   try {
-    const toUpdateOrder = await Order.findOne({ orderId: id });
-    toUpdateOrder.status = status;
-    const updatedOrder = await toUpdateOrder.save();
-    if (!updatedOrder) {
-      return console.log("Order update error: " + err);
-    }
+    let check;
+    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
+      let result = await adminRoleModel.findOne({
+        area: decoded.area,
+      });
+      check = result;
+      if (err) {
+        return res.status(500).send({
+          auth: false,
+          message: "Falló autenticación de token.",
+        });
+      } else if (decoded) {
+        check = result;
 
-    return updatedOrder;
+        if (check && check.detailOrder) {
+          const toUpdateOrder = await Order.findOne({ orderId: id });
+          toUpdateOrder.status = status;
+          const updatedOrder = await toUpdateOrder.save();
+
+          if (!updatedOrder) {
+            return console.log("Order update error: " + err);
+          } else {
+            const updated = {
+              auth: true,
+              message: "Órden actualizada con éxito",
+              order: updatedOrder,
+            };
+            return updated;
+          }
+        } else {
+          const updateOrder = {
+            auth: false,
+            message: "No tienes autorización para realizar esta acción.",
+          };
+          return updateOrder;
+        }
+      }
+    });
   } catch (e) {
     console.log(e);
     return {
@@ -161,16 +203,47 @@ const updateOrder = async (id, status) => {
   }
 };
 
-const updateOrderPayStatus = async (id, payStatus) => {
+const updateOrderPayStatus = async (adminToken, id, payStatus) => {
   try {
-    const toUpdateOrder = await Order.findOne({ orderId: id });
-    toUpdateOrder.payStatus = payStatus;
-    const updatedOrder = await toUpdateOrder.save();
-    if (!updatedOrder) {
-      return console.log("Order update error: " + err);
-    }
+    let check;
 
-    return updatedOrder;
+    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
+      let result = await adminRoleModel.findOne({
+        area: decoded.area,
+      });
+      check = result;
+      if (err) {
+        return res.status(500).send({
+          auth: false,
+          message: "Falló autenticación de token.",
+        });
+      } else if (decoded) {
+        check = result;
+
+        if (check && check.detailPay) {
+          const toUpdateOrder = await Order.findOne({ orderId: id });
+          toUpdateOrder.payStatus = payStatus;
+          const updatedOrder = await toUpdateOrder.save();
+
+          if (!updatedOrder) {
+            return console.log("Order update error: " + err);
+          } else {
+            const updated = {
+              auth: true,
+              message: "Órden actualizada con éxito",
+              order: updatedOrder,
+            };
+            return updated;
+          }
+        } else {
+          const updateOrder = {
+            auth: false,
+            message: "No tienes autorización para realizar esta acción.",
+          };
+          return updateOrder;
+        }
+      }
+    });
   } catch (e) {
     console.log(e);
     return {

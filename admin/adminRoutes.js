@@ -11,6 +11,8 @@ const preferencesRoutes = require("../preferences/preferencesRoutes");
 // Login
 router.post("/admin/login", adminAuthControllers.adminLogin);
 
+// ChechPermissions
+router.post("/admin/CheckPermissions", adminAuthServices.checkPermissions);
 // Admin
 router.post(
   "/admin/create",
@@ -32,8 +34,8 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
 );
-router.post(
-  "/admin/update",
+router.put(
+  "/admin/update/:id",
   adminAuthServices.ensureAuthenticated,
   adminControllers.updateAdmin
 );
@@ -60,5 +62,16 @@ router.post(
   "/admin/read-roles",
   adminAuthServices.ensureAuthenticated,
   adminControllers.readAdminRoles
+);
+
+router.put(
+  "/adminRole/update/:id",
+  adminAuthServices.ensureAuthenticated,
+  adminControllers.updateAdminRole
+);
+router.delete(
+  "/adminRole/delete/:id",
+  adminAuthServices.ensureAuthenticated,
+  adminControllers.deleteAdminRole
 );
 module.exports = router;
