@@ -183,8 +183,10 @@ const readAllByPrixerId = async (req, res) => {
 const readAllByUsername = async (req, res) => {
   try {
     const user = await userControllers.readUserByUsername(req.body.username);
-    const readedArts = await artServices.readAllByUserId(user._id);
-    res.send(readedArts);
+    if (user) {
+      const readedArts = await artServices.readAllByUserId(user._id);
+      res.send(readedArts);
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);

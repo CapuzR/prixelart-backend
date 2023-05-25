@@ -22,7 +22,6 @@ router.post(
 router.post("/order/byPrixer", orderControllers.readOrdersByPrixer);
 router.put(
   "/order/addVoucher/:id",
-  // adminAuthServices.ensureAuthenticated,
   orderControllers.upload.single("paymentVoucher"),
   orderControllers.addVoucher
 );
