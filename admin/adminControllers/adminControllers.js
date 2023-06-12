@@ -86,6 +86,11 @@ const updateAdminRole = async (req, res) => {
       deletePaymentMethod: req.body.deletePaymentMethod,
       createShippingMethod: req.body.createShippingMethod,
       deleteShippingMethod: req.body.deleteShippingMethod,
+      modifyDollar: req.body.modifyDollar,
+      prixerBan: req.body.prixerBan,
+      createTestimonial: req.body.createTestimonial,
+      deleteTestimonial: req.body.deleteTestimonial,
+      modifyAdmins: req.body.modifyAdmins,
     };
     const updatedAdminRole = await adminServices.updateAdminRole(
       idToUpdate,

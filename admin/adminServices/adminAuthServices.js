@@ -61,8 +61,8 @@ const authenticate = async (adminData) => {
         const payload = {
           username: admin.username,
           area: admin.area,
-          firstName: admin.firstName,
-          lastName: admin.lastName,
+          firstname: admin.firstname,
+          lastname: admin.lastname,
           phone: admin.phone,
           email: admin.email,
           id: admin._id,

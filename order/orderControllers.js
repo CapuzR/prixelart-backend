@@ -6,6 +6,8 @@ const sharp = require("sharp");
 const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 dotenv.config();
+const Order = require("./orderModel");
+const excelJS = require("exceljs");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
@@ -317,6 +319,182 @@ const updateOrderPayment = async (req, res) => {
   }
 };
 
+const downloadOrders = async (req, res) => {
+  const workbook = new excelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Pedidos");
+  const path = "/Users/Usuario/Downloads";
+  worksheet.columns = [
+    { header: "status", key: "status", width: 20 },
+    { header: "Fecha de solicitud", key: "createdOn", width: 10 },
+    { header: "Nombre del cliente", key: "basicData", width: 40 },
+    { header: "Fecha de entrega", key: "", width: 40 },
+    { header: "certificado", key: "", width: 10 },
+    { header: "Prixer", key: "prixer", width: 10 },
+    { header: "Arte", key: "art", width: 10 },
+    { header: "Producto", key: "product", width: 10 },
+    { header: "Atributo", key: "attribute", width: 10 },
+    { header: "Cantidad", key: "quantity", width: 10 },
+    { header: "Observación", key: "observations", width: 10 },
+    { header: "Vendedor", key: "createdBy", width: 10 },
+    { header: "Método de entrega", key: "shippingData", width: 10 },
+    { header: "Fecha de pago", key: "payDate", width: 10 },
+    { header: "Mes", key: "month", width: 10 },
+    { header: "Validación del pago", key: "payCheck", width: 10 },
+    { header: "Costo unitario", key: "price", width: 10 },
+
+    // { header: "orderId", key: "orderId", width: 10 },
+    // { header: "orderType", key: "orderType", width: 10 },
+    // { header: "createdBy", key: "createdBy", width: 20 },
+    // { header: "subtotal", key: "subtotal", width: 10 },
+    // { header: "tax", key: "tax", width: 10 },
+    // { header: "total", key: "total", width: 10 },
+    // { header: "billingData", key: "billingData", width: 40 },
+    // { header: "requests", key: "requests", width: 40 },
+    // {
+    //   header: "generalProductionStatus",
+    //   key: "generalProductionStatus",
+    //   width: 10,
+    // },
+    // { header: "shippingStatus", key: "shippingStatus", width: 10 },
+    // { header: "observations", key: "observations", width: 10 },
+  ];
+  let readedOrder = await Order.find({}).select("-_id").exec();
+
+  readedOrder.map((order, i) => {
+    const v2 = {
+      status: order?.status,
+      createdOn: order.createdOn,
+      basicData: order.basicData?.firstname + " " + order.basicData?.lastname,
+      // Fecha de entrega
+      // Certificado
+      prixer: "",
+      art: "",
+      product: "",
+      attributes: "",
+      quantity: "",
+      observations: order?.observations,
+      createdBy: order.createdBy?.username,
+      shippingData: "",
+      payDate: "",
+      month: "",
+      payCheck: "",
+      price: "",
+    };
+
+    let shippingData = " ";
+    if (order.shippingData?.shippingMethod !== undefined) {
+      shippingData = shippingData.concat(
+        order.shippingData?.shippingMethod?.name
+      );
+    }
+
+    let billingData = " ";
+
+    if (order.billingData?.orderPaymentMethod) {
+      let d1 = billingData.concat(order.billingData?.orderPaymentMethod);
+      billingData = d1;
+    }
+    if (order.billingData?.name) {
+      let d2 = billingData.concat(" ", order.billingData?.name);
+      billingData = d2;
+    }
+    if (order.billingData?.lastname) {
+      let d3 = billingData.concat(" ", order.billingData?.lastname);
+      billingData = d3;
+    }
+    if (order.billingData?.ci) {
+      let d4 = billingData.concat(" ", order.billingData?.ci);
+      billingData = d4;
+    }
+    if (order.billingData?.company) {
+      let d5 = billingData.concat(" ", order.billingData?.company);
+      billingData = d5;
+    }
+    if (order.billingData?.phone) {
+      let d6 = billingData.concat(" ", order.billingData?.phone);
+      billingData = d6;
+    }
+    if (order.billingData?.address) {
+      let d7 = billingData.concat(" ", order.billingData?.address);
+      billingData = d7;
+    }
+
+    let prixer = " ";
+    let art = " ";
+    let product = " ";
+    let attributes = " ";
+    let quantity = " ";
+    let price = " ";
+    order.requests.map((item) => {
+      prixer = prixer.concat(item.art.prixerUsername, " ");
+
+      art = art.concat(item.art.title, " ");
+
+      product = product.concat(item.product.name, " ");
+
+      if (
+        item.product.selection?.attributes &&
+        item.product.selection?.attributes[1]?.value
+      ) {
+        attributes = attributes.concat(
+          item.product.selection?.attributes[0]?.value,
+          " ",
+          item.product.selection?.attributes[1]?.value
+        );
+      } else if (
+        item.product.selection?.attributes &&
+        item.product.selection?.attributes[0]?.value
+      ) {
+        attributes = attributes.concat(
+          item.product.selection.attributes[0].value
+        );
+      }
+
+      quantity = item.quantity;
+      if (
+        item.product.publicEquation !== undefined &&
+        item.product.publicEquation !== ""
+      ) {
+        price = item.product.publicEquation;
+      } else if (
+        item.product.prixerEquation !== undefined &&
+        item.product.prixerEquation !== ""
+      ) {
+        price = item.product.prixerEquation;
+      } else price = item.product.publicPrice.from;
+    }),
+      setTimeout(() => {
+        v2.prixer = prixer;
+        v2.art = art;
+        v2.product = product;
+        v2.attributes = attributes;
+        v2.quantity = quantity;
+        v2.price = price;
+        v2.shippingData = shippingData;
+        v2.billingData = billingData;
+        worksheet.addRow(v2);
+      }, 100);
+  });
+  setTimeout(() => {
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.border = { style: "thin" };
+    });
+
+    try {
+      const data = workbook.xlsx.writeFile(`${path}/Pedidos.xlsx`).then(() => {
+        res.send({
+          status: "success",
+          message: "Archivo descargado exitosamente.",
+          path: `Users/Usuario/Descargas/Pedidos.xlsx`,
+        });
+      });
+    } catch (err) {
+      console.log(err);
+      res.send({ status: "error", message: "Algo salió mal." });
+    }
+  }, 200);
+};
 module.exports = {
   createOrder,
   upload,
@@ -343,4 +521,5 @@ module.exports = {
   readOrderPayment,
   readAllOrderPayments,
   updateOrderPayment,
+  downloadOrders,
 };

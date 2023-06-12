@@ -93,7 +93,7 @@ const updateAdminRole = async (id, role) => {
     toUpdate.set(role);
     const updatedAdminRole = await toUpdate.save();
     if (!updatedAdminRole) {
-      return console.log("Art update error: " + err);
+      return console.log("AdminRole update error: " + err);
     }
     return "Actualización realizada con éxito." + updatedAdminRole;
   } catch (error) {
