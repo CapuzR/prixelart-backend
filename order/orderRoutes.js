@@ -122,4 +122,10 @@ router.post(
   orderControllers.updateOrderPayment
 );
 
+// Excel
+router.get(
+  "/downloadOrders",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.downloadOrders
+);
 module.exports = router;
