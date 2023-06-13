@@ -326,37 +326,21 @@ const downloadOrders = async (req, res) => {
   worksheet.columns = [
     { header: "status", key: "status", width: 20 },
     { header: "Fecha de solicitud", key: "createdOn", width: 10 },
-    { header: "Nombre del cliente", key: "basicData", width: 40 },
-    { header: "Fecha de entrega", key: "", width: 40 },
-    { header: "certificado", key: "", width: 10 },
-    { header: "Prixer", key: "prixer", width: 10 },
-    { header: "Arte", key: "art", width: 10 },
-    { header: "Producto", key: "product", width: 10 },
+    { header: "Nombre del cliente", key: "basicData", width: 20 },
+    { header: "Fecha de entrega", key: "", width: 10 },
+    { header: "certificado", key: "", width: 15 },
+    { header: "Prixer", key: "prixer", width: 15 },
+    { header: "Arte", key: "art", width: 20 },
+    { header: "Producto", key: "product", width: 20 },
     { header: "Atributo", key: "attribute", width: 10 },
-    { header: "Cantidad", key: "quantity", width: 10 },
+    { header: "Cantidad", key: "quantity", width: 5 },
     { header: "Observación", key: "observations", width: 10 },
-    { header: "Vendedor", key: "createdBy", width: 10 },
-    { header: "Método de entrega", key: "shippingData", width: 10 },
-    { header: "Fecha de pago", key: "payDate", width: 10 },
-    { header: "Mes", key: "month", width: 10 },
-    { header: "Validación del pago", key: "payCheck", width: 10 },
+    { header: "Vendedor", key: "createdBy", width: 15 },
+    { header: "Método de entrega", key: "shippingData", width: 15 },
+    // { header: "Fecha de pago", key: "payDate", width: 10 },
+    // { header: "Mes", key: "month", width: 10 },
+    { header: "Validación del pago", key: "payStatus", width: 10 },
     { header: "Costo unitario", key: "price", width: 10 },
-
-    // { header: "orderId", key: "orderId", width: 10 },
-    // { header: "orderType", key: "orderType", width: 10 },
-    // { header: "createdBy", key: "createdBy", width: 20 },
-    // { header: "subtotal", key: "subtotal", width: 10 },
-    // { header: "tax", key: "tax", width: 10 },
-    // { header: "total", key: "total", width: 10 },
-    // { header: "billingData", key: "billingData", width: 40 },
-    // { header: "requests", key: "requests", width: 40 },
-    // {
-    //   header: "generalProductionStatus",
-    //   key: "generalProductionStatus",
-    //   width: 10,
-    // },
-    // { header: "shippingStatus", key: "shippingStatus", width: 10 },
-    // { header: "observations", key: "observations", width: 10 },
   ];
   let readedOrder = await Order.find({}).select("-_id").exec();
 
@@ -377,7 +361,7 @@ const downloadOrders = async (req, res) => {
       shippingData: "",
       payDate: "",
       month: "",
-      payCheck: "",
+      payStatus: order.payStatus,
       price: "",
     };
 
@@ -388,36 +372,36 @@ const downloadOrders = async (req, res) => {
       );
     }
 
-    let billingData = " ";
+    // let billingData = " ";
 
-    if (order.billingData?.orderPaymentMethod) {
-      let d1 = billingData.concat(order.billingData?.orderPaymentMethod);
-      billingData = d1;
-    }
-    if (order.billingData?.name) {
-      let d2 = billingData.concat(" ", order.billingData?.name);
-      billingData = d2;
-    }
-    if (order.billingData?.lastname) {
-      let d3 = billingData.concat(" ", order.billingData?.lastname);
-      billingData = d3;
-    }
-    if (order.billingData?.ci) {
-      let d4 = billingData.concat(" ", order.billingData?.ci);
-      billingData = d4;
-    }
-    if (order.billingData?.company) {
-      let d5 = billingData.concat(" ", order.billingData?.company);
-      billingData = d5;
-    }
-    if (order.billingData?.phone) {
-      let d6 = billingData.concat(" ", order.billingData?.phone);
-      billingData = d6;
-    }
-    if (order.billingData?.address) {
-      let d7 = billingData.concat(" ", order.billingData?.address);
-      billingData = d7;
-    }
+    // if (order.billingData?.orderPaymentMethod) {
+    //   let d1 = billingData.concat(order.billingData?.orderPaymentMethod);
+    //   billingData = d1;
+    // }
+    // if (order.billingData?.name) {
+    //   let d2 = billingData.concat(" ", order.billingData?.name);
+    //   billingData = d2;
+    // }
+    // if (order.billingData?.lastname) {
+    //   let d3 = billingData.concat(" ", order.billingData?.lastname);
+    //   billingData = d3;
+    // }
+    // if (order.billingData?.ci) {
+    //   let d4 = billingData.concat(" ", order.billingData?.ci);
+    //   billingData = d4;
+    // }
+    // if (order.billingData?.company) {
+    //   let d5 = billingData.concat(" ", order.billingData?.company);
+    //   billingData = d5;
+    // }
+    // if (order.billingData?.phone) {
+    //   let d6 = billingData.concat(" ", order.billingData?.phone);
+    //   billingData = d6;
+    // }
+    // if (order.billingData?.address) {
+    //   let d7 = billingData.concat(" ", order.billingData?.address);
+    //   billingData = d7;
+    // }
 
     let prixer = " ";
     let art = " ";
@@ -432,6 +416,7 @@ const downloadOrders = async (req, res) => {
 
       product = product.concat(item.product.name, " ");
 
+      attributes = attributes.concat(item.product.selection);
       if (
         item.product.selection?.attributes &&
         item.product.selection?.attributes[1]?.value
@@ -462,18 +447,18 @@ const downloadOrders = async (req, res) => {
       ) {
         price = item.product.prixerEquation;
       } else price = item.product.publicPrice.from;
-    }),
-      setTimeout(() => {
-        v2.prixer = prixer;
-        v2.art = art;
-        v2.product = product;
-        v2.attributes = attributes;
-        v2.quantity = quantity;
-        v2.price = price;
-        v2.shippingData = shippingData;
-        v2.billingData = billingData;
-        worksheet.addRow(v2);
-      }, 100);
+    });
+    setTimeout(() => {
+      v2.prixer = prixer;
+      v2.art = art;
+      v2.product = product;
+      v2.attributes = attributes;
+      v2.quantity = quantity;
+      v2.price = price;
+      v2.shippingData = shippingData;
+      // v2.billingData = billingData;
+      worksheet.addRow(v2);
+    }, 100);
   });
   setTimeout(() => {
     worksheet.getRow(1).eachCell((cell) => {
