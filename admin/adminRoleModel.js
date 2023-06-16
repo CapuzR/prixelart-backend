@@ -11,7 +11,8 @@ const AdminRoleSchema = Schema({
   createOrder: { type: Boolean, required: true },
   createProduct: { type: Boolean, required: true },
   deleteProduct: { type: Boolean, required: true },
-
+  createDiscount: { type: Boolean, required: false },
+  deleteDiscount: { type: Boolean, required: false },
   modifyBanners: { type: Boolean, required: true },
   modifyTermsAndCo: { type: Boolean, required: true },
   createPaymentMethod: { type: Boolean, reqiured: true },
