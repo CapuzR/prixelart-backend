@@ -27,6 +27,7 @@ const createDiscount = async (req, res, next) => {
     const newDiscount = {
       _id: req.body._id,
       name: req.body.name,
+      active: req.body.active,
       description: req.body.description,
       type: req.body.type,
       value: req.body.value,
@@ -42,6 +43,18 @@ const createDiscount = async (req, res, next) => {
     //     return warning;
     //   }
     // });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const updateDiscount = async (req, res) => {
+  try {
+    const updatedDiscount = await discountServices.updateDiscount(
+      req.body._id,
+      req.body
+    );
+    res.send(updatedDiscount);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -76,8 +89,8 @@ const readAllDiscountsAdmin = async (req, res) => {
   }
 };
 
-async function deleteProduct(req, res) {
-  const productResult = await discountServices.deleteProduct(req);
+async function deleteDiscount(req, res) {
+  const productResult = await discountServices.deleteDiscount(req);
   data = {
     productResult,
     success: true,
@@ -85,19 +98,14 @@ async function deleteProduct(req, res) {
   return res.send(data);
 }
 
-async function deleteVariant(req, res) {
-  const variantToDelete = await discountServices.deleteVariant(req.body);
-  data = { variantToDelete, success: true };
-  return res.send(data);
-}
 module.exports = {
   createDiscount,
   //   readById,
   //   readAllProducts,
   readAllDiscountsAdmin,
-  //   updateProduct,
+  updateDiscount,
   //   updateVariants,
-  //   deleteProduct,
+  deleteDiscount,
   //   deleteVariant,
 };
 

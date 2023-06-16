@@ -80,6 +80,8 @@ const updateAdminRole = async (req, res) => {
       createOrder: req.body.createOrder,
       createProduct: req.body.createProduct,
       deleteProduct: req.body.deleteProduct,
+      createDiscount: req.body.createDiscount,
+      deleteDiscount: req.body.deleteDiscount,
       modifyBanners: req.body.modifyBanners,
       modifyTermsAndCo: req.body.modifyTermsAndCo,
       createPaymentMethod: req.body.createPaymentMethod,

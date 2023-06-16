@@ -10,6 +10,11 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   discountControllers.createDiscount
 );
+router.put(
+  "/discount/update",
+  adminAuthServices.ensureAuthenticated,
+  discountControllers.updateDiscount
+);
 // router.post(
 //   "/discount/read",
 //   adminAuthServices.ensureAuthenticated,
@@ -28,10 +33,10 @@ router.post(
 //   discountControllers.updateDiscount
 // );
 
-// router.put(
-//   "/discount/deleteDiscount",
-//   adminAuthServices.ensureAuthenticated,
-//   discountControllers.deleteDiscount
-// );
+router.put(
+  "/discount/delete/:id",
+  adminAuthServices.ensureAuthenticated,
+  discountControllers.deleteDiscount
+);
 
 module.exports = router;

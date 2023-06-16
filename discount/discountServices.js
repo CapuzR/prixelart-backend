@@ -1,14 +1,18 @@
 const Discount = require("./discountModel");
 const jwt = require("jsonwebtoken");
 const adminRoleModel = require("../admin/adminRoleModel");
+const Product = require("../product/productModel");
 
 const createDiscount = async (discountData) => {
   try {
     const newDiscount = await new Discount(discountData).save();
     if (newDiscount) {
+      const products = discountData.appliedProducts;
+      await appliedProducts(products, discountData._id);
       return {
         success: true,
         discountData: newDiscount,
+        // products: applied,
       };
     } else {
       return {
@@ -19,6 +23,41 @@ const createDiscount = async (discountData) => {
   } catch (error) {
     console.log(error);
     return error;
+  }
+};
+
+const appliedProducts = async (products, id) => {
+  let productsApplied = [];
+  const allProducts = await Product.find();
+  allProducts.map(async (product) => {
+    if (product.discount === id) {
+      const filter = { name: product.name };
+      const update = { discount: undefined };
+      await Product.findOneAndUpdate(filter, update);
+    }
+  });
+  await products.map(async (product) => {
+    const filter = { name: product };
+    const update = { discount: id };
+
+    const readedProduct = await Product.findOneAndUpdate(filter, update, {
+      returnOriginal: false,
+    });
+    productsApplied.push(readedProduct);
+  });
+  return productsApplied;
+};
+
+const updateDiscount = async (id, data) => {
+  const updateDiscount = await Discount.findByIdAndUpdate(id, data);
+  if (updateDiscount) {
+    const products = data.appliedProducts;
+    await appliedProducts(products, data._id);
+    return {
+      success: true,
+      discountData: updateDiscount,
+      // products: applied,
+    };
   }
 };
 
@@ -87,23 +126,7 @@ const readAllDiscountsAdmin = async () => {
   }
 };
 
-const updateProduct = async (productData, productId) => {
-  try {
-    const updateProduct = await Discount.findByIdAndUpdate(
-      productId,
-      productData
-    );
-    if (!updateProduct) {
-      return console.log("Discount update error: " + err);
-    }
-    return "Actualización realizada con éxito.";
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
-
-const deleteProduct = async (req) => {
+const deleteDiscount = async (req) => {
   try {
     const adminToken = req.body.adminToken;
     const productId = req.params.id;
@@ -121,8 +144,16 @@ const deleteProduct = async (req) => {
       } else if (decoded) {
         check = result;
         if (check && check.deleteProduct) {
+          const allProducts = await Product.find();
+          allProducts.map(async (product) => {
+            if (product.discount === req.params.id) {
+              const filter = { name: product.name };
+              const update = { discount: undefined };
+              await Product.findOneAndUpdate(filter, update);
+            }
+          });
           await Discount.findByIdAndDelete(productId);
-          return "Producto eliminado exitosamente";
+          return "Descuento eliminado exitosamente";
         } else {
           const warning = {
             auth: false,
@@ -138,35 +169,12 @@ const deleteProduct = async (req) => {
   }
 };
 
-const deleteVariant = async (data) => {
-  try {
-    const selectedProduct = data.id;
-    const indexVariant = data.i;
-
-    const productToUpdate = await Discount.findById(selectedProduct);
-    productToUpdate.variants.splice(indexVariant, 1);
-    // productToUpdate.variants = [];
-
-    const updatedProduct = await Discount.findByIdAndUpdate(
-      selectedProduct,
-      productToUpdate
-    );
-    if (!updatedProduct) {
-      return console.log("Cannot delete variant:" + err);
-    }
-    return "Variante eliminada con éxito";
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
-
 module.exports = {
   createDiscount,
+  appliedProducts,
   readById,
   readAllProducts,
   readAllDiscountsAdmin,
-  updateProduct,
-  deleteProduct,
-  deleteVariant,
+  updateDiscount,
+  deleteDiscount,
 };
