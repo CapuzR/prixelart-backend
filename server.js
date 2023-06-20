@@ -52,7 +52,7 @@ const consumer = require("./consumer/consumerRoutes");
 const order = require("./order/orderRoutes");
 const testimonial = require("./testimonials/testimonialRoutes");
 const discount = require("./discount/discountRoutes");
-
+const account = require("./account/accountRoutes");
 app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: false }));
@@ -68,6 +68,7 @@ app.use("/", order);
 app.use("/", preferences);
 app.use("/", testimonial);
 app.use("/", discount);
+app.use("/", account);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);

@@ -18,7 +18,7 @@ const userControllers = require("../user/userControllers/userControllers");
 
 const createPrixer = async (req, res) => {
   try {
-    const imageAvatar = req.file.transforms[0].location;
+    const imageAvatar = req.file?.transforms[0]?.location;
     const prixerData = {
       specialtyArt: req.body.specialtyArt,
       instagram: req.body.instagram,
