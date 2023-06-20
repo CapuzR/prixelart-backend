@@ -41,7 +41,7 @@ router.put(
 );
 router.use(
   "/admin/preferences",
-  // adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   preferencesRoutes
 );
 

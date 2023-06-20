@@ -156,14 +156,15 @@ const checkPermissions = async (req, res) => {
       token = req.body.adminToken;
       if (token) {
         jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-          let readedRole = await adminRoleModel.findOne({ area: decoded.area });
           if (err) {
             return res
               .status(500)
               .send({ auth: false, message: "Falló autenticación de token." });
-          } else {
+          } else if (decoded) {
+            let readedRole = await adminRoleModel.findOne({
+              area: decoded.area,
+            });
             res.send({ readedRole });
-            // return readedRole;
           }
         });
       }

@@ -28,6 +28,7 @@ const authenticate = async (userData) => {
         lastName: user.lastName,
         password: user.password,
         id: user.id,
+        account: user.account,
         time: new Date(),
       };
 
