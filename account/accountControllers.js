@@ -1,17 +1,15 @@
 const accountServices = require("./accountServices");
 
-const createAccount = async (req, res) => {
+const createAccount = (req, res) => {
   try {
     const account = {
       _id: req.body._id,
       balance: req.body.balance,
     };
-    const createAccount = await accountServices.createAccount(account);
-    console.log(createAccount, "creación");
+    const createAccount = accountServices.createAccount(account);
 
     const addAccount = accountServices.addAccount(req.body.email, account._id);
-    console.log(addAccount, "inclusión en user");
-    res.send(createAccount);
+    res.send({ createAccount, addAccount });
   } catch (e) {
     console.log(e);
     res.status(500).send(e);

@@ -1,5 +1,4 @@
 const Account = require("./accountModel");
-// const userServices = require("../user/userServices");
 const User = require("../user/userModel");
 
 const createAccount = (account) => {
@@ -20,13 +19,14 @@ const createAccount = (account) => {
 
 const addAccount = async (email, id) => {
   try {
-    const userToUpdate = await User.findOne({ email: email }).exec();
-    // userServices.readUserByEmail({ email: email });
-    console.log(userToUpdate);
-    userToUpdate.account = id;
-    const userUpdated = userToUpdate.save();
-    if (userUpdated) {
-      return userUpdated;
+    const userToUpdate = await User.findOneAndUpdate(
+      { email: email },
+      { account: id }
+    ).exec();
+    // userToUpdate.account = id;
+    // const userUpdated = userToUpdate.save();
+    if (userToUpdate) {
+      return userToUpdate;
     } else {
       console.log(err);
     }

@@ -160,9 +160,9 @@ const checkPermissions = async (req, res) => {
             return res
               .status(500)
               .send({ auth: false, message: "Falló autenticación de token." });
-          } else if (decoded) {
+          } else if (decoded && decoded !== undefined) {
             let readedRole = await adminRoleModel.findOne({
-              area: decoded.area,
+              area: decoded?.area,
             });
             res.send({ readedRole });
           }
@@ -181,9 +181,7 @@ const checkPermissions = async (req, res) => {
               message: "Falló autenticación de token.",
             });
           } else {
-            // console.log(readedRole);
             return readedRole;
-            // res.send({ readedRole });
           }
         });
       }
