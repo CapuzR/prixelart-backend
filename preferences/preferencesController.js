@@ -41,8 +41,13 @@ const upload = multer({
 });
 
 const readAllImagesCarousel = async (req, res) => {
-  const imagesCarousels = await Carousel.find();
-  res.json({ imagesCarousels });
+  try {
+    const imagesCarousels = await Carousel.find();
+    res.json({ imagesCarousels });
+  } catch (err) {
+    console.log(err);
+    return res.send(err);
+  }
 };
 
 const readImageCarousel = async (req, res) => {
