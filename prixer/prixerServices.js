@@ -48,6 +48,7 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["avatar"] = readedPrixer.avatar;
   prixer["status"] = readedPrixer.status;
   prixer["termsAgree"] = readedPrixer.termsAgree;
+  prixer["account"] = readedUser.account;
 
   return prixer;
 };
