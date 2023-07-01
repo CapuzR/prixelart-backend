@@ -27,11 +27,7 @@ router.post(
   discountControllers.readAllDiscountsAdmin
 );
 
-// router.put(
-//   "/discount/update/:id",
-//   adminAuthServices.ensureAuthenticated,
-//   discountControllers.updateDiscount
-// );
+router.post("/discount/read-allv2", discountControllers.readAllDiscounts);
 
 router.put(
   "/discount/delete/:id",

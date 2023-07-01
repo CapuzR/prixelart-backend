@@ -83,19 +83,19 @@ const readById = async (Discount) => {
   }
 };
 
-const readAllProducts = async () => {
+const readAllDiscounts = async () => {
   try {
     const readedDiscounts = await Discount.find({ active: true });
     if (readedDiscounts) {
       const data = {
         info: "Todos los descuentos disponibles",
-        products: readedDiscounts,
+        discounts: readedDiscounts,
       };
       return data;
     } else {
       const data = {
         info: "No hay descuentos registrados",
-        arts: null,
+        discounts: null,
       };
       return data;
     }
@@ -116,7 +116,7 @@ const readAllDiscountsAdmin = async () => {
     } else {
       const data = {
         info: "No hay descuentos registrados",
-        arts: null,
+        discounts: null,
       };
       return data;
     }
@@ -173,7 +173,7 @@ module.exports = {
   createDiscount,
   appliedProducts,
   readById,
-  readAllProducts,
+  readAllDiscounts,
   readAllDiscountsAdmin,
   updateDiscount,
   deleteDiscount,

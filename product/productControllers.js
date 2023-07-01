@@ -189,7 +189,6 @@ const updateProduct = async (req, res) => {
               url: req.body.video,
             });
           }
-
           const parseObject = {
             name: req.body.name,
             description: req.body.description,
@@ -206,7 +205,7 @@ const updateProduct = async (req, res) => {
               to: req.body.prixerPriceTo,
             },
             attributes: req.body.attributes ? req.body.attributes : [],
-            active: Boolean(req.body.active),
+            active: req.body.active,
             variants: productsVariants,
             hasSpecialVar: req.body.hasSpecialVar,
           };

@@ -69,9 +69,9 @@ const readById = async (req, res) => {
   }
 };
 
-const readAllProducts = async (req, res) => {
+const readAllDiscounts = async (req, res) => {
   try {
-    const readedDiscounts = await discountServices.readAllProducts();
+    const readedDiscounts = await discountServices.readAllDiscounts();
     res.send(readedDiscounts);
   } catch (err) {
     console.log(err);
@@ -101,12 +101,8 @@ async function deleteDiscount(req, res) {
 module.exports = {
   createDiscount,
   //   readById,
-  //   readAllProducts,
+  readAllDiscounts,
   readAllDiscountsAdmin,
   updateDiscount,
-  //   updateVariants,
   deleteDiscount,
-  //   deleteVariant,
 };
-
-// //CRUD END

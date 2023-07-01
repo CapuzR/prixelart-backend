@@ -19,6 +19,7 @@ const OrderSchema = Schema({
   requests: { type: Object, required: true },
   status: { type: String, required: true },
   paymentVoucher: { type: String, required: false },
+  dollarValue: { type: Number, required: false },
   payStatus: { type: String, required: false },
   generalProductionStatus: { type: String, required: false },
   shippingStatus: { type: String, required: false }, //(No entregado, Entregado)
