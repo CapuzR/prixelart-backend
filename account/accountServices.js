@@ -34,7 +34,27 @@ const addAccount = async (email, id) => {
     console.log(e);
   }
 };
+
+const checkBalance = async (id) => {
+  try {
+    const account = await Account.findOne({ _id: id });
+    return { balance: account.balance };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const readAll = async () => {
+  try {
+    const accountList = await Account.find();
+    return { accounts: accountList };
+  } catch (error) {
+    console.log(error);
+  }
+};
 module.exports = {
   createAccount,
   addAccount,
+  checkBalance,
+  readAll,
 };

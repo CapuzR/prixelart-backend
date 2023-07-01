@@ -26,6 +26,7 @@ const AdminRoleSchema = Schema({
   createTestimonial: { type: Boolean, required: false },
   deleteTestimonial: { type: Boolean, required: false },
   modifyAdmins: { type: Boolean, required: false },
+  setPrixerBalance: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("AdminRole", AdminRoleSchema, "adminRole");

@@ -9,7 +9,7 @@ const DiscountSchema = Schema({
   active: { type: Boolean, required: false },
   description: { type: String, required: false },
   type: { type: String, required: true },
-  value: { type: String, required: true },
+  value: { type: Number, required: true },
   appliedProducts: { type: Array, required: false },
 });
 

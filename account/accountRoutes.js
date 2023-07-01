@@ -3,7 +3,8 @@
 const express = require("express");
 const router = express.Router();
 const accountControllers = require("./accountControllers");
-// const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+const userMdw = require("../user/userMiddlewares");
 
 // const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 // const userMdw = require("../user/userMiddlewares");
@@ -14,8 +15,20 @@ const accountControllers = require("./accountControllers");
 
 router.post(
   "/account/create",
-  //   adminAuthServices.ensureAuthenticated,
+  adminAuthServices.ensureAuthenticated,
   accountControllers.createAccount
+);
+
+router.post(
+  "/account/readById",
+  userMdw.ensureAuthenticated,
+  accountControllers.checkBalance
+);
+
+router.post(
+  "/account/readAll",
+  adminAuthServices.ensureAuthenticated,
+  accountControllers.readAll
 );
 
 module.exports = router;
