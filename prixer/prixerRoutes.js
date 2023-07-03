@@ -5,7 +5,7 @@ const { upload } =
 
 const express = require("express");
 const router = express.Router();
-// const prixerMiddlewares = require("./prixerMiddlewares");
+const prixerMiddlewares = require("./prixerMiddlewares");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const userMdw = require("../user/userMiddlewares");
 const prixerControllers = require("./prixerControllers");
