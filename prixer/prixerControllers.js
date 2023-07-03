@@ -119,7 +119,7 @@ const updatePrixer = async (req, res) => {
       country: req.body.country,
       city: req.body.city,
       username: req.body.username,
-      avatar: req.body.avatar,
+      avatar: req.file?.transforms[0]?.location || req.body.avatar,
       description: req.body.description,
       status: req.body.status,
       termsAgree: req.body.termsAgree,
