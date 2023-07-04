@@ -160,8 +160,9 @@ const updateProduct = async (req, res) => {
           let newResult = [];
           const previousImg = req.body.images.split(" ");
           if (
-            previousImg &&
-            typeof previousImg === "string" &&
+            previousImg !== [] &&
+            // typeof previousImg === "string" &&
+            previousImg !== " " &&
             previousImg.includes("newProductImages")
           ) {
             newResult.push({ type: "images", url: previousImg });
@@ -204,6 +205,7 @@ const updateProduct = async (req, res) => {
               from: req.body.prixerPriceFrom,
               to: req.body.prixerPriceTo,
             },
+            thumbUrl: req.body.thumbUrl,
             attributes: req.body.attributes ? req.body.attributes : [],
             active: req.body.active,
             variants: productsVariants,
@@ -215,6 +217,7 @@ const updateProduct = async (req, res) => {
           );
           data = {
             productResult,
+            product: parseObject,
             success: true,
           };
           return res.send(data);

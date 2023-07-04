@@ -5,7 +5,9 @@ const userControllers = require("../user/userControllers/userControllers");
 
 const createArt = async (req, res, next) => {
   try {
-    if (req.body.tags) req.body.tags = req.body.tags.split(",");
+    if (req.body.tags) {
+      req.body.tags = req.body.tags.split(",");
+    }
     res.send(await artServices.createArt(req.body));
   } catch (e) {
     console.log(e);

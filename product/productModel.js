@@ -9,6 +9,7 @@ const ProductSchema = Schema({
   category: { type: String, required: true },
   considerations: { type: String, required: true },
   productionTime: { type: String, required: false },
+  thumbUrl: { type: String, required: false },
   sources: {
     // typeFile: {type: String, required: true},
     images: { type: Array, required: true },
