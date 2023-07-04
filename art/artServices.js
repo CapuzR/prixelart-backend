@@ -16,7 +16,7 @@ const createArt = async (artData) => {
       if (newArt) {
         return {
           success: true,
-          artData: null,
+          artData: newArt,
         };
       } else {
         return {
