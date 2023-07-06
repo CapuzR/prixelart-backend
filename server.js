@@ -58,8 +58,8 @@ const account = require("./account/accountRoutes");
 const movements = require("./movements/movementRoutes");
 app.use(cookieParser());
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.urlencoded({ limit: "1mb", extended: false }));
+app.use(express.json({ limit: "1mb" }));
 
 app.use("/", user);
 app.use("/", prixer);
