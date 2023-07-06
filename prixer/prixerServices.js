@@ -55,17 +55,21 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
 
 const readPrixer = async (prixerData) => {
   //Este prixerData.id debería cambiarse por prixerData.userId. Hay que validar dónde está y cambiarlo (Incluyendo los tests).
-  console.log(prixerData.username);
-  let readedPrixer = await Prixer.findOne({
-    username: prixerData.username,
-  }).exec();
-  if (readedPrixer) {
-    const readedUser = await userService.readUserById({ id: prixerData._id });
-    const prixer = await mergePrixerAndUser(readedPrixer, readedUser);
-    return prixer;
-  }
 
-  return readedPrixer;
+  if (prixerData === null) {
+    return null;
+  } else {
+    let readedPrixer = await Prixer.findOne({
+      username: prixerData.username,
+    }).exec();
+    if (readedPrixer) {
+      const readedUser = await userService.readUserById({ id: prixerData._id });
+      const prixer = await mergePrixerAndUser(readedPrixer, readedUser);
+      return prixer;
+    }
+
+    return readedPrixer;
+  }
 };
 
 const readPrixerbyId = async (user) => {

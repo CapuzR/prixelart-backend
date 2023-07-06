@@ -10,6 +10,8 @@ const app = express();
 var allowedOrigins = [
   "http://" + process.env.FRONT_END_URL,
   "https://" + process.env.FRONT_END_URL,
+  "https://www." + process.env.FRONT_END_URL,
+  "www." + process.env.FRONT_END_URL,
 ];
 app.use(
   cors({
