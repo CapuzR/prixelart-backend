@@ -46,8 +46,10 @@ const createPrixer = async (req, res) => {
 const readPrixer = async (req, res) => {
   try {
     const user = await userControllers.readUserByUsername(req.body.username);
+    // if (user !== null) {
     const readedPrixer = await prixerServices.readPrixer(user);
     res.send(readedPrixer);
+    // } else return {};
   } catch (err) {
     res.status(500).send(err);
     console.log(err);
