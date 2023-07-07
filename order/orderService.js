@@ -255,6 +255,52 @@ const updateOrderPayStatus = async (adminToken, id, payStatus) => {
   }
 };
 
+const updateSeller = async (adminToken, id, seller) => {
+  try {
+    // jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
+    //   let result = await adminRoleModel.findOne({
+    //     area: decoded.area,
+    //   });
+    //   if (err) {
+    //     return res.status(500).send({
+    //       auth: false,
+    //       message: "Falló autenticación de token.",
+    //     });
+    //   } else if (decoded) {
+    //     if (result.area === "Master") {
+    const toUpdateOrder = await Order.findOne({ orderId: id });
+    toUpdateOrder.createdBy = seller;
+    const updatedOrder = await toUpdateOrder.save();
+
+    if (!updatedOrder) {
+      return console.log("Order update error: " + err);
+    } else {
+      const updated = {
+        auth: true,
+        message: "Órden actualizada con éxito",
+        order: updatedOrder,
+      };
+      return updated;
+    }
+    // } else {
+    //   const updateOrder = {
+    //     auth: false,
+    //     message: "No tienes autorización para realizar esta acción.",
+    //   };
+    //   return updateOrder;
+    // }
+    // }
+    // });
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message:
+        e +
+        "Disculpa. No se pudo actualizar esta orden, inténtalo de nuevo por favor.",
+    };
+  }
+};
 const deleteOrder = async (orderId) => {
   try {
     await Order.findOneAndDelete({ orderId: orderId });
@@ -530,6 +576,7 @@ module.exports = {
   readOrdersByPrixer,
   updateOrder,
   updateOrderPayStatus,
+  updateSeller,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethodById,

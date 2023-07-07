@@ -155,18 +155,23 @@ const checkPermissions = async (req, res) => {
     if (req.body?.adminToken !== undefined) {
       token = req.body.adminToken;
       if (token) {
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-          if (err) {
-            return res
-              .status(500)
-              .send({ auth: false, message: "Falló autenticación de token." });
-          } else if (decoded && decoded !== undefined) {
-            let readedRole = await adminRoleModel.findOne({
-              area: decoded?.area,
-            });
-            res.send({ readedRole });
+        await jwt.verify(
+          token,
+          process.env.JWT_SECRET,
+          async (err, decoded) => {
+            if (err) {
+              return res.status(500).send({
+                auth: false,
+                message: "Falló autenticación de token.",
+              });
+            } else if (decoded && decoded !== undefined) {
+              let readedRole = await adminRoleModel.findOne({
+                area: decoded.area,
+              });
+              await res.send({ readedRole });
+            }
           }
-        });
+        );
       }
     } else {
       token = req;
