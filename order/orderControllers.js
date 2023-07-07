@@ -23,6 +23,7 @@ const createOrder = async (req, res) => {
       orderType: req.body.orderType,
       createdOn: req.body.createdOn,
       createdBy: req.body.createdBy,
+      dollarValue: req.body.dollarValue,
       subtotal: req.body.subtotal,
       tax: req.body.tax,
       total: req.body.total,
@@ -32,6 +33,7 @@ const createOrder = async (req, res) => {
       requests: req.body.requests,
       status: req.body.status,
       observations: req.body.observations,
+      consumer: req.body.consumerId,
     };
     const result = await orderServices.createOrder(orderData);
     res.send(result);
@@ -144,6 +146,18 @@ const updateOrderPayStatus = async (req, res) => {
   }
 };
 
+const updateSeller = async (req, res) => {
+  try {
+    const updatedOrder = await orderServices.updateSeller(
+      req.body.adminToken,
+      req.params.id,
+      req.body.seller
+    );
+    return res.send(updatedOrder);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
 const deleteOrder = async (req, res) => {
   const orderForDelete = await orderServices.deleteOrder(req.params.id);
   data = {
@@ -490,6 +504,7 @@ module.exports = {
   readOrdersByPrixer,
   updateOrder,
   updateOrderPayStatus,
+  updateSeller,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethod,

@@ -35,6 +35,11 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orderControllers.updateOrderPayStatus
 );
+router.put(
+  "/order/updateSeller/:id",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.updateSeller
+);
 router.delete(
   "/order/delete/:id",
   adminAuthServices.ensureAuthenticated,
