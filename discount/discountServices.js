@@ -26,25 +26,28 @@ const createDiscount = async (discountData) => {
   }
 };
 
-const appliedProducts = async (products, id) => {
+const appliedProducts = async (products, data) => {
   let productsApplied = [];
   const allProducts = await Product.find();
   allProducts.map(async (product) => {
-    if (product.discount === id) {
+    if (product.discount === data._id) {
       const filter = { name: product.name };
       const update = { discount: undefined };
       await Product.findOneAndUpdate(filter, update);
     }
   });
-  await products.map(async (product) => {
-    const filter = { name: product };
-    const update = { discount: id };
+  if (data.active) {
+    await products.map(async (product) => {
+      const filter = { name: product };
+      const update = { discount: data._id };
 
-    const readedProduct = await Product.findOneAndUpdate(filter, update, {
-      returnOriginal: false,
+      const readedProduct = await Product.findOneAndUpdate(filter, update, {
+        returnOriginal: false,
+      });
+      productsApplied.push(readedProduct);
     });
-    productsApplied.push(readedProduct);
-  });
+  }
+
   return productsApplied;
 };
 
@@ -52,7 +55,7 @@ const updateDiscount = async (id, data) => {
   const updateDiscount = await Discount.findByIdAndUpdate(id, data);
   if (updateDiscount) {
     const products = data.appliedProducts;
-    await appliedProducts(products, data._id);
+    await appliedProducts(products, data);
     return {
       success: true,
       discountData: updateDiscount,

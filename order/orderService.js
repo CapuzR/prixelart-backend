@@ -168,7 +168,7 @@ const updateOrder = async (adminToken, id, status) => {
       } else if (decoded) {
         check = result;
 
-        if (check && check.detailOrder) {
+        if (check && check.orderStatus) {
           const toUpdateOrder = await Order.findOne({ orderId: id });
           toUpdateOrder.status = status;
           const updatedOrder = await toUpdateOrder.save();
