@@ -37,28 +37,6 @@ const updateBalance = async (movement) => {
   }
 };
 
-const appliedProducts = async (products, id) => {
-  let productsApplied = [];
-  const allProducts = await Product.find();
-  allProducts.map(async (product) => {
-    if (product.discount === id) {
-      const filter = { name: product.name };
-      const update = { discount: undefined };
-      await Product.findOneAndUpdate(filter, update);
-    }
-  });
-  await products.map(async (product) => {
-    const filter = { name: product };
-    const update = { discount: id };
-
-    const readedProduct = await Product.findOneAndUpdate(filter, update, {
-      returnOriginal: false,
-    });
-    productsApplied.push(readedProduct);
-  });
-  return productsApplied;
-};
-
 const readByAccount = async (account) => {
   try {
     const readedMovements = await Movement.find({ destinatary: account });
@@ -81,18 +59,18 @@ const readByAccount = async (account) => {
   }
 };
 
-const readAllProducts = async () => {
+const readAllMovements = async () => {
   try {
-    const readedDiscounts = await Discount.find({ active: true });
-    if (readedDiscounts) {
+    const readedMovements = await Movement.find();
+    if (readedMovements) {
       const data = {
-        info: "Todos los descuentos disponibles",
-        products: readedDiscounts,
+        info: "Todos los movimientos disponibles",
+        movements: readedMovements,
       };
       return data;
     } else {
       const data = {
-        info: "No hay descuentos registrados",
+        info: "No hay movimientos registrados",
         arts: null,
       };
       return data;
@@ -107,4 +85,5 @@ module.exports = {
   createMovement,
   updateBalance,
   readByAccount,
+  readAllMovements,
 };

@@ -11,6 +11,16 @@ const readAdminById = async (adminData) => {
   return false;
 };
 
+const readSellers = async () => {
+  let readedSellers = await Admin.find({ area: "Ventas" })
+    .select("firstname lastname")
+    .exec();
+  if (readedSellers) {
+    return readedSellers;
+  }
+  return false;
+};
+
 const readAllAdmins = async () => {
   let readedAdmin = await Admin.find({}).select("-_id, -password").exec();
   if (readedAdmin) {
@@ -115,6 +125,7 @@ const deleteAdminRole = async (id) => {
 module.exports = {
   readAdminById,
   readAllAdmins,
+  readSellers,
   updateAdmin,
   readAdminByEmail,
   readAdminByUsername,

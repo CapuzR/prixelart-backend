@@ -19,4 +19,10 @@ router.post(
   movementControllers.readByAccount
 );
 
+router.post(
+  "/movement/readAllMovements",
+  adminAuthServices.ensureAuthenticated,
+  movementControllers.readAllMovements
+);
+
 module.exports = router;
