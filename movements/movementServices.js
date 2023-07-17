@@ -1,7 +1,7 @@
 const Movement = require("./movementModel");
 const jwt = require("jsonwebtoken");
 const Account = require("../account/accountModel");
-// const Product = require("../product/productModel");
+const User = require("../user/userModel");
 
 const createMovement = (movementData) => {
   try {
@@ -62,7 +62,20 @@ const readByAccount = async (account) => {
 const readAllMovements = async () => {
   try {
     const readedMovements = await Movement.find();
+    let d = [];
     if (readedMovements) {
+      d = await Promise.all(
+        readedMovements.map(async (mov) => {
+          let name = await User.findOne({ account: mov.destinatary });
+          if (mov.destinatary) {
+            mov.destinatary = `${name?.firstName} ${name?.lastName}`;
+            return mov;
+          } else {
+            mov.destinatary = undefined;
+          }
+          name = undefined;
+        })
+      );
       const data = {
         info: "Todos los movimientos disponibles",
         movements: readedMovements,
