@@ -51,6 +51,7 @@ router.delete(
   adminControllers.deleteAdmin
 );
 
+router.get("/admin/getSellers", adminControllers.getSellers);
 // Admin Roles
 router.post(
   "/adminRole/create",

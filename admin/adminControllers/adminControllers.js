@@ -11,6 +11,16 @@ const readAdmin = async (req, res) => {
   }
 };
 
+const getSellers = async (req, res) => {
+  try {
+    const readedAdmin = await adminServices.readSellers();
+    res.send(readedAdmin);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 const readAllAdmins = async (req, res) => {
   try {
     const readedAdmins = await adminServices.readAllAdmins();
@@ -115,6 +125,7 @@ const deleteAdminRole = async (req, res) => {
 
 module.exports = {
   readAdmin,
+  getSellers,
   readAllAdmins,
   updateAdmin,
   deleteAdmin,

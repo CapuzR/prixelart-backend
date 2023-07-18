@@ -59,10 +59,10 @@ const readByAccount = async (req, res) => {
   }
 };
 
-const readAllProducts = async (req, res) => {
+const readAllMovements = async (req, res) => {
   try {
-    const readedDiscounts = await discountServices.readAllProducts();
-    res.send(readedDiscounts);
+    const readedMovements = await movementServices.readAllMovements();
+    res.send(readedMovements);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -72,4 +72,5 @@ const readAllProducts = async (req, res) => {
 module.exports = {
   createMovement,
   readByAccount,
+  readAllMovements,
 };
