@@ -92,7 +92,7 @@ const sendEmail = async (req, res) => {
 
 const readOrder = async (req, res) => {
   try {
-    const readedOrder = await orderServices.readOrderByEmail(req.body);
+    const readedOrder = await orderServices.readOrderById(req.body.order);
     res.send(readedOrder);
   } catch (err) {
     res.status(500).send(err);
@@ -341,7 +341,7 @@ const downloadOrders = async (req, res) => {
     { header: "status", key: "status", width: 20 },
     { header: "Fecha de solicitud", key: "createdOn", width: 10 },
     { header: "Nombre del cliente", key: "basicData", width: 20 },
-    { header: "Fecha de entrega", key: "", width: 10 },
+    { header: "Fecha de entrega", key: "shippingDate", width: 10 },
     { header: "certificado", key: "", width: 15 },
     { header: "Prixer", key: "prixer", width: 15 },
     { header: "Arte", key: "art", width: 20 },
@@ -351,8 +351,6 @@ const downloadOrders = async (req, res) => {
     { header: "Observación", key: "observations", width: 10 },
     { header: "Vendedor", key: "createdBy", width: 15 },
     { header: "Método de entrega", key: "shippingData", width: 15 },
-    // { header: "Fecha de pago", key: "payDate", width: 10 },
-    // { header: "Mes", key: "month", width: 10 },
     { header: "Validación del pago", key: "payStatus", width: 10 },
     { header: "Costo unitario", key: "price", width: 10 },
   ];
@@ -363,7 +361,7 @@ const downloadOrders = async (req, res) => {
       status: order?.status,
       createdOn: order.createdOn,
       basicData: order.basicData?.firstname + " " + order.basicData?.lastname,
-      // Fecha de entrega
+      shippingDate: "",
       // Certificado
       prixer: "",
       art: "",
@@ -385,38 +383,10 @@ const downloadOrders = async (req, res) => {
         order.shippingData?.shippingMethod?.name
       );
     }
-
-    // let billingData = " ";
-
-    // if (order.billingData?.orderPaymentMethod) {
-    //   let d1 = billingData.concat(order.billingData?.orderPaymentMethod);
-    //   billingData = d1;
-    // }
-    // if (order.billingData?.name) {
-    //   let d2 = billingData.concat(" ", order.billingData?.name);
-    //   billingData = d2;
-    // }
-    // if (order.billingData?.lastname) {
-    //   let d3 = billingData.concat(" ", order.billingData?.lastname);
-    //   billingData = d3;
-    // }
-    // if (order.billingData?.ci) {
-    //   let d4 = billingData.concat(" ", order.billingData?.ci);
-    //   billingData = d4;
-    // }
-    // if (order.billingData?.company) {
-    //   let d5 = billingData.concat(" ", order.billingData?.company);
-    //   billingData = d5;
-    // }
-    // if (order.billingData?.phone) {
-    //   let d6 = billingData.concat(" ", order.billingData?.phone);
-    //   billingData = d6;
-    // }
-    // if (order.billingData?.address) {
-    //   let d7 = billingData.concat(" ", order.billingData?.address);
-    //   billingData = d7;
-    // }
-
+    let shippingDate;
+    if (order.shippingData?.shippingDate !== undefined) {
+      shippingDate = order.shippingData?.shippingDate;
+    }
     let prixer = " ";
     let art = " ";
     let product = " ";
@@ -470,7 +440,7 @@ const downloadOrders = async (req, res) => {
       v2.quantity = quantity;
       v2.price = price;
       v2.shippingData = shippingData;
-      // v2.billingData = billingData;
+      v2.shippingDate = shippingDate;
       worksheet.addRow(v2);
     }, 100);
   });
@@ -481,12 +451,12 @@ const downloadOrders = async (req, res) => {
     });
 
     try {
-      const data = workbook.xlsx.writeFile(`${path}/Pedidos.xlsx`).then(() => {
-        res.send({
-          status: "success",
-          message: "Archivo descargado exitosamente.",
-          path: `Users/Usuario/Descargas/Pedidos.xlsx`,
-        });
+      const data = workbook.xlsx;
+      res.send({
+        status: "success",
+        message: "Archivo descargado exitosamente.",
+        orders: data,
+        // path: `Users/Usuario/Descargas/Pedidos.xlsx`,
       });
     } catch (err) {
       console.log(err);

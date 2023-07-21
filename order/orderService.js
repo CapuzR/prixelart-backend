@@ -72,9 +72,16 @@ const sendEmail = async (orderData) => {
   }
 };
 
-const readOrderByEmail = async (orderData) => {
-  return await Order.findOne({ email: orderData.email }).select("-_id").exec();
+const readOrderById = async (Id) => {
+  try {
+    let order = await Order.findOne({ orderId: Id }).exec();
+    return order;
+  } catch (e) {
+    console.log(e);
+    res.status(500).send(e);
+  }
 };
+
 const readOrderByUsername = async (username) => {
   return await Order.findOne({ username: username }).exec();
 };
@@ -570,7 +577,7 @@ module.exports = {
   createOrder,
   addVoucher,
   sendEmail,
-  readOrderByEmail,
+  readOrderById,
   readOrderByUsername,
   readAllOrders,
   readOrdersByPrixer,
