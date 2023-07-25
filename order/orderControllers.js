@@ -336,24 +336,33 @@ const updateOrderPayment = async (req, res) => {
 const downloadOrders = async (req, res) => {
   const workbook = new excelJS.Workbook();
   const worksheet = workbook.addWorksheet("Pedidos");
-  const path = "/Users/Usuario/Downloads";
+  const path = "/Users/Usuario/Downloads/Pedidos.xlsx";
   worksheet.columns = [
     { header: "status", key: "status", width: 20 },
     { header: "Fecha de solicitud", key: "createdOn", width: 10 },
-    { header: "Nombre del cliente", key: "basicData", width: 20 },
+    { header: "Nombre del cliente", key: "basicData", width: 24 },
     { header: "Fecha de entrega", key: "shippingDate", width: 10 },
-    { header: "certificado", key: "", width: 15 },
-    { header: "Prixer", key: "prixer", width: 15 },
-    { header: "Arte", key: "art", width: 20 },
+    { header: "certificado", key: "", width: 10 },
+    { header: "Prixer", key: "prixer", width: 18 },
+    { header: "Arte", key: "art", width: 24 },
     { header: "Producto", key: "product", width: 20 },
-    { header: "Atributo", key: "attribute", width: 10 },
+    { header: "Atributo", key: "attribute", width: 20 },
     { header: "Cantidad", key: "quantity", width: 5 },
-    { header: "Observación", key: "observations", width: 10 },
-    { header: "Vendedor", key: "createdBy", width: 15 },
+    { header: "Observación", key: "observations", width: 18 },
+    { header: "Vendedor", key: "createdBy", width: 20 },
     { header: "Método de entrega", key: "shippingData", width: 15 },
     { header: "Validación del pago", key: "payStatus", width: 10 },
     { header: "Costo unitario", key: "price", width: 10 },
   ];
+  worksheet.getRow(1).eachCell((cell) => {
+    cell.font = { bold: true };
+    cell.border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+  });
   let readedOrder = await Order.find({}).select("-_id").exec();
 
   readedOrder.map((order, i) => {
@@ -387,50 +396,51 @@ const downloadOrders = async (req, res) => {
     if (order.shippingData?.shippingDate !== undefined) {
       shippingDate = order.shippingData?.shippingDate;
     }
-    let prixer = " ";
-    let art = " ";
-    let product = " ";
-    let attributes = " ";
-    let quantity = " ";
-    let price = " ";
+    let prixer = "";
+    let art = "";
+    let product = "";
+    let attributes = "";
+    let quantity = "";
+    let price = "";
     order.requests.map((item) => {
-      prixer = prixer.concat(item.art.prixerUsername, " ");
+      prixer = prixer.concat(item.art.prixerUsername, ". ");
 
-      art = art.concat(item.art.title, " ");
+      art = art.concat(item.art.title, ". ");
 
-      product = product.concat(item.product.name, " ");
+      product = product.concat(item.product.name, ". ");
 
-      attributes = attributes.concat(item.product.selection);
       if (
         item.product.selection?.attributes &&
         item.product.selection?.attributes[1]?.value
       ) {
         attributes = attributes.concat(
           item.product.selection?.attributes[0]?.value,
-          " ",
-          item.product.selection?.attributes[1]?.value
+          ", ",
+          item.product.selection?.attributes[1]?.value,
+          ". "
         );
       } else if (
         item.product.selection?.attributes &&
         item.product.selection?.attributes[0]?.value
       ) {
         attributes = attributes.concat(
-          item.product.selection.attributes[0].value
+          item.product.selection.attributes[0].value,
+          ". "
         );
       }
 
-      quantity = item.quantity;
+      quantity = quantity.concat(item.quantity, "| ");
       if (
         item.product.publicEquation !== undefined &&
         item.product.publicEquation !== ""
       ) {
-        price = item.product.publicEquation;
+        price = price.concat("$", item.product.publicEquation, "| ");
       } else if (
         item.product.prixerEquation !== undefined &&
         item.product.prixerEquation !== ""
       ) {
         price = item.product.prixerEquation;
-      } else price = item.product.publicPrice.from;
+      } else price = price.concat("$", item.product.publicPrice.from, "| ");
     });
     setTimeout(() => {
       v2.prixer = prixer;
@@ -441,22 +451,25 @@ const downloadOrders = async (req, res) => {
       v2.price = price;
       v2.shippingData = shippingData;
       v2.shippingDate = shippingDate;
-      worksheet.addRow(v2);
+      worksheet.addRow(v2).eachCell({ includeEmpty: true }, (cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "left" };
+      });
     }, 100);
   });
-  setTimeout(() => {
-    worksheet.getRow(1).eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.border = { style: "thin" };
-    });
+  setTimeout(async () => {
+    await workbook.xlsx.writeFile(path);
 
     try {
-      const data = workbook.xlsx;
       res.send({
         status: "success",
         message: "Archivo descargado exitosamente.",
-        orders: data,
-        // path: `Users/Usuario/Descargas/Pedidos.xlsx`,
+        path: `/Users/Usuario/Downloads/Pedidos.xlsx`,
       });
     } catch (err) {
       console.log(err);
