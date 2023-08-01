@@ -149,9 +149,10 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-const checkPermissions = async (req, res) => {
+const checkPermissions = async (req, res, next) => {
   try {
     let token;
+    let error;
     if (req.body?.adminToken !== undefined) {
       token = req.body.adminToken;
       if (token) {
@@ -175,20 +176,18 @@ const checkPermissions = async (req, res) => {
       }
     } else {
       token = req;
-      if (token) {
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-          let readedRole = await adminRoleModel.findOne({
-            area: decoded.area,
-          });
-          if (err) {
-            return res.status(500).send({
-              auth: false,
-              message: "Falló autenticación de token.",
-            });
-          } else {
-            return readedRole;
-          }
-        });
+      jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+        token = decoded;
+        error = err;
+      });
+      let readedRole = await adminRoleModel.findOne({
+        area: token.area,
+      });
+      if (error) {
+        console.log(error);
+        return undefined;
+      } else {
+        return readedRole;
       }
     }
   } catch (e) {
