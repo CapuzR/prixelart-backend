@@ -1,10 +1,12 @@
 const orderServices = require("./orderService");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+
 const multer = require("multer");
 const multerS3 = require("multer-s3-transform");
 const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
-const { nanoid } = require("nanoid");
+const nanoid = require("nanoid");
 dotenv.config();
 const Order = require("./orderModel");
 const excelJS = require("exceljs");
@@ -17,6 +19,43 @@ const s3 = new aws.S3({
 });
 //Order
 const createOrder = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.createOrder) {
+      const orderData = {
+        orderId: req.body.orderId,
+        orderType: req.body.orderType,
+        createdOn: req.body.createdOn,
+        createdBy: req.body.createdBy,
+        dollarValue: req.body.dollarValue,
+        subtotal: req.body.subtotal,
+        tax: req.body.tax,
+        total: req.body.total,
+        basicData: req.body.basicData,
+        shippingData: req.body.shippingData,
+        billingData: req.body.billingData,
+        requests: req.body.requests,
+        status: req.body.status,
+        observations: req.body.observations,
+        consumer: req.body.consumerId,
+      };
+      const result = await orderServices.createOrder(orderData);
+      res.send(result);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+    console.log("err", err);
+  }
+};
+
+const createOrder4Client = async (req, res) => {
   try {
     const orderData = {
       orderId: req.body.orderId,
@@ -87,6 +126,7 @@ const sendEmail = async (req, res) => {
     res.send(result);
   } catch (e) {
     res.status(500).send(e);
+    console.log(e);
   }
 };
 
@@ -122,12 +162,21 @@ const readOrdersByPrixer = async (req, res) => {
 
 const updateOrder = async (req, res) => {
   try {
-    const updatedOrder = await orderServices.updateOrder(
-      req.body.adminToken,
-      req.params.id,
-      req.body.status
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updatedOrder);
+    if (checkPermissions.orderStatus) {
+      const updatedOrder = await orderServices.updateOrder(
+        req.params.id,
+        req.body.status
+      );
+      return res.send(updatedOrder);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -135,12 +184,21 @@ const updateOrder = async (req, res) => {
 
 const updateOrderPayStatus = async (req, res) => {
   try {
-    const updatedOrder = await orderServices.updateOrderPayStatus(
-      req.body.adminToken,
-      req.params.id,
-      req.body.payStatus
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updatedOrder);
+    if (checkPermissions.detailPay) {
+      const updatedOrder = await orderServices.updateOrderPayStatus(
+        req.params.id,
+        req.body.payStatus
+      );
+      return res.send(updatedOrder);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -148,12 +206,22 @@ const updateOrderPayStatus = async (req, res) => {
 
 const updateSeller = async (req, res) => {
   try {
-    const updatedOrder = await orderServices.updateSeller(
-      req.body.adminToken,
-      req.params.id,
-      req.body.seller
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updatedOrder);
+    if (checkPermissions.area === "Master") {
+      const updatedOrder = await orderServices.updateSeller(
+        req.params.id,
+        req.body.seller
+      );
+      return res.send(updatedOrder);
+    } else {
+      npm;
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -479,6 +547,7 @@ const downloadOrders = async (req, res) => {
 };
 module.exports = {
   createOrder,
+  createOrder4Client,
   upload,
   addVoucher,
   sendEmail,
