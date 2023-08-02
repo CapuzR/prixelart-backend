@@ -238,8 +238,18 @@ const deleteOrder = async (req, res) => {
 //PaymentMethod
 const createPaymentMethod = async (req, res) => {
   try {
-    const result = await orderServices.createPaymentMethod(req.body);
-    res.send(result);
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.createPaymentMethod) {
+      const result = await orderServices.createPaymentMethod(req.body);
+      res.send(result);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -279,10 +289,20 @@ const readAllPaymentMethodsV2 = async (req, res) => {
 
 const updatePaymentMethod = async (req, res) => {
   try {
-    const updatedPaymentMethod = await orderServices.updatePaymentMethod(
-      req.body
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updatedPaymentMethod);
+    if (checkPermissions.createPaymentMethod) {
+      const updatedPaymentMethod = await orderServices.updatePaymentMethod(
+        req.body
+      );
+      return res.send(updatedPaymentMethod);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -290,14 +310,24 @@ const updatePaymentMethod = async (req, res) => {
 
 const deletePaymentMethod = async (req, res) => {
   try {
-    const paymentMethodForDelete = await orderServices.deletePaymentMethod(
-      req.params.id
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    data = {
-      paymentMethodForDelete,
-      success: true,
-    };
-    return res.send(data);
+    if (checkPermissions.deletePaymentMethod) {
+      const paymentMethodForDelete = await orderServices.deletePaymentMethod(
+        req.params.id
+      );
+      data = {
+        paymentMethodForDelete,
+        success: true,
+      };
+      return res.send(data);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch {
     res.status(500).send(err);
     console.log(err);
@@ -307,8 +337,18 @@ const deletePaymentMethod = async (req, res) => {
 //Shipping method
 const createShippingMethod = async (req, res) => {
   try {
-    const result = await orderServices.createShippingMethod(req.body);
-    res.send(result);
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.createShippingMethod) {
+      const result = await orderServices.createShippingMethod(req.body);
+      res.send(result);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -336,10 +376,20 @@ const readAllShippingMethodV2 = async (req, res) => {
 };
 const updateShippingMethod = async (req, res) => {
   try {
-    const updateShippingMethod = await orderServices.updateShippingMethod(
-      req.body
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    res.send(updateShippingMethod);
+    if (checkPermissions.createShippingMethod) {
+      const updateShippingMethod = await orderServices.updateShippingMethod(
+        req.body
+      );
+      res.send(updateShippingMethod);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -347,59 +397,69 @@ const updateShippingMethod = async (req, res) => {
 
 const deleteShippingMethod = async (req, res) => {
   try {
-    const shippingMethodForDelete = await orderServices.deleteShippingMethod(
-      req.params.id
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    data = {
-      shippingMethodForDelete,
-      success: true,
-    };
-    return res.send(data);
+    if (checkPermissions.deleteShippingMethod) {
+      const shippingMethodForDelete = await orderServices.deleteShippingMethod(
+        req.params.id
+      );
+      data = {
+        shippingMethodForDelete,
+        success: true,
+      };
+      return res.send(data);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch {
     res.status(500).send(err);
     console.log(err);
   }
 };
 //Order
-const createOrderPayment = async (req, res) => {
-  try {
-    const result = await orderServices.createOrderPayment(req.body);
-    res.send(result);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+// const createOrderPayment = async (req, res) => {
+//   try {
+//     const result = await orderServices.createOrderPayment(req.body);
+//     res.send(result);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// };
 
-const readOrderPayment = async (req, res) => {
-  try {
-    const readedOrderPayment = await orderServices.readOrderPaymentByEmail(
-      req.body
-    );
-    res.send(readedOrderPayment);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+// const readOrderPayment = async (req, res) => {
+//   try {
+//     const readedOrderPayment = await orderServices.readOrderPaymentByEmail(
+//       req.body
+//     );
+//     res.send(readedOrderPayment);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// };
 
-const readAllOrderPayments = async (req, res) => {
-  try {
-    const readedOrderPayments = await orderServices.readAllOrderPayments();
-    res.send(readedOrderPayments);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+// const readAllOrderPayments = async (req, res) => {
+//   try {
+//     const readedOrderPayments = await orderServices.readAllOrderPayments();
+//     res.send(readedOrderPayments);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// };
 
-const updateOrderPayment = async (req, res) => {
-  try {
-    const updatedOrderPayment = await orderServices.updateOrderPayment(
-      req.body
-    );
-    return res.send(updatedOrderPayment);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+// const updateOrderPayment = async (req, res) => {
+//   try {
+//     const updatedOrderPayment = await orderServices.updateOrderPayment(
+//       req.body
+//     );
+//     return res.send(updatedOrderPayment);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// };
 
 const downloadOrders = async (req, res) => {
   const workbook = new excelJS.Workbook();
@@ -569,9 +629,9 @@ module.exports = {
   readAllShippingMethodV2,
   updateShippingMethod,
   deleteShippingMethod,
-  createOrderPayment,
-  readOrderPayment,
-  readAllOrderPayments,
-  updateOrderPayment,
+  // createOrderPayment,
+  // readOrderPayment,
+  // readAllOrderPayments,
+  // updateOrderPayment,
   downloadOrders,
 };
