@@ -7,22 +7,6 @@ const movementServices = require("./movementServices");
 
 const createMovement = async (req, res, next) => {
   try {
-    // const adminToken = req.body.adminToken;
-    // let check;
-    // jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-    //   let result = await adminRoleModel.findOne({
-    //     area: decoded.area,
-    //   });
-    //   check = result;
-    //   if (err) {
-    //     return res.status(500).send({
-    //       auth: false,
-    //       message: "Falló autenticación de token.",
-    //     });
-    //   } else if (decoded) {
-    // check = result;
-    // if (check && check.createProduct) {
-
     const movement = {
       _id: req.body._id,
       createdOn: req.body.createdOn,
@@ -36,15 +20,6 @@ const createMovement = async (req, res, next) => {
 
     const updateBalance = await movementServices.updateBalance(movement);
     res.send({ newMovement, updateBalance });
-    // }
-    //   } else {
-    //     const warning = {
-    //       auth: false,
-    //       message: "No tienes autorización para realizar esta acción.",
-    //     };
-    //     return warning;
-    //   }
-    // });
   } catch (err) {
     res.status(500).send(err);
   }

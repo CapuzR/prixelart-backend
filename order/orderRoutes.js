@@ -111,26 +111,26 @@ router.put(
   orderControllers.deleteShippingMethod
 );
 // Order Payment
-router.post(
-  "/order-payment/create",
-  adminAuthServices.ensureAuthenticated,
-  orderControllers.createOrderPayment
-);
-router.post(
-  "/order-payment/read",
-  adminAuthServices.ensureAuthenticated,
-  orderControllers.readOrderPayment
-);
-router.post(
-  "/order-payment/read-all",
-  adminAuthServices.ensureAuthenticated,
-  orderControllers.readAllOrderPayments
-);
-router.post(
-  "/order-payment/update",
-  adminAuthServices.ensureAuthenticated,
-  orderControllers.updateOrderPayment
-);
+// router.post(
+//   "/order-payment/create",
+//   adminAuthServices.ensureAuthenticated,
+//   orderControllers.createOrderPayment
+// );
+// router.post(
+//   "/order-payment/read",
+//   adminAuthServices.ensureAuthenticated,
+//   orderControllers.readOrderPayment
+// );
+// router.post(
+//   "/order-payment/read-all",
+//   adminAuthServices.ensureAuthenticated,
+//   orderControllers.readAllOrderPayments
+// );
+// router.post(
+//   "/order-payment/update",
+//   adminAuthServices.ensureAuthenticated,
+//   orderControllers.updateOrderPayment
+// );
 
 // Excel
 router.get(

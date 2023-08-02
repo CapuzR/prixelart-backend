@@ -161,7 +161,7 @@ const checkPermissions = async (req, res, next) => {
           process.env.JWT_SECRET,
           async (err, decoded) => {
             if (err) {
-              return res.status(500).send({
+              return res.send({
                 auth: false,
                 message: "Falló autenticación de token.",
               });

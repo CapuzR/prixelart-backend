@@ -20,6 +20,12 @@ router.post(
 );
 
 router.post(
+  "/movement/readByPrixer",
+  adminAuthServices.ensureAuthenticated,
+  movementControllers.readByAccount
+);
+
+router.post(
   "/movement/readAllMovements",
   adminAuthServices.ensureAuthenticated,
   movementControllers.readAllMovements

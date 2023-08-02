@@ -258,7 +258,7 @@ const createPaymentMethod = async (paymentMethodData) => {
       paymentMethodData.name
     );
 
-    if (readedPaymentMethodByName) {
+    if (readedPaymentMethodByName || readedPaymentMethodById) {
       return {
         success: false,
         info: "error_email",
@@ -266,13 +266,6 @@ const createPaymentMethod = async (paymentMethodData) => {
       };
     }
 
-    if (readedPaymentMethodById) {
-      return {
-        success: false,
-        info: "error_email",
-        message: "Disculpa, esta forma de pago ya está registrada.",
-      };
-    }
     let newPaymentMethod = await new PaymentMethod(paymentMethodData).save();
     return {
       res: { success: true, paymentMethodId: newPaymentMethod._id },
@@ -431,77 +424,77 @@ const deleteShippingMethod = async (shippingMethodId) => {
   }
 };
 //Order Payment
-const createOrderPayment = async (orderPaymentData) => {
-  try {
-    const readedOrderPaymentByEmail = await readOrderPaymentByEmail(
-      orderPaymentData
-    );
-    const readedOrderPaymentByUsername = await readOrderPaymentByUsername(
-      orderPaymentData.username
-    );
-    if (readedOrderPaymentByUsername) {
-      return {
-        success: false,
-        info: "error_username",
-        message: "Disculpa, el nombre de usuario ya está registrado.",
-      };
-    }
+// const createOrderPayment = async (orderPaymentData) => {
+//   try {
+//     const readedOrderPaymentByEmail = await readOrderPaymentByEmail(
+//       orderPaymentData
+//     );
+//     const readedOrderPaymentByUsername = await readOrderPaymentByUsername(
+//       orderPaymentData.username
+//     );
+//     if (readedOrderPaymentByUsername) {
+//       return {
+//         success: false,
+//         info: "error_username",
+//         message: "Disculpa, el nombre de usuario ya está registrado.",
+//       };
+//     }
 
-    if (readedOrderPaymentByEmail) {
-      return {
-        success: false,
-        info: "error_email",
-        message: "Disculpa, el correo del usuario ya está registrado.",
-      };
-    }
-    let newOrderPayment = await new Order(orderPaymentData).save();
-    return {
-      res: { success: true, orderPaymentId: newOrderPayment._id },
-      newOrderPayment: newOrderPayment,
-    };
-  } catch (e) {
-    return "Incapaz de crear el usuario, intenta de nuevo o consulta a soporte.";
-  }
-};
+//     if (readedOrderPaymentByEmail) {
+//       return {
+//         success: false,
+//         info: "error_email",
+//         message: "Disculpa, el correo del usuario ya está registrado.",
+//       };
+//     }
+//     let newOrderPayment = await new Order(orderPaymentData).save();
+//     return {
+//       res: { success: true, orderPaymentId: newOrderPayment._id },
+//       newOrderPayment: newOrderPayment,
+//     };
+//   } catch (e) {
+//     return "Incapaz de crear el usuario, intenta de nuevo o consulta a soporte.";
+//   }
+// };
 
-const readOrderPaymentByEmail = async (orderPaymentData) => {
-  return await OrderPayment.findOne({ email: orderPaymentData.email })
-    .select("-_id")
-    .exec();
-};
-const readOrderPaymentByUsername = async (username) => {
-  return await OrderPayment.findOne({ username: username }).exec();
-};
+// const readOrderPaymentByEmail = async (orderPaymentData) => {
+//   return await OrderPayment.findOne({ email: orderPaymentData.email })
+//     .select("-_id")
+//     .exec();
+// };
+// const readOrderPaymentByUsername = async (username) => {
+//   return await OrderPayment.findOne({ username: username }).exec();
+// };
 
-const readAllOrderPayments = async () => {
-  let readedOrderPayments = await OrderPayment.find({}).select("-_id").exec();
-  if (readedOrder) {
-    return readedOrderPayments;
-  }
-  return false;
-};
+// const readAllOrderPayments = async () => {
+//   let readedOrderPayments = await OrderPayment.find({}).select("-_id").exec();
+//   if (readedOrder) {
+//     return readedOrderPayments;
+//   }
+//   return false;
+// };
 
-const updateOrderPayment = async (orderPaymentData) => {
-  try {
-    const toUpdateOrderPayment = await OrderPayment.findOne({
-      email: orderPaymentData.email,
-    });
-    await toUpdateOrderPayment.set(orderPaymentData);
-    const updatedOrderPayment = await toUpdateOrderPayment.save();
-    if (!updatedOrderPayment) {
-      return console.log("Order update error: " + err);
-    }
+// const updateOrderPayment = async (orderPaymentData) => {
+//   try {
+//     const toUpdateOrderPayment = await OrderPayment.findOne({
+//       email: orderPaymentData.email,
+//     });
+//     await toUpdateOrderPayment.set(orderPaymentData);
+//     const updatedOrderPayment = await toUpdateOrderPayment.save();
+//     if (!updatedOrderPayment) {
+//       return console.log("Order update error: " + err);
+//     }
 
-    return updatedOrderPayment;
-  } catch (e) {
-    return {
-      success: false,
-      message:
-        e +
-        "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
-    };
-  }
-};
+//     return updatedOrderPayment;
+//   } catch (e) {
+//     return {
+//       success: false,
+//       message:
+//         e +
+//         "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
+//     };
+//   }
+// };
 
 module.exports = {
   createOrder,
@@ -524,9 +517,9 @@ module.exports = {
   readAllShippingMethod,
   updateShippingMethod,
   deleteShippingMethod,
-  createOrderPayment,
-  readOrderPaymentByEmail,
-  readOrderPaymentByUsername,
-  readAllOrderPayments,
-  updateOrderPayment,
+  // createOrderPayment,
+  // readOrderPaymentByEmail,
+  // readOrderPaymentByUsername,
+  // readAllOrderPayments,
+  // updateOrderPayment,
 };
