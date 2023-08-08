@@ -2,17 +2,27 @@ const adminAuthServices = require("../adminServices/adminAuthServices");
 
 const createAdmin = async (req, res) => {
   try {
-    const result = await adminAuthServices.createAdmin(req.body);
-    if (result.res.success) {
-      const adminToken = adminAuthServices.generateToken(result.newAdmin);
-      if (adminToken) {
-        result.adminToken = adminToken;
-        res
-          .cookie("adminToken", adminToken, { httpOnly: true })
-          .send({ success: true });
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.modifyAdmins) {
+      const result = await adminAuthServices.createAdmin(req.body);
+      if (result.res.success) {
+        const adminToken = adminAuthServices.generateToken(result.newAdmin);
+        if (adminToken) {
+          result.adminToken = adminToken;
+          res
+            .cookie("adminToken", adminToken, { httpOnly: true })
+            .send({ success: true });
+        }
+      } else {
+        res.send(result);
       }
     } else {
-      res.send(result);
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
     }
   } catch (err) {
     res.status(500).send(err);

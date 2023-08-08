@@ -7,6 +7,9 @@ const { nanoid } = require("nanoid");
 const productServices = require("./productServices");
 const jwt = require("jsonwebtoken");
 const adminRoleModel = require("../admin/adminRoleModel");
+const {
+  checkPermissions,
+} = require("../admin/adminServices/adminAuthServices");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
@@ -42,70 +45,56 @@ const upload = multer({
 
 const createProduct = async (req, res, next) => {
   try {
-    const adminToken = req.body.adminToken;
-    let check;
-    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-      let result = await adminRoleModel.findOne({
-        area: decoded.area,
-      });
-      check = result;
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: "Falló autenticación de token.",
+    let checkPermissions = await checkPermissions(req.body.adminToken);
+    console.log(checkPermissions);
+    if (checkPermissions.createProduct) {
+      const imagesResult = [];
+      if (req.files) {
+        req.files.map((img, i) => {
+          imagesResult.push({
+            type: "images",
+            url: img.transforms[0].location,
+          });
         });
-      } else if (decoded) {
-        check = result;
-        if (check && check.createProduct) {
-          const imagesResult = [];
-          if (req.files) {
-            req.files.map((img, i) => {
-              imagesResult.push({
-                type: "images",
-                url: img.transforms[0].location,
-              });
-            });
-          }
-          if (req.body.video) {
-            imagesResult.push({
-              type: "video",
-              url: req.body.video,
-            });
-          }
-          const parseObject = {
-            name: req.body.name,
-            description: req.body.description,
-            category: req.body.category,
-            considerations: req.body.considerations,
-            productionTime: req.body.productionTime,
-            sources: {
-              images: imagesResult,
-              // video: req.body.video
-            },
-            publicPrice: {
-              from: req.body.publicPriceFrom,
-              to: req.body.publicPriceTo,
-            },
-            prixerPrice: {
-              from: req.body.prixerPriceFrom,
-              to: req.body.prixerPriceTo,
-            },
-            attributes: req.body.attributes ? req.body.attributes : [],
-            active: req.body.active,
-            variants: req.body.variants ? req.body.variants : [],
-            hasSpecialVar: req.body.hasSpecialVar,
-          };
-          res.send(await productServices.createProduct(parseObject));
-        }
-      } else {
-        const warning = {
-          auth: false,
-          message: "No tienes autorización para realizar esta acción.",
-        };
-        return warning;
       }
-    });
+      if (req.body.video) {
+        imagesResult.push({
+          type: "video",
+          url: req.body.video,
+        });
+      }
+      const parseObject = {
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        considerations: req.body.considerations,
+        productionTime: req.body.productionTime,
+        sources: {
+          images: imagesResult,
+          // video: req.body.video
+        },
+        publicPrice: {
+          from: req.body.publicPriceFrom,
+          to: req.body.publicPriceTo,
+        },
+        prixerPrice: {
+          from: req.body.prixerPriceFrom,
+          to: req.body.prixerPriceTo,
+        },
+        attributes: req.body.attributes ? req.body.attributes : [],
+        active: req.body.active,
+        variants: req.body.variants ? req.body.variants : [],
+        hasSpecialVar: req.body.hasSpecialVar,
+      };
+      res.send(await productServices.createProduct(parseObject));
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };
@@ -141,95 +130,79 @@ const readAllProductsAdmin = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const adminToken = req.body.adminToken;
-    let check;
-    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-      let result = await adminRoleModel.findOne({
-        area: decoded.area,
-      });
-      check = result;
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: "Falló autenticación de token.",
-        });
-      } else if (decoded) {
-        check = result;
-        if (check && check.createProduct) {
-          const productsVariants = JSON.parse(req.body.variants);
-          let newResult = [];
-          const previousImg = req.body.images.split(" ");
-          if (
-            previousImg !== [] &&
-            // typeof previousImg === "string" &&
-            previousImg !== " " &&
-            previousImg.includes("newProductImages")
-          ) {
-            newResult.push({ type: "images", url: previousImg });
-          } else if (previousImg && previousImg.length > 1) {
-            previousImg.map((img, i) => {
-              img.includes("newProductImages") &&
-                newResult.push({
-                  type: "images",
-                  url: img.replace(/[,]/gi, "").trim(),
-                });
-            });
-          }
-
-          if (req.files["newProductImages"] !== undefined) {
-            req.files["newProductImages"].map((img, i) => {
-              newResult.push({
-                type: "images",
-                url: img.transforms[0].location,
-              });
-            });
-          }
-          if (req.body.video) {
+    let checkPermissions = await checkPermissions(req.body.adminToken);
+    console.log(checkPermissions);
+    if (checkPermissions.createProduct) {
+      const productsVariants = JSON.parse(req.body.variants);
+      let newResult = [];
+      const previousImg = req.body.images.split(" ");
+      if (
+        previousImg !== [] &&
+        previousImg !== " " &&
+        previousImg.includes("newProductImages")
+      ) {
+        newResult.push({ type: "images", url: previousImg });
+      } else if (previousImg && previousImg.length > 1) {
+        previousImg.map((img, i) => {
+          img.includes("newProductImages") &&
             newResult.push({
-              type: "video",
-              url: req.body.video,
+              type: "images",
+              url: img.replace(/[,]/gi, "").trim(),
             });
-          }
-          const parseObject = {
-            name: req.body.name,
-            description: req.body.description,
-            category: req.body.category,
-            considerations: req.body.considerations,
-            productionTime: req.body.productionTime,
-            sources: { images: newResult },
-            publicPrice: {
-              from: req.body.publicPriceFrom,
-              to: req.body.publicPriceTo,
-            },
-            prixerPrice: {
-              from: req.body.prixerPriceFrom,
-              to: req.body.prixerPriceTo,
-            },
-            thumbUrl: req.body.thumbUrl,
-            attributes: req.body.attributes ? req.body.attributes : [],
-            active: req.body.active,
-            variants: productsVariants,
-            hasSpecialVar: req.body.hasSpecialVar,
-          };
-          const productResult = await productServices.updateProduct(
-            parseObject,
-            req.params.id
-          );
-          data = {
-            productResult,
-            product: parseObject,
-            success: true,
-          };
-          return res.send(data);
-        } else {
-          const warning = {
-            auth: false,
-            message: "No tienes autorización para realizar esta acción.",
-          };
-          return warning;
-        }
+        });
       }
-    });
+
+      if (req.files["newProductImages"] !== undefined) {
+        req.files["newProductImages"].map((img, i) => {
+          newResult.push({
+            type: "images",
+            url: img.transforms[0].location,
+          });
+        });
+      }
+      if (req.body.video) {
+        newResult.push({
+          type: "video",
+          url: req.body.video,
+        });
+      }
+      const parseObject = {
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        considerations: req.body.considerations,
+        productionTime: req.body.productionTime,
+        sources: { images: newResult },
+        publicPrice: {
+          from: req.body.publicPriceFrom,
+          to: req.body.publicPriceTo,
+        },
+        prixerPrice: {
+          from: req.body.prixerPriceFrom,
+          to: req.body.prixerPriceTo,
+        },
+        thumbUrl: req.body.thumbUrl,
+        attributes: req.body.attributes ? req.body.attributes : [],
+        active: req.body.active,
+        variants: productsVariants,
+        hasSpecialVar: req.body.hasSpecialVar,
+      };
+      const productResult = await productServices.updateProduct(
+        parseObject,
+        req.params.id
+      );
+      data = {
+        productResult,
+        product: parseObject,
+        success: true,
+      };
+      return res.send(data);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);

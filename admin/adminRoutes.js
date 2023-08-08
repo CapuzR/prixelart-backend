@@ -45,7 +45,7 @@ router.use(
   preferencesRoutes
 );
 
-router.delete(
+router.put(
   "/admin/delete/:username",
   adminAuthServices.ensureAuthenticated,
   adminControllers.deleteAdmin
@@ -70,7 +70,7 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   adminControllers.updateAdminRole
 );
-router.delete(
+router.put(
   "/adminRole/delete/:id",
   adminAuthServices.ensureAuthenticated,
   adminControllers.deleteAdminRole
