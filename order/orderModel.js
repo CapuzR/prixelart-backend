@@ -15,6 +15,7 @@ const OrderSchema = Schema({
   total: { type: Number, required: true },
   basicData: { type: Object, required: true },
   shippingData: { type: Object, required: false },
+  shippingCost: { type: Number, required: false },
   billingData: { type: Object, required: false },
   requests: { type: Object, required: true },
   status: { type: String, required: true },
