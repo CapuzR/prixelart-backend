@@ -149,7 +149,7 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-const checkPermissions = async (req, res, next) => {
+const checkPermissions = async (req, res) => {
   try {
     let token;
     let error;

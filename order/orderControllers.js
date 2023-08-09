@@ -51,7 +51,7 @@ const createOrder = async (req, res) => {
     }
   } catch (err) {
     res.status(500).send(err);
-    console.log("err", err);
+    console.log(err);
   }
 };
 
@@ -227,12 +227,27 @@ const updateSeller = async (req, res) => {
   }
 };
 const deleteOrder = async (req, res) => {
-  const orderForDelete = await orderServices.deleteOrder(req.params.id);
-  data = {
-    orderForDelete,
-    success: true,
-  };
-  return res.send(data);
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.area === "Master") {
+      const orderForDelete = await orderServices.deleteOrder(req.params.id);
+      data = {
+        orderForDelete,
+        success: true,
+      };
+      return res.send(data);
+    } else {
+      npm;
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
 
 //PaymentMethod
@@ -420,46 +435,6 @@ const deleteShippingMethod = async (req, res) => {
     console.log(err);
   }
 };
-//Order
-// const createOrderPayment = async (req, res) => {
-//   try {
-//     const result = await orderServices.createOrderPayment(req.body);
-//     res.send(result);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// };
-
-// const readOrderPayment = async (req, res) => {
-//   try {
-//     const readedOrderPayment = await orderServices.readOrderPaymentByEmail(
-//       req.body
-//     );
-//     res.send(readedOrderPayment);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// };
-
-// const readAllOrderPayments = async (req, res) => {
-//   try {
-//     const readedOrderPayments = await orderServices.readAllOrderPayments();
-//     res.send(readedOrderPayments);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// };
-
-// const updateOrderPayment = async (req, res) => {
-//   try {
-//     const updatedOrderPayment = await orderServices.updateOrderPayment(
-//       req.body
-//     );
-//     return res.send(updatedOrderPayment);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// };
 
 const downloadOrders = async (req, res) => {
   const workbook = new excelJS.Workbook();
@@ -629,9 +604,5 @@ module.exports = {
   readAllShippingMethodV2,
   updateShippingMethod,
   deleteShippingMethod,
-  // createOrderPayment,
-  // readOrderPayment,
-  // readAllOrderPayments,
-  // updateOrderPayment,
   downloadOrders,
 };
