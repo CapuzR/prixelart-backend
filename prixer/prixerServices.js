@@ -242,7 +242,7 @@ const updateTermsAgreeGeneral = async (prixerId, prixerData) => {
     const toUpdatePrixer = await Prixer.find({
       _id: prixerId,
     });
-    toUpdatePrixer.termsAgree = prixerData.termsAgree;
+    toUpdatePrixer.termsAgree = prixerData;
 
     const updatedPrixer = await toUpdatePrixer.save();
     if (!updatedPrixer) {

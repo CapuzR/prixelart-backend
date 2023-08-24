@@ -10,22 +10,33 @@ const s3 = new aws.S3({
   secretAccessKey: process.env.DO_ACCESS_SECRET,
 });
 const testimonialServices = require("./testimonialServices");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 //CRUD
 
 const createTestimonial = async (req, res) => {
   try {
-    const imageAvatar = req.file.transforms[0].location;
-    const testimonialData = {
-      type: req.body.type,
-      name: req.body.name,
-      value: req.body.value,
-      avatar: imageAvatar,
-      footer: req.body.footer,
-      status: req.body.status,
-    };
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.createTestimonial) {
+      const imageAvatar = req.file.transforms[0].location;
+      const testimonialData = {
+        type: req.body.type,
+        name: req.body.name,
+        value: req.body.value,
+        avatar: imageAvatar,
+        footer: req.body.footer,
+        status: req.body.status,
+      };
 
-    res.send(await testimonialServices.createTestimonial(testimonialData));
+      res.send(await testimonialServices.createTestimonial(testimonialData));
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (e) {
     console.log(e);
     res.status(500).send(e);
@@ -47,19 +58,29 @@ const readById = async (req, res) => {
 
 const updateTestimonial = async (req, res) => {
   try {
-    const testimonialData = {
-      type: req.body.type,
-      name: req.body.name,
-      value: req.body.value,
-      avatar: req.body.avatar || req.file.transforms[0].location,
-      footer: req.body.footer,
-      status: req.body.status,
-    };
-    const updates = await testimonialServices.updateTestimonial(
-      req.params.id,
-      testimonialData
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updates);
+    if (checkPermissions.createTestimonial) {
+      const testimonialData = {
+        type: req.body.type,
+        name: req.body.name,
+        value: req.body.value,
+        avatar: req.body.avatar || req.file.transforms[0].location,
+        footer: req.body.footer,
+        status: req.body.status,
+      };
+      const updates = await testimonialServices.updateTestimonial(
+        req.params.id,
+        testimonialData
+      );
+      return res.send(updates);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -68,14 +89,24 @@ const updateTestimonial = async (req, res) => {
 
 const updateVisibility = async (req, res) => {
   try {
-    const testimonialData = {
-      status: req.body.status,
-    };
-    const updates = await testimonialServices.updateVisibility(
-      req.params.id,
-      testimonialData
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updates);
+    if (checkPermissions.createTestimonial) {
+      const testimonialData = {
+        status: req.body.status,
+      };
+      const updates = await testimonialServices.updateVisibility(
+        req.params.id,
+        testimonialData
+      );
+      return res.send(updates);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -99,14 +130,24 @@ const updatePosition = async (req, res) => {
 };
 
 async function deleteTestimonial(req, res) {
-  const testimonialResult = await testimonialServices.deleteTestimonial(
-    req.params.id
+  let checkPermissions = await adminAuthServices.checkPermissions(
+    req.body.adminToken
   );
-  data = {
-    testimonialResult,
-    success: true,
-  };
-  return res.send(data);
+  if (checkPermissions.deleteTestimonial) {
+    const testimonialResult = await testimonialServices.deleteTestimonial(
+      req.params.id
+    );
+    data = {
+      testimonialResult,
+      success: true,
+    };
+    return res.send(data);
+  } else {
+    return res.send({
+      success: false,
+      message: "No tienes autorización para realizar esta acción.",
+    });
+  }
 }
 
 const upload = multer({

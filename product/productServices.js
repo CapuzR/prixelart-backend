@@ -105,33 +105,8 @@ const updateProduct = async (productData, productId) => {
 
 const deleteProduct = async (req) => {
   try {
-    const adminToken = req.body.adminToken;
-    const productId = req.params.id;
-    let check;
-    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-      let result = await adminRoleModel.findOne({
-        area: decoded.area,
-      });
-      check = result;
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: "Falló autenticación de token.",
-        });
-      } else if (decoded) {
-        check = result;
-        if (check && check.deleteProduct) {
-          await Product.findByIdAndDelete(productId);
-          return "Producto eliminado exitosamente";
-        } else {
-          const warning = {
-            auth: false,
-            message: "No tienes autorización para realizar esta acción.",
-          };
-          return warning;
-        }
-      }
-    });
+    await Product.findByIdAndDelete(req.params.id);
+    return "Producto eliminado exitosamente";
   } catch (error) {
     console.log(error);
     return error;

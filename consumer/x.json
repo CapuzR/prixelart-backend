@@ -1,0 +1,582 @@
+{
+  "orderId": "XCBXMW",
+  "orderType": "Particular",
+  "createdOn": "2023-08-23T16:28:21.581Z",
+  "createdBy": { "username": "Diego Henriquez" },
+  "dollarValue": 32,
+  "subtotal": 30.708,
+  "tax": 4.913279999999999,
+  "total": 35.62128,
+  "basicData": {
+    "name": "Andry",
+    "lastname": "Rodríguez",
+    "ci": "15749806",
+    "phone": "+584246787470",
+    "email": "andryjonsfotografia@gmail.com",
+    "address": "MRW La Lago, Maracaibo 4002. Debajo de la asociación de ciegos"
+  },
+  "shippingData": {
+    "shippingDate": "2023-08-30",
+    "shippingMethod": {
+      "_id": "63fb56f1a7215800111803db",
+      "active": true,
+      "name": "MRW (cobro destino)",
+      "createdOn": "2023-02-26T12:56:15.703Z",
+      "createdBy": {
+        "username": "dhenriquez",
+        "phone": "04142228896",
+        "email": "dhenriquez@prixelart.com",
+        "id": "61771e487404fa0011b103f9",
+        "time": "2023-02-26T12:52:04.076Z",
+        "iat": 1677415924,
+        "exp": 1677437524
+      },
+      "price": "0",
+      "__v": 0
+    }
+  },
+  "billingData": { "orderPaymentMethod": "CoinPrix" },
+  "requests": [
+    {
+      "product": {
+        "sources": {
+          "images": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-wzA4C88-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-XZu44kD-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-_Gj7Cz4-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-2DWwnlF-large.webp"
+            },
+            { "type": "video", "url": null }
+          ]
+        },
+        "publicPrice": { "from": "10", "to": "" },
+        "prixerPrice": { "from": "7", "to": "" },
+        "attributes": [],
+        "variants": [],
+        "_id": "63603349af8bc30011a35f16",
+        "name": "Delantal",
+        "description": "Ideal para un día de parilla o de almuerzo familiar.\r\n\r\n**ESPECIFICACIÓN TÉCNICA**\r\nMaterial: Drill\t\r\nColor: Negro\t\r\nImpresión: Tinta de Sublimación.\r\nTamaño: Único.\r\nConsideración: Ajustable.",
+        "category": "Estilo de Vida",
+        "considerations": " .",
+        "active": true,
+        "hasSpecialVar": false,
+        "__v": 0,
+        "productionTime": "3",
+        "discount": null,
+        "needsEquation": false,
+        "publicEquation": "0",
+        "prixerEquation": "",
+        "selection": [],
+        "modifyPrice": true
+      },
+      "art": {
+        "tags": ["foto,arte,Maracaibo,Puente de Maracaibo,Puente"],
+        "visible": true,
+        "points": 100,
+        "artId": "wdG6Rtt",
+        "title": "AJ-Puente Amanecer Amarillo",
+        "description": "Puente de Maracaibo",
+        "category": "Puentes",
+        "largeThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-large.webp",
+        "mediumThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-medium.webp",
+        "smallThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-small.webp",
+        "squareThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-square.webp",
+        "userId": "61c132357404fa0011b12d5b",
+        "prixerUsername": "andryjons",
+        "artType": "Foto",
+        "originalPhotoWidth": "7500",
+        "originalPhotoHeight": "5000",
+        "originalPhotoIso": "100",
+        "originalPhotoPpi": "300",
+        "artLocation": "Maracaibo"
+      },
+      "quantity": 1
+    },
+    {
+      "product": {
+        "sources": {
+          "images": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-QETZFUl-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-OA-5AX--large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-2BHAtJ0-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-f83kpRA-large.webp"
+            }
+          ]
+        },
+        "publicPrice": { "from": "14", "to": null },
+        "prixerPrice": { "from": "9.8", "to": null },
+        "attributes": [],
+        "variants": [],
+        "_id": "635ff514af8bc30011a35e1f",
+        "name": "Cojín Cuadrado",
+        "description": "Ideal para el hogar u oficina.\r\n\r\n**Especificaciones Técnicas:**\r\nMaterial: Microfibra con relleno de fibra sintética.\r\nImpresión: Tinta de Sublimación.\r\nMedida: 40 x 40cm.\r\n",
+        "category": "Estilo de Vida",
+        "considerations": "Ideal para el hogar u oficina",
+        "active": true,
+        "hasSpecialVar": false,
+        "__v": 0,
+        "productionTime": "3",
+        "discount": null,
+        "needsEquation": false,
+        "publicEquation": "0",
+        "prixerEquation": "",
+        "selection": [],
+        "modifyPrice": true
+      },
+      "art": {
+        "tags": ["foto,arte,Maracaibo,Puente de Maracaibo,Puente"],
+        "visible": true,
+        "points": 100,
+        "artId": "wdG6Rtt",
+        "title": "AJ-Puente Amanecer Amarillo",
+        "description": "Puente de Maracaibo",
+        "category": "Puentes",
+        "largeThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-large.webp",
+        "mediumThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-medium.webp",
+        "smallThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-small.webp",
+        "squareThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-square.webp",
+        "userId": "61c132357404fa0011b12d5b",
+        "prixerUsername": "andryjons",
+        "artType": "Foto",
+        "originalPhotoWidth": "7500",
+        "originalPhotoHeight": "5000",
+        "originalPhotoIso": "100",
+        "originalPhotoPpi": "300",
+        "artLocation": "Maracaibo"
+      },
+      "quantity": 1
+    },
+    {
+      "product": {
+        "sources": {
+          "images": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-lbN4T9E-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-4J3qx4s-large.webp"
+            }
+          ]
+        },
+        "publicPrice": { "from": "1.33", "to": null },
+        "prixerPrice": { "from": "0.93", "to": null },
+        "attributes": [
+          {
+            "name": "Tipo",
+            "value": [
+              "Rígidos Cuadrados",
+              "Rígido Circular",
+              "Flexibles Cuadrados",
+              "Flexibles Circulares"
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "_id": "A0M28JrsEeZAPSrxbqjs6",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-9PACqSU-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Rígidos Cuadrados",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Rígidos Cuadrados" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "XSv-6l",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-HLVxIPD-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Rígidos Circulares",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Rígido Circular" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "xca0bYWMf8anOxn8VSI_d",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-GS6f0AU-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Flexibles Cuadrados",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Flexibles Cuadrados" }],
+            "publicPrice": { "equation": "1.33" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "TC2vnK",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-l_JB0zk-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Flexibles Circulares",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Flexibles Circulares" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          }
+        ],
+        "_id": "6176a8f37404fa0011b10234",
+        "thumbUrl": "https://devprix.nyc3.digitaloceanspaces.com/Posavasos.webp",
+        "active": true,
+        "name": "Posavasos",
+        "description": "Presentación: unitario (la cantidad que desees)\r\nEmpaque: bolsa de celofán transparente.\r\nTamaño: 8,5cm x 8,5cm.\r\n\r\n**E.TÉCNICAS RIGIDOS**\r\nMaterial: vinil blanco con laminado mate sobre lamina plástica 1mm.\r\nImpresión: tinta solvente.\r\nObservaciones: Circular o cuadrados.\r\n**E.TÉCNICAS FLEXIBLES**\r\nMaterial: goma y tela de 4mm.\r\nImpresión: tinta de sublimación.\r\nObservaciones: absorben humedad. Circular o cuadrados.",
+        "category": "Hogar",
+        "considerations": ".",
+        "hasSpecialVar": false,
+        "__v": 6,
+        "productionTime": "4",
+        "discount": null,
+        "needsEquation": false,
+        "publicEquation": "0.934",
+        "prixerEquation": "",
+        "selection": {
+          "_id": "A0M28JrsEeZAPSrxbqjs6",
+          "variantImage": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-9PACqSU-large.webp"
+            }
+          ],
+          "active": true,
+          "name": "Posavasos Rígidos Cuadrados",
+          "description": ".",
+          "category": "",
+          "considerations": ".",
+          "attributes": [{ "name": "Tipo", "value": "Rígidos Cuadrados" }],
+          "publicPrice": { "equation": "1.333" },
+          "prixerPrice": { "equation": "0.933" }
+        },
+        "modifyPrice": true
+      },
+      "art": { "title": "Personalizado", "prixerUsername": "andryjons" },
+      "quantity": "6"
+    },
+    {
+      "product": {
+        "sources": {
+          "images": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-lbN4T9E-large.webp"
+            },
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-4J3qx4s-large.webp"
+            }
+          ]
+        },
+        "publicPrice": { "from": "1.33", "to": null },
+        "prixerPrice": { "from": "0.93", "to": null },
+        "attributes": [
+          {
+            "name": "Tipo",
+            "value": [
+              "Rígidos Cuadrados",
+              "Rígido Circular",
+              "Flexibles Cuadrados",
+              "Flexibles Circulares"
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "_id": "A0M28JrsEeZAPSrxbqjs6",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-9PACqSU-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Rígidos Cuadrados",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Rígidos Cuadrados" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "XSv-6l",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-HLVxIPD-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Rígidos Circulares",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Rígido Circular" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "xca0bYWMf8anOxn8VSI_d",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-GS6f0AU-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Flexibles Cuadrados",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Flexibles Cuadrados" }],
+            "publicPrice": { "equation": "1.33" },
+            "prixerPrice": { "equation": "0.933" }
+          },
+          {
+            "_id": "TC2vnK",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-l_JB0zk-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Posavasos Flexibles Circulares",
+            "description": ".",
+            "category": "",
+            "considerations": ".",
+            "attributes": [{ "name": "Tipo", "value": "Flexibles Circulares" }],
+            "publicPrice": { "equation": "1.333" },
+            "prixerPrice": { "equation": "0.933" }
+          }
+        ],
+        "_id": "6176a8f37404fa0011b10234",
+        "thumbUrl": "https://devprix.nyc3.digitaloceanspaces.com/Posavasos.webp",
+        "active": true,
+        "name": "Posavasos",
+        "description": "Presentación: unitario (la cantidad que desees)\r\nEmpaque: bolsa de celofán transparente.\r\nTamaño: 8,5cm x 8,5cm.\r\n\r\n**E.TÉCNICAS RIGIDOS**\r\nMaterial: vinil blanco con laminado mate sobre lamina plástica 1mm.\r\nImpresión: tinta solvente.\r\nObservaciones: Circular o cuadrados.\r\n**E.TÉCNICAS FLEXIBLES**\r\nMaterial: goma y tela de 4mm.\r\nImpresión: tinta de sublimación.\r\nObservaciones: absorben humedad. Circular o cuadrados.",
+        "category": "Hogar",
+        "considerations": ".",
+        "hasSpecialVar": false,
+        "__v": 6,
+        "productionTime": "4",
+        "discount": null,
+        "needsEquation": false,
+        "publicEquation": "0.934",
+        "prixerEquation": "",
+        "selection": {
+          "_id": "xca0bYWMf8anOxn8VSI_d",
+          "variantImage": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-GS6f0AU-large.webp"
+            }
+          ],
+          "active": true,
+          "name": "Posavasos Flexibles Cuadrados",
+          "description": ".",
+          "category": "",
+          "considerations": ".",
+          "attributes": [{ "name": "Tipo", "value": "Flexibles Cuadrados" }],
+          "publicPrice": { "equation": "1.33" },
+          "prixerPrice": { "equation": "0.933" }
+        },
+        "modifyPrice": true
+      },
+      "art": {
+        "tags": ["foto,arte,Maracaibo,Puente de Maracaibo,Puente"],
+        "visible": true,
+        "points": 100,
+        "artId": "wdG6Rtt",
+        "title": "AJ-Puente Amanecer Amarillo",
+        "description": "Puente de Maracaibo",
+        "category": "Puentes",
+        "largeThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-large.webp",
+        "mediumThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-medium.webp",
+        "smallThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-small.webp",
+        "squareThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-square.webp",
+        "userId": "61c132357404fa0011b12d5b",
+        "prixerUsername": "andryjons",
+        "artType": "Foto",
+        "originalPhotoWidth": "7500",
+        "originalPhotoHeight": "5000",
+        "originalPhotoIso": "100",
+        "originalPhotoPpi": "300",
+        "artLocation": "Maracaibo"
+      },
+      "quantity": "6"
+    },
+    {
+      "product": {
+        "sources": {
+          "images": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/newProductImages-__DalrE-large.webp"
+            }
+          ]
+        },
+        "publicPrice": { "from": "5", "to": null },
+        "prixerPrice": { "from": "3.5", "to": null },
+        "attributes": [
+          { "name": "Cantidad", "value": ["6 unidades", "1 unidad"] }
+        ],
+        "variants": [
+          {
+            "_id": "1y9AhxhYYaAjIaILH9KJ7",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-gLQVjjM-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Set de individulaes 40x30cm",
+            "description": "Ideal para comer en familia o llevarlo a la oficina.\r\n\r\n**Especifiaciones Técnicas:**\r\nMaterial: Oxford y drill.\r\nImpresión: sublimado.\r\nTamaño: 40x30cm.",
+            "category": "undefined",
+            "considerations": "Lleva 6 unidades y ahorra.",
+            "attributes": [{ "name": "Cantidad", "value": "6 unidades" }],
+            "publicPrice": {
+              "from": "undefined",
+              "to": "undefined",
+              "equation": "25"
+            },
+            "prixerPrice": {
+              "from": "undefined",
+              "to": "undefined",
+              "equation": "17,5"
+            }
+          },
+          {
+            "_id": "F6xOnR",
+            "variantImage": [
+              {
+                "type": "images",
+                "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-wtiUmko-large.webp"
+              }
+            ],
+            "active": true,
+            "name": "Mantel Individual Unitario",
+            "description": "Ideal para comer en familia o llevarlo a la oficina.\r\n\r\n**Especifiaciones Técnicas:**\r\nMaterial: Oxford y drill.\r\nImpresión: sublimado.\r\nTamaño: 40x30cm.",
+            "category": "",
+            "considerations": "Una unidad",
+            "attributes": [{ "name": "Cantidad", "value": "1 unidad" }],
+            "publicPrice": { "equation": "5" },
+            "prixerPrice": { "equation": "3,5" }
+          }
+        ],
+        "_id": "63605941af8bc30011a35f30",
+        "name": "Mantel Individual",
+        "description": "Ideal para comer en familia o llevarlo a la oficina.\r\n\r\n**Especifiaciones Técnicas:**\r\nMaterial: Oxford y drill.\r\nImpresión: sublimado.\r\nTamaño: 40x30cm.",
+        "category": "Estilo de Vida",
+        "considerations": "Tamaño único.",
+        "active": true,
+        "hasSpecialVar": false,
+        "__v": 0,
+        "productionTime": "3",
+        "discount": null,
+        "needsEquation": false,
+        "publicEquation": "17.5",
+        "prixerEquation": "",
+        "selection": {
+          "_id": "1y9AhxhYYaAjIaILH9KJ7",
+          "variantImage": [
+            {
+              "type": "images",
+              "url": "https://prixelart.nyc3.digitaloceanspaces.com/variantImage-gLQVjjM-large.webp"
+            }
+          ],
+          "active": true,
+          "name": "Set de individulaes 40x30cm",
+          "description": "Ideal para comer en familia o llevarlo a la oficina.\r\n\r\n**Especifiaciones Técnicas:**\r\nMaterial: Oxford y drill.\r\nImpresión: sublimado.\r\nTamaño: 40x30cm.",
+          "category": "undefined",
+          "considerations": "Lleva 6 unidades y ahorra.",
+          "attributes": [{ "name": "Cantidad", "value": "6 unidades" }],
+          "publicPrice": {
+            "from": "undefined",
+            "to": "undefined",
+            "equation": "25"
+          },
+          "prixerPrice": {
+            "from": "undefined",
+            "to": "undefined",
+            "equation": "17,5"
+          }
+        },
+        "modifyPrice": true
+      },
+      "art": {
+        "tags": ["foto,arte,Maracaibo,Puente de Maracaibo,Puente"],
+        "visible": true,
+        "points": 100,
+        "artId": "wdG6Rtt",
+        "title": "AJ-Puente Amanecer Amarillo",
+        "description": "Puente de Maracaibo",
+        "category": "Puentes",
+        "largeThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-large.webp",
+        "mediumThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-medium.webp",
+        "smallThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-small.webp",
+        "squareThumbUrl": "https://cdn.prixelart.com/AJ-Puente Amanecer Amarillo-wdG6Rtt-square.webp",
+        "userId": "61c132357404fa0011b12d5b",
+        "prixerUsername": "andryjons",
+        "artType": "Foto",
+        "originalPhotoWidth": "7500",
+        "originalPhotoHeight": "5000",
+        "originalPhotoIso": "100",
+        "originalPhotoPpi": "300",
+        "artLocation": "Maracaibo"
+      },
+      "quantity": 1
+    }
+  ],
+  "status": "Por producir",
+  "__v": 0
+}
