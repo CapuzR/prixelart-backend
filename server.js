@@ -1,9 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+var session = require("cookie-session");
 const dotenv = require("dotenv");
 dotenv.config();
-// let helmet = require("helmet");
+var helmet = require("helmet");
 
 const app = express();
 
@@ -13,6 +14,22 @@ var allowedOrigins = [
   "https://www." + process.env.FRONT_END_URL,
   "www." + process.env.FRONT_END_URL,
 ];
+var expiryDate = new Date(Date.now() + 2400 * 60 * 1000); // 1 hour
+app.use(
+  session({
+    name: "session",
+    keys: ["key1", "key2"],
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+      domain: "prixelart.com",
+      path: "/",
+      maxAge: expiryDate,
+      overwrite: true,
+    },
+  })
+);
 app.use(
   cors({
     credentials: true,
@@ -27,7 +44,7 @@ app.use(
     },
   })
 );
-// app.use(cors());
+app.use(helmet());
 
 app.disable("x-powered-by");
 

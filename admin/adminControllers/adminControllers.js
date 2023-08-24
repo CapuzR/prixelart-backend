@@ -119,27 +119,30 @@ const updateAdminRole = async (req, res) => {
       const idToUpdate = req.params.id;
       const updateRole = {
         area: req.body.area,
+        createConsumer: req.body.createConsumer,
+        createDiscount: req.body.createDiscount,
+        createOrder: req.body.createOrder,
+        createPaymentMethod: req.body.createPaymentMethod,
+        createProduct: req.body.createProduct,
+        createShippingMethod: req.body.createShippingMethod,
+        createTestimonial: req.body.createTestimonial,
+        deleteConsumer: req.body.deleteConsumer,
+        deleteDiscount: req.body.deleteDiscount,
+        deletePaymentMethod: req.body.deletePaymentMethod,
+        deleteProduct: req.body.deleteProduct,
+        deleteShippingMethod: req.body.deleteShippingMethod,
+        deleteTestimonial: req.body.deleteTestimonial,
         detailOrder: req.body.detailOrder,
         detailPay: req.body.detailPay,
-        orderStatus: req.body.orderStatus,
-        createOrder: req.body.createOrder,
-        createProduct: req.body.createProduct,
-        deleteProduct: req.body.deleteProduct,
-        createDiscount: req.body.createDiscount,
-        deleteDiscount: req.body.deleteDiscount,
-        modifyBanners: req.body.modifyBanners,
-        modifyTermsAndCo: req.body.modifyTermsAndCo,
-        createPaymentMethod: req.body.createPaymentMethod,
-        deletePaymentMethod: req.body.deletePaymentMethod,
-        createShippingMethod: req.body.createShippingMethod,
-        deleteShippingMethod: req.body.deleteShippingMethod,
-        modifyDollar: req.body.modifyDollar,
-        prixerBan: req.body.prixerBan,
-        createTestimonial: req.body.createTestimonial,
-        deleteTestimonial: req.body.deleteTestimonial,
         modifyAdmins: req.body.modifyAdmins,
-        setPrixerBalance: req.body.setPrixerBalance,
+        modifyBanners: req.body.modifyBanners,
+        modifyDollar: req.body.modifyDollar,
+        modifyTermsAndCo: req.body.modifyTermsAndCo,
+        orderStatus: req.body.orderStatus,
+        prixerBan: req.body.prixerBan,
+        readConsumers: req.body.readConsumers,
         readMovements: req.body.readMovements,
+        setPrixerBalance: req.body.setPrixerBalance,
       };
       const updatedAdminRole = await adminServices.updateAdminRole(
         idToUpdate,
@@ -153,6 +156,7 @@ const updateAdminRole = async (req, res) => {
       });
     }
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 };

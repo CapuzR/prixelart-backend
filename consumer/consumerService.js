@@ -91,6 +91,15 @@ const updateConsumer = async (consumerData) => {
   }
 };
 
+const deleteConsumer = async (id) => {
+  try {
+    await Consumer.findByIdAndDelete(id);
+    return "Cliente eliminado exitosamente";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 module.exports = {
   createConsumer,
   readConsumerByEmail,
@@ -98,4 +107,5 @@ module.exports = {
   readConsumerByUsername,
   readAllConsumers,
   updateConsumer,
+  deleteConsumer,
 };

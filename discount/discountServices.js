@@ -131,41 +131,16 @@ const readAllDiscountsAdmin = async () => {
 
 const deleteDiscount = async (req) => {
   try {
-    const adminToken = req.body.adminToken;
-    const productId = req.params.id;
-    let check;
-    jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-      let result = await adminRoleModel.findOne({
-        area: decoded.area,
-      });
-      check = result;
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: "Falló autenticación de token.",
-        });
-      } else if (decoded) {
-        check = result;
-        if (check && check.deleteProduct) {
-          const allProducts = await Product.find();
-          allProducts.map(async (product) => {
-            if (product.discount === req.params.id) {
-              const filter = { name: product.name };
-              const update = { discount: undefined };
-              await Product.findOneAndUpdate(filter, update);
-            }
-          });
-          await Discount.findByIdAndDelete(productId);
-          return "Descuento eliminado exitosamente";
-        } else {
-          const warning = {
-            auth: false,
-            message: "No tienes autorización para realizar esta acción.",
-          };
-          return warning;
-        }
+    const allProducts = await Product.find();
+    allProducts.map(async (product) => {
+      if (product.discount === req.params.id) {
+        const filter = { name: product.name };
+        const update = { discount: undefined };
+        await Product.findOneAndUpdate(filter, update);
       }
     });
+    await Discount.findByIdAndDelete(req.params.id);
+    return "Descuento eliminado exitosamente";
   } catch (error) {
     console.log(error);
     return error;

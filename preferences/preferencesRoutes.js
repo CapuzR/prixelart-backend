@@ -54,5 +54,5 @@ preferencesRoutes.post(
   adminAuthServices.ensureAuthenticated,
   updateDollarValue
 );
-preferencesRoutes.delete("dollarValue/delete/:id", deleteDollar);
+
 module.exports = preferencesRoutes;

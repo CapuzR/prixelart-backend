@@ -13,6 +13,7 @@ const s3 = new aws.S3({
 const prixerServices = require("./prixerServices");
 const artServices = require("../art/artServices");
 const userControllers = require("../user/userControllers/userControllers");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 //CRUD
 
@@ -144,14 +145,24 @@ const updatePrixer = async (req, res) => {
 
 const updateVisibility = async (req, res) => {
   try {
-    const prixerData = {
-      status: req.body.status,
-    };
-    const updates = await prixerServices.updateVisibility(
-      req.params.id,
-      prixerData
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updates);
+    if (checkPermissions.prixerBan) {
+      const prixerData = {
+        status: req.body.status,
+      };
+      const updates = await prixerServices.updateVisibility(
+        req.params.id,
+        prixerData
+      );
+      return res.send(updates);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -160,14 +171,26 @@ const updateVisibility = async (req, res) => {
 
 const updateTermsAgreeGeneral = async (req, res) => {
   try {
-    const prixerData = {
-      termsAgree: req.body.termsAgree,
-    };
-    const updates = await prixerServices.updateTermsAgreeGeneral(
-      req.params.id,
-      prixerData
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    return res.send(updates);
+    if (checkPermissions.modifyTermsAndCo) {
+      // const prixerData = {
+      //   termsAgree: req.body.termsAgree,
+      // };
+      req.body.prixers.map(async (prixer) => {
+        const updates = await prixerServices.updateTermsAgreeGeneral(
+          prixer,
+          req.body.termsAgree
+        );
+        return res.send(updates);
+      });
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);

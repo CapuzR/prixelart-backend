@@ -8,6 +8,8 @@ const { Carousel, dollarValue } = require("./preferencesModel");
 const { termsAndConditions } = require("./preferencesModel");
 const prixerModel = require("../prixer/prixerModel");
 const preferenceService = require("./preferencesService");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+
 dotenv.config();
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -81,7 +83,6 @@ const createImageCarousel = async (req, res) => {
         status: "Process sucessfull",
         body: req.body,
       });
-      console.log(imagesCarousel);
     } else {
       res.json({ status: "must send a file" });
     }
@@ -141,12 +142,22 @@ const readTermsAndConditions = async (req, res) => {
 
 const updateTermsAndConditions = async (req, res) => {
   try {
-    const result = await termsAndConditions.find();
-    const updating = await termsAndConditions.findOne({ _id: result[0]._id });
-    updating.termsAndConditions = req.body.termsAndConditions;
-    await updating.save();
-    const changeTerms = await prixerModel.updateMany({}, { termsAgree: false });
-    res.send({ terms: updating });
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.modifyTermsAndCo) {
+      const result = await termsAndConditions.find();
+      const updating = await termsAndConditions.findOne({ _id: result[0]._id });
+      updating.termsAndConditions = req.body.termsAndConditions;
+      await updating.save();
+      const updated = await prixerModel.updateMany({}, { termsAgree: false });
+      res.send({ terms: updating, prixers: updated });
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (error) {
     console.log(error);
     res.send({ message: 505 });
@@ -164,24 +175,25 @@ const readDollarValue = async (req, res) => {
 };
 const updateDollarValue = async (req, res) => {
   try {
-    const result = await preferenceService.updateDollarValue(
-      req.body.dollarValue
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    res.send(result);
+    if (checkPermissions.modifyDollar) {
+      const result = await preferenceService.updateDollarValue(
+        req.body.dollarValue
+      );
+      res.send(result);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (error) {
     res.status(500).send(error);
   }
 };
 
-const deleteDollar = async (req, res) => {
-  try {
-    await dollarValue.findOneAndDelete({ _id: req.params.id });
-    return "dolar eliminado";
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
 module.exports = {
   createImageCarousel,
   upload,
@@ -193,5 +205,4 @@ module.exports = {
   updateTermsAndConditions,
   readDollarValue,
   updateDollarValue,
-  deleteDollar,
 };

@@ -1,48 +1,30 @@
-const { nanoid } = require("nanoid");
-const jwt = require("jsonwebtoken");
-const discountModel = require("./discountModel");
 const discountServices = require("./discountServices");
-const adminRoleModel = require("../admin/adminRoleModel");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 //CRUD
 
-const createDiscount = async (req, res, next) => {
+const createDiscount = async (req, res) => {
   try {
-    // const adminToken = req.body.adminToken;
-    // let check;
-    // jwt.verify(adminToken, process.env.JWT_SECRET, async (err, decoded) => {
-    //   let result = await adminRoleModel.findOne({
-    //     area: decoded.area,
-    //   });
-    //   check = result;
-    //   if (err) {
-    //     return res.status(500).send({
-    //       auth: false,
-    //       message: "Falló autenticación de token.",
-    //     });
-    //   } else if (decoded) {
-    // check = result;
-    // if (check && check.createProduct) {
-
-    const newDiscount = {
-      _id: req.body._id,
-      name: req.body.name,
-      active: req.body.active,
-      description: req.body.description,
-      type: req.body.type,
-      value: req.body.value,
-      appliedProducts: req.body.appliedProducts,
-    };
-    res.send(await discountServices.createDiscount(newDiscount));
-    // }
-    //   } else {
-    //     const warning = {
-    //       auth: false,
-    //       message: "No tienes autorización para realizar esta acción.",
-    //     };
-    //     return warning;
-    //   }
-    // });
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.createDiscount) {
+      const newDiscount = {
+        _id: req.body._id,
+        name: req.body.name,
+        active: req.body.active,
+        description: req.body.description,
+        type: req.body.type,
+        value: req.body.value,
+        appliedProducts: req.body.appliedProducts,
+      };
+      res.send(await discountServices.createDiscount(newDiscount));
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -50,11 +32,21 @@ const createDiscount = async (req, res, next) => {
 
 const updateDiscount = async (req, res) => {
   try {
-    const updatedDiscount = await discountServices.updateDiscount(
-      req.body._id,
-      req.body
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
     );
-    res.send(updatedDiscount);
+    if (checkPermissions.createDiscount) {
+      const updatedDiscount = await discountServices.updateDiscount(
+        req.body._id,
+        req.body
+      );
+      res.send(updatedDiscount);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -90,12 +82,22 @@ const readAllDiscountsAdmin = async (req, res) => {
 };
 
 async function deleteDiscount(req, res) {
-  const productResult = await discountServices.deleteDiscount(req);
-  data = {
-    productResult,
-    success: true,
-  };
-  return res.send(data);
+  let checkPermissions = await adminAuthServices.checkPermissions(
+    req.body.adminToken
+  );
+  if (checkPermissions.deleteDiscount) {
+    const productResult = await discountServices.deleteDiscount(req);
+    data = {
+      productResult,
+      success: true,
+    };
+    return res.send(data);
+  } else {
+    return res.send({
+      success: false,
+      message: "No tienes autorización para realizar esta acción.",
+    });
+  }
 }
 
 module.exports = {

@@ -36,7 +36,8 @@ router.put(
 );
 router.put("/prixer/update-terms/:id", prixerControllers.updateTermsAgree);
 router.put(
-  "/prixer/update-home/updateTermsAgree/:id",
+  "/prixer/update-home/updateTermsAgree",
+  adminAuthServices.ensureAuthenticated,
   prixerControllers.updateTermsAgreeGeneral
 );
 

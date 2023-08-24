@@ -31,4 +31,10 @@ router.post(
   consumerControllers.updateConsumer
 );
 
+router.put(
+  "/consumer/delete/:id",
+  adminAuthServices.ensureAuthenticated,
+  consumerControllers.deleteConsumer
+);
+
 module.exports = router;
