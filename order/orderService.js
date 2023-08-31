@@ -66,7 +66,6 @@ const sendEmail = async (orderData) => {
     };
     return emailSender.sendEmail(message);
   } catch (e) {
-    console.log(e);
     return { error: e, success: false };
   }
 };

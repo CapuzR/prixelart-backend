@@ -4,32 +4,53 @@ dotenv.config();
 
 const createConsumer = async (consumerData) => {
   try {
-    // const readedConsumerByEmail = await readConsumerByEmail(consumerData);
-    // const readedConsumerByUsername = await readConsumerByUsername(consumerData.username);
-    // if(readedConsumerByUsername) {
-    //     return {
-    //         success: false,
-    //         info: 'error_username',
-    //         message: 'Disculpa, el nombre de usuario ya está registrado.'
-    //     };
-    // }
+    const readedConsumer = await readConsumerById(consumerData._id);
+    if (readedConsumer) {
+      if (
+        readedConsumer.active !== consumerData.active ||
+        readedConsumer.consumerType !== consumerData.consumerType ||
+        readedConsumer.firstname !== consumerData.firstname ||
+        readedConsumer.lastname !== consumerData.lastname ||
+        readedConsumer.username !== consumerData.username ||
+        readedConsumer.ci !== consumerData.ci ||
+        readedConsumer.phone !== consumerData.phone ||
+        readedConsumer.email !== consumerData.email ||
+        readedConsumer.address !== consumerData.address ||
+        readedConsumer.billingAddress !== consumerData.billingAddress ||
+        readedConsumer.shippingAddress !== consumerData.shippingAddress ||
+        readedConsumer.birthdate !== consumerData.birthdate ||
+        readedConsumer.instagram !== consumerData.instagram ||
+        readedConsumer.facebook !== consumerData.facebook ||
+        readedConsumer.twitter !== consumerData.twitter ||
+        readedConsumer.nationalId !== consumerData.nationalId ||
+        readedConsumer.gender !== consumerData.gender
+      ) {
+        await readedConsumer.set(consumerData);
+        const updatedConsumer = await readedConsumer.save();
 
-    // if(readedConsumerByEmail){
-    //     return {
-    //         success: false,
-    //         info: 'error_email',
-    //         message: 'Disculpa, el correo del usuario ya está registrado.'
-    //     };
-    // }
-    // const salt = await bcrypt.genSalt(2);
-    // const hash = await bcrypt.hash(adminData.password, salt);
-    // adminData.password = hash;
-    let newConsumer = await new Consumer(consumerData).save();
-    return {
-      res: { success: true, consumerId: newConsumer._id },
-      newConsumer: newConsumer,
-    };
+        if (updatedConsumer) {
+          return {
+            success: true,
+            info: "Consumidor actualizado.",
+            Consumer: updatedConsumer,
+          };
+        } else {
+          return console.log("Consumer update error.");
+        }
+      } else
+        return {
+          success: true,
+          Consumer: "Consumidor registrado.",
+        };
+    } else {
+      let newConsumer = await new Consumer(consumerData).save();
+      return {
+        success: true,
+        newConsumer: newConsumer,
+      };
+    }
   } catch (e) {
+    console.log(e);
     return "Incapaz de crear el usuario, intenta de nuevo o consulta a soporte.";
   }
 };
@@ -39,6 +60,11 @@ const readConsumerByEmail = async (consumerData) => {
     .select("-_id")
     .exec();
 };
+
+const readConsumerById = async (id) => {
+  return await Consumer.findOne({ _id: id }).exec();
+};
+
 const readConsumerByQuery = async (data) => {
   const firstname = data.query.split(" ")[0];
   const lastname = data.query.split(" ")[1];

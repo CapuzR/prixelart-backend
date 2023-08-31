@@ -132,7 +132,6 @@ const updateProduct = async (req, res) => {
       const productsVariants = JSON.parse(req.body.variants);
       let newResult = [];
       const previousImg = req.body.images.split(" ");
-      console.log(req.body.images);
       if (
         previousImg !== [] &&
         previousImg !== " " &&
