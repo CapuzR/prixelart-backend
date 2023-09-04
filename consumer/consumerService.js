@@ -98,7 +98,7 @@ const readAllConsumers = async () => {
 const updateConsumer = async (consumerData) => {
   try {
     const toUpdateConsumer = await Consumer.findOne({
-      email: consumerData.email,
+      _id: consumerData._id,
     });
     await toUpdateConsumer.set(consumerData);
     const updatedConsumer = await toUpdateConsumer.save();
@@ -108,11 +108,12 @@ const updateConsumer = async (consumerData) => {
 
     return updatedConsumer;
   } catch (e) {
+    console.log(e);
     return {
       success: false,
       message:
         e +
-        "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
+        " .Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
     };
   }
 };
