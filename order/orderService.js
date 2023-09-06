@@ -7,11 +7,6 @@ dotenv.config();
 const emailSender = require("../utils/emailSender");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const jwt = require("jsonwebtoken");
-const adminRoleModel = require("../admin/adminRoleModel");
-const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-
-const { response } = require("express");
 
 //Order
 const createOrder = async (orderData) => {

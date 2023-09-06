@@ -1,6 +1,4 @@
 const Product = require("./productModel");
-const jwt = require("jsonwebtoken");
-const adminRoleModel = require("../admin/adminRoleModel");
 
 const createProduct = async (productData) => {
   try {
