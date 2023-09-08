@@ -94,9 +94,23 @@ const readAllMovements = async () => {
   }
 };
 
+const readByOrderId = async (orderId) => {
+  try {
+    const readedMovements = await Movement.find();
+    const readedMovement = readedMovements.find((mov) =>
+      mov.description.includes(orderId)
+    );
+    return readedMovement;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 module.exports = {
   createMovement,
   updateBalance,
   readByAccount,
   readAllMovements,
+  readByOrderId,
 };

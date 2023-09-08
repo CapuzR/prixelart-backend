@@ -4,17 +4,7 @@ const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const createConsumer = async (req, res) => {
   try {
     const result = await consumerServices.createConsumer(req.body);
-    //   if(result.res.success) {
-    // const consumerToken = consumerServices.generateToken(result.newConsumer);
-    // if(consumerToken){
-    //   result.consumerToken = consumerToken;
-    //   res
-    //   .cookie('consumerToken', consumerToken, {httpOnly: true})
-    //   .send({success: true});
-    // }
-    //   } else {
     res.send(result);
-    //   }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -33,10 +23,7 @@ const readConsumer = async (req, res) => {
 
 const readConsumerByQuery = async (req, res) => {
   try {
-    // console.log('kdjfnvkijudfniodfnoi');
-    // console.log(req.body);
     const readedConsumer = await consumerServices.readConsumerByQuery(req.body);
-    // console.log(readedConsumer);
     res.send(readedConsumer);
   } catch (err) {
     console.log(err);
