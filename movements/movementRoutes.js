@@ -31,4 +31,9 @@ router.post(
   movementControllers.readAllMovements
 );
 
+router.post(
+  "/movement/readMovementByOrderId",
+  adminAuthServices.ensureAuthenticated,
+  movementControllers.readByOrderId
+);
 module.exports = router;

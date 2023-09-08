@@ -62,7 +62,10 @@ const readConsumerByEmail = async (consumerData) => {
 };
 
 const readConsumerById = async (id) => {
-  return await Consumer.findOne({ _id: id }).exec();
+  const readedConsumer = await Consumer.findOne({ _id: id }).exec();
+  if (readedConsumer) {
+    return readedConsumer;
+  } else return false;
 };
 
 const readConsumerByQuery = async (data) => {

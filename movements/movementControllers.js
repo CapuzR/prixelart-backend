@@ -52,8 +52,19 @@ const readAllMovements = async (req, res) => {
   }
 };
 
+const readByOrderId = async (req, res) => {
+  try {
+    const readedMovement = await movementServices.readByOrderId(req.body.order);
+    res.send(readedMovement);
+  } catch (error) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 module.exports = {
   createMovement,
   readByAccount,
   readAllMovements,
+  readByOrderId,
 };
