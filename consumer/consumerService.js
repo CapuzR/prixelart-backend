@@ -121,9 +121,13 @@ const updateConsumer = async (consumerData) => {
   }
 };
 
-const deleteConsumer = async (id) => {
+const deleteConsumer = async (consumer) => {
   try {
-    await Consumer.findByIdAndDelete(id);
+    if (consumer._id && consumer._id.length < 9) {
+      await Consumer.findOneAndDelete({ _id: consumer._id });
+    } else {
+      await Consumer.deleteOne({ phone: consumer.phone });
+    }
     return "Cliente eliminado exitosamente";
   } catch (error) {
     console.log(error);
