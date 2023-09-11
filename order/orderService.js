@@ -156,6 +156,9 @@ const updateOrder = async (id, status) => {
   try {
     const toUpdateOrder = await Order.findOne({ orderId: id });
     toUpdateOrder.status = status;
+    if (status === "Concretado") {
+      toUpdateOrder.completionDate = new Date();
+    }
     const updatedOrder = await toUpdateOrder.save();
 
     if (!updatedOrder) {
@@ -183,6 +186,9 @@ const updateOrderPayStatus = async (id, payStatus) => {
   try {
     const toUpdateOrder = await Order.findOne({ orderId: id });
     toUpdateOrder.payStatus = payStatus;
+    if (payStatus === "Pagado") {
+      toUpdateOrder.payDate = new Date();
+    }
     const updatedOrder = await toUpdateOrder.save();
 
     if (!updatedOrder) {

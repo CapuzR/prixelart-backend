@@ -5,8 +5,7 @@ const Schema = mongoose.Schema;
 
 const OrderSchema = Schema({
   orderId: { type: String, required: true },
-  // active: {type: String, required: true},
-  // consumerId: {type: String, required: true},
+  consumerId: { type: String, required: false },
   orderType: { type: String, required: true },
   createdOn: { type: Date, required: true },
   createdBy: { type: Object, required: true },
@@ -23,11 +22,11 @@ const OrderSchema = Schema({
   dollarValue: { type: Number, required: false },
   payStatus: { type: String, required: false },
   generalProductionStatus: { type: String, required: false },
-  shippingStatus: { type: String, required: false }, //(No entregado, Entregado)
+  shippingStatus: { type: String, required: false },
   observations: { type: String, required: false },
   isSaleByPrixer: { type: Boolean, required: false },
-  // artProductionStatus (Solicitado, En diseño, En impresión, Listo)
-  // baseProductionStatus (Solicitado, En producción, Listo)
+  payDate: { type: Date, required: false },
+  completionDate: { type: Date, required: false },
 });
 
 module.exports = mongoose.model("Order", OrderSchema, "order");
