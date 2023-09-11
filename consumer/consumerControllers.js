@@ -59,7 +59,7 @@ const deleteConsumer = async (req, res) => {
     );
     if (checkPermissions.deleteConsumer) {
       const deleteConsumer = await consumerServices.deleteConsumer(
-        req.params.id
+        req.body.consumer
       );
       return res.send(deleteConsumer);
     } else {
