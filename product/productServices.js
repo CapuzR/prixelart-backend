@@ -154,8 +154,8 @@ const getBestSellers = async (orders) => {
 };
 const deleteVariant = async (data) => {
   try {
-    const selectedProduct = data.id;
-    const indexVariant = data.i;
+    const selectedProduct = data.product;
+    const indexVariant = data.variant;
 
     const productToUpdate = await Product.findById(selectedProduct);
     productToUpdate.variants.splice(indexVariant, 1);
