@@ -33,6 +33,9 @@ router.put(
   ]),
   productControllers.updateProduct
 );
+
+router.get("/product/bestSellers", productControllers.readBestSellers);
+
 router.put(
   "/product/updateVariants/:id",
   adminAuthServices.ensureAuthenticated,

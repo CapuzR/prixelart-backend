@@ -75,7 +75,7 @@ const readAllProductsAdmin = async () => {
     } else {
       const data = {
         info: "No hay productos registrados",
-        arts: null,
+        products: null,
       };
       return data;
     }
@@ -111,10 +111,51 @@ const deleteProduct = async (req) => {
   }
 };
 
+const getBestSellers = async (orders) => {
+  try {
+    const allProducts = await Product.find({});
+    let products = [];
+
+    allProducts.map((prod) => {
+      products.push({ name: prod.name, quantity: 0 });
+    });
+
+    await orders.orders.map(async (order) => {
+      await order.requests.map(async (item) => {
+        await products.find((element) => {
+          if (element.name === item.product.name) {
+            element.quantity = element.quantity + 1;
+          }
+        });
+      });
+    });
+
+    const prodv2 = products
+      .sort(function (a, b) {
+        return b.quantity - a.quantity;
+      })
+      .slice(0, 6);
+
+    const prodv3 = allProducts.filter(function (product) {
+      return prodv2.some(function (selected) {
+        return selected.name === product.name;
+      });
+    });
+
+    const data = {
+      info: "Estos son los productos más vendidos",
+      products: prodv3,
+    };
+    return data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 const deleteVariant = async (data) => {
   try {
-    const selectedProduct = data.id;
-    const indexVariant = data.i;
+    const selectedProduct = data.product;
+    const indexVariant = data.variant;
 
     const productToUpdate = await Product.findById(selectedProduct);
     productToUpdate.variants.splice(indexVariant, 1);
@@ -141,5 +182,6 @@ module.exports = {
   readAllProductsAdmin,
   updateProduct,
   deleteProduct,
+  getBestSellers,
   deleteVariant,
 };

@@ -100,6 +100,10 @@ const readByUserIdByQuery = async (user, query) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
+      const artTags = art.tags.map((tag) => {
+        const tags = accents.remove(tag).toLowerCase();
+        return tags;
+      });
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
@@ -107,13 +111,15 @@ const readByUserIdByQuery = async (user, query) => {
           artTitle.includes(text) ||
           artDescription.includes(text) ||
           artCategory.includes(text) ||
-          artLocation.includes(text)
+          artLocation.includes(text) ||
+          artTags.includes(text)
         );
       }
       return (
         artTitle.includes(text) ||
         artDescription.includes(text) ||
-        artLocation.includes(text)
+        artLocation.includes(text) ||
+        artTags.includes(text)
       );
     });
     if (specifyArt !== null) {
@@ -183,6 +189,10 @@ const readByUserIdQueryAndCategory = async (user, query) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
+      const artTags = art.tags.map((tag) => {
+        const tags = accents.remove(tag).toLowerCase();
+        return tags;
+      });
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
@@ -190,13 +200,15 @@ const readByUserIdQueryAndCategory = async (user, query) => {
           artTitle.includes(text) ||
           artDescription.includes(text) ||
           artCategory.includes(text) ||
-          artLocation.includes(text)
+          artLocation.includes(text) ||
+          artTags.includes(text)
         );
       }
       return (
         artTitle.includes(text) ||
         artDescription.includes(text) ||
-        artLocation.includes(text)
+        artLocation.includes(text) ||
+        artTags.includes(text)
       );
     });
     if (specifyArt) {
@@ -265,6 +277,10 @@ const readByQueryAndCategory = async (query) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
       const artLocation = accents.remove(art.artLocation).toLowerCase();
+      const artTags = art.tags.map((tag) => {
+        const tags = accents.remove(tag).toLowerCase();
+        return tags;
+      });
       if (art.category) {
         const artCategory = accents.remove(art.category).toLowerCase();
 
@@ -272,13 +288,15 @@ const readByQueryAndCategory = async (query) => {
           artTitle.includes(text) ||
           artDescription.includes(text) ||
           artCategory.includes(text) ||
-          artLocation.includes(text)
+          artLocation.includes(text) ||
+          artTags.includes(text)
         );
       }
       return (
         artTitle.includes(text) ||
         artDescription.includes(text) ||
-        artLocation.includes(text)
+        artLocation.includes(text) ||
+        artTags.includes(text)
       );
     });
     if (specifyArt) {
@@ -334,7 +352,8 @@ const readByQuery = async (query) => {
       return (
         artTitle.includes(text) ||
         artDescription.includes(text) ||
-        artLocation.includes(text)
+        artLocation.includes(text) ||
+        artTags.includes(text)
       );
     });
     if (specifyArt !== null) {

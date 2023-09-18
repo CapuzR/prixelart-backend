@@ -216,13 +216,35 @@ const updateSeller = async (req, res) => {
       );
       return res.send(updatedOrder);
     } else {
-      npm;
       return res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
       });
     }
   } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const updateItemStatus = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.orderStatus) {
+      const updatedOrder = await orderServices.updateItemStatus(
+        req.body.status,
+        req.body.index,
+        req.body.order
+      );
+      return res.send(updatedOrder);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (error) {
     res.status(500).send(err);
   }
 };
@@ -592,6 +614,7 @@ module.exports = {
   updateOrder,
   updateOrderPayStatus,
   updateSeller,
+  updateItemStatus,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethod,

@@ -45,6 +45,13 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orderControllers.updateSeller
 );
+
+router.put(
+  "/order/updateItemStatus",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.updateItemStatus
+);
+
 router.delete(
   "/order/delete/:id",
   adminAuthServices.ensureAuthenticated,
