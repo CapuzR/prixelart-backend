@@ -5,7 +5,7 @@ const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const productServices = require("./productServices");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-
+const orderServices = require("../order/orderService");
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
   endpoint: spacesEndpoint,
@@ -133,7 +133,7 @@ const updateProduct = async (req, res) => {
       let newResult = [];
       const previousImg = req.body.images.split(" ");
       if (
-        previousImg !== [] &&
+        previousImg[0] !== null &&
         previousImg !== " " &&
         previousImg.includes("newProductImages")
       ) {
@@ -205,6 +205,16 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const readBestSellers = async (req, res) => {
+  try {
+    const allOrders = await orderServices.readAllOrders();
+    const getBestSellers = await productServices.getBestSellers(allOrders);
+    res.send(getBestSellers);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
 const updateVariants = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -301,7 +311,7 @@ const updateVariants = async (req, res) => {
         newVariant.attributes.push(a);
       }
 
-      if (productv2.variants !== []) {
+      if (productv2.variants[0] !== null) {
         productv2.variants.map((variant, i) => {
           if (variant._id === newVariant._id) {
             productv2.variants.splice(i, 1);
@@ -374,8 +384,9 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
-  updateVariants,
+  readBestSellers,
   deleteProduct,
+  updateVariants,
   deleteVariant,
 };
 

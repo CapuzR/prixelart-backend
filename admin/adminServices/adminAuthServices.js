@@ -191,7 +191,7 @@ const checkPermissions = async (req, res) => {
       }
     }
   } catch (e) {
-    res.status(500).send({
+    res.send({
       success: false,
       error_info: "auth error",
       error_message:

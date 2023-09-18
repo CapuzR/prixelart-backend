@@ -238,6 +238,39 @@ const updateSeller = async (id, seller) => {
     };
   }
 };
+
+const updateItemStatus = async (newStatus, index, order) => {
+  try {
+    const filter = { orderId: order };
+    const update = {
+      $set: { [`requests.${index}.product.status`]: newStatus },
+    };
+
+    const updatedOrder = await Order.findOneAndUpdate(filter, update, {
+      new: true,
+    });
+
+    if (!updatedOrder) {
+      console.log("Order update error: Failed to update the order");
+      return;
+    } else {
+      const updated = {
+        auth: true,
+        message: "Órden actualizada con éxito",
+        order: updatedOrder,
+      };
+      return updated;
+    }
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message:
+        "Disculpa. No se pudo actualizar esta orden, inténtalo de nuevo por favor.",
+    };
+  }
+};
+
 const deleteOrder = async (orderId) => {
   try {
     await Order.findOneAndDelete({ orderId: orderId });
@@ -507,6 +540,7 @@ module.exports = {
   updateOrder,
   updateOrderPayStatus,
   updateSeller,
+  updateItemStatus,
   deleteOrder,
   createPaymentMethod,
   readPaymentMethodById,
@@ -517,9 +551,4 @@ module.exports = {
   readAllShippingMethod,
   updateShippingMethod,
   deleteShippingMethod,
-  // createOrderPayment,
-  // readOrderPaymentByEmail,
-  // readOrderPaymentByUsername,
-  // readAllOrderPayments,
-  // updateOrderPayment,
 };
