@@ -134,7 +134,7 @@ const getBestSellers = async (orders) => {
       .sort(function (a, b) {
         return b.quantity - a.quantity;
       })
-      .slice(0, 6);
+      .slice(0, 9);
 
     const prodv3 = allProducts.filter(function (product) {
       return prodv2.some(function (selected) {

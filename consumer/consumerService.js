@@ -6,42 +6,18 @@ const createConsumer = async (consumerData) => {
   try {
     const readedConsumer = await readConsumerById(consumerData._id);
     if (readedConsumer) {
-      if (
-        readedConsumer.active !== consumerData.active ||
-        readedConsumer.consumerType !== consumerData.consumerType ||
-        readedConsumer.firstname !== consumerData.firstname ||
-        readedConsumer.lastname !== consumerData.lastname ||
-        readedConsumer.username !== consumerData.username ||
-        readedConsumer.ci !== consumerData.ci ||
-        readedConsumer.phone !== consumerData.phone ||
-        readedConsumer.email !== consumerData.email ||
-        readedConsumer.address !== consumerData.address ||
-        readedConsumer.billingAddress !== consumerData.billingAddress ||
-        readedConsumer.shippingAddress !== consumerData.shippingAddress ||
-        readedConsumer.birthdate !== consumerData.birthdate ||
-        readedConsumer.instagram !== consumerData.instagram ||
-        readedConsumer.facebook !== consumerData.facebook ||
-        readedConsumer.twitter !== consumerData.twitter ||
-        readedConsumer.nationalId !== consumerData.nationalId ||
-        readedConsumer.gender !== consumerData.gender
-      ) {
-        await readedConsumer.set(consumerData);
-        const updatedConsumer = await readedConsumer.save();
+      await readedConsumer.set(consumerData);
+      const updatedConsumer = await readedConsumer.save();
 
-        if (updatedConsumer) {
-          return {
-            success: true,
-            info: "Consumidor actualizado.",
-            Consumer: updatedConsumer,
-          };
-        } else {
-          return console.log("Consumer update error.");
-        }
-      } else
+      if (updatedConsumer) {
         return {
           success: true,
-          Consumer: "Consumidor registrado.",
+          info: "Consumidor actualizado.",
+          Consumer: updatedConsumer,
         };
+      } else {
+        return console.log("Consumer update error.");
+      }
     } else {
       let newConsumer = await new Consumer(consumerData).save();
       return {

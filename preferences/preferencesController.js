@@ -94,7 +94,7 @@ const createImageCarousel = async (req, res) => {
 
 const updateImageCarousel = async (req, res) => {
   try {
-    if (req.files["bannerImagesDesktop"]) {
+    if (req?.files["bannerImagesDesktop"]) {
       await Carousel.findByIdAndUpdate(req.params.id, {
         images: {
           type: "desktop",

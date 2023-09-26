@@ -126,7 +126,6 @@ const sendEmail = async (req, res) => {
     res.send(result);
   } catch (e) {
     res.status(500).send(e);
-    console.log(e);
   }
 };
 
