@@ -9,7 +9,8 @@ const {
   updateTermsAndConditions,
   readDollarValue,
   updateDollarValue,
-  deleteDollar,
+  getBestSellers,
+  updateBestSellers,
 } = require("./preferencesController");
 const express = require("express");
 const preferencesRoutes = express.Router();
@@ -53,6 +54,12 @@ preferencesRoutes.post(
   "/dollarValue/update",
   adminAuthServices.ensureAuthenticated,
   updateDollarValue
+);
+preferencesRoutes.get("/getBestSellers", getBestSellers);
+preferencesRoutes.put(
+  "/updateBestSellers",
+  adminAuthServices.ensureAuthenticated,
+  updateBestSellers
 );
 
 module.exports = preferencesRoutes;

@@ -28,6 +28,7 @@ const ProductSchema = Schema({
   variants: { type: Array, required: false },
   hasSpecialVar: { type: Boolean, required: true },
   discount: { type: String, required: false },
+  bestSeller: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("Product", ProductSchema, "products");

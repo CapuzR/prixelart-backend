@@ -1,4 +1,5 @@
 const { dollarValue } = require("./preferencesModel");
+const Product = require("../product/productModel");
 
 const updateDollarValue = async (dollar) => {
   try {
@@ -25,6 +26,27 @@ const updateDollarValue = async (dollar) => {
   }
 };
 
+const updateBestSellers = async (bestSellers) => {
+  try {
+    let productsApplied = [];
+    await Product.updateMany({ bestSeller: false });
+    await bestSellers.map(async (prod) => {
+      const prodv2 = await Product.findByIdAndUpdate(prod, {
+        bestSeller: true,
+      });
+      productsApplied.push(prodv2);
+    });
+    return {
+      products: productsApplied,
+      success: true,
+      message: "Productos actualizados exitosamente.",
+    };
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 module.exports = {
   updateDollarValue,
+  updateBestSellers,
 };
