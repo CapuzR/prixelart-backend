@@ -9,7 +9,7 @@ const { termsAndConditions } = require("./preferencesModel");
 const prixerModel = require("../prixer/prixerModel");
 const preferenceService = require("./preferencesService");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-
+const productModel = require("../product/productModel");
 dotenv.config();
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -194,6 +194,45 @@ const updateDollarValue = async (req, res) => {
   }
 };
 
+const getBestSellers = async (req, res) => {
+  try {
+    let products = await productModel.find();
+    if (products) {
+      let productsv2 = products.filter((prod) => prod.bestSeller === true);
+      const data = {
+        bestSellers: productsv2,
+      };
+      return res.send(data);
+    } else {
+      const data = {
+        info: "No hay productos registrados",
+        products: null,
+      };
+      return res.send(data);
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const updateBestSellers = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions) {
+      const update = await preferenceService.updateBestSellers(req.body.data);
+      res.send(update);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
 module.exports = {
   createImageCarousel,
   upload,
@@ -205,4 +244,6 @@ module.exports = {
   updateTermsAndConditions,
   readDollarValue,
   updateDollarValue,
+  getBestSellers,
+  updateBestSellers,
 };
