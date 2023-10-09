@@ -8,11 +8,10 @@ const createDiscount = async (discountData) => {
     const newDiscount = await new Discount(discountData).save();
     if (newDiscount) {
       const products = discountData.appliedProducts;
-      await appliedProducts(products, discountData._id);
+      await appliedProducts(products, discountData);
       return {
         success: true,
         discountData: newDiscount,
-        // products: applied,
       };
     } else {
       return {
