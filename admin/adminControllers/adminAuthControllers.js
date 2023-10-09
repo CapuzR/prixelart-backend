@@ -5,7 +5,7 @@ const createAdmin = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const result = await adminAuthServices.createAdmin(req.body);
       if (result.res.success) {
         const adminToken = adminAuthServices.generateToken(result.newAdmin);

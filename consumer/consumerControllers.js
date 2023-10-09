@@ -57,7 +57,7 @@ const deleteConsumer = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.deleteConsumer) {
+    if (checkPermissions.role.deleteConsumer) {
       const deleteConsumer = await consumerServices.deleteConsumer(
         req.body.consumer
       );

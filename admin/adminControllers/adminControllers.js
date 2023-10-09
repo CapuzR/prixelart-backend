@@ -36,7 +36,7 @@ const updateAdmin = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const adminData = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
@@ -67,7 +67,7 @@ const deleteAdmin = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const deletedAdmin = await adminServices.deleteAdmin(req.params.username);
       res.send(deletedAdmin);
     } else {
@@ -87,7 +87,7 @@ const createAdminRole = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const createdAdminRole = await adminServices.createAdminRole(req.body);
       res.send(createdAdminRole);
     } else {
@@ -115,7 +115,7 @@ const updateAdminRole = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const idToUpdate = req.params.id;
       const updateRole = {
         area: req.body.area,
@@ -143,6 +143,8 @@ const updateAdminRole = async (req, res) => {
         readConsumers: req.body.readConsumers,
         readMovements: req.body.readMovements,
         setPrixerBalance: req.body.setPrixerBalance,
+        artBan: req.body.artBan,
+        modifyBestSellers: req.body.modifyBestSellers,
       };
       const updatedAdminRole = await adminServices.updateAdminRole(
         idToUpdate,
@@ -165,7 +167,7 @@ const deleteAdminRole = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyAdmins) {
+    if (checkPermissions.role.modifyAdmins) {
       const deletedAdminRole = await adminServices.deleteAdminRole(
         req.params.id
       );

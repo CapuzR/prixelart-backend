@@ -42,7 +42,7 @@ const createProduct = async (req, res, next) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createProduct) {
+    if (checkPermissions.role.createProduct) {
       const imagesResult = [];
       if (req.files) {
         req.files.map((img, i) => {
@@ -128,7 +128,7 @@ const updateProduct = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createProduct) {
+    if (checkPermissions.role.createProduct) {
       const productsVariants = JSON.parse(req.body.variants);
       let newResult = [];
       const previousImg = req.body.images.split(" ");
@@ -220,7 +220,7 @@ const updateVariants = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createProduct) {
+    if (checkPermissions.role.createProduct) {
       const product = { _id: req.params.id };
       const productToUpdate = await productServices.readById(product);
       const productv2 = productToUpdate.products[0];
@@ -346,7 +346,7 @@ async function deleteProduct(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
     req.body.adminToken
   );
-  if (checkPermissions.createProduct) {
+  if (checkPermissions.role.createProduct) {
     const productResult = await productServices.deleteProduct(req);
     data = {
       productResult,
@@ -365,7 +365,7 @@ async function deleteVariant(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
     req.body.adminToken
   );
-  if (checkPermissions.createProduct) {
+  if (checkPermissions.role.createProduct) {
     const variantToDelete = await productServices.deleteVariant(req.body);
     data = { variantToDelete, success: true };
     return res.send(data);

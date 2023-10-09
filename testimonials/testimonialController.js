@@ -3,6 +3,8 @@ const multerS3 = require("multer-s3-transform");
 const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
+const { nanoid } = require("nanoid");
+
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
   endpoint: spacesEndpoint,
@@ -19,7 +21,7 @@ const createTestimonial = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createTestimonial) {
+    if (checkPermissions.role.createTestimonial) {
       const imageAvatar = req.file.transforms[0].location;
       const testimonialData = {
         type: req.body.type,
@@ -61,7 +63,7 @@ const updateTestimonial = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createTestimonial) {
+    if (checkPermissions.role.createTestimonial) {
       const testimonialData = {
         type: req.body.type,
         name: req.body.name,
@@ -92,7 +94,7 @@ const updateVisibility = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createTestimonial) {
+    if (checkPermissions.role.createTestimonial) {
       const testimonialData = {
         status: req.body.status,
       };
@@ -133,7 +135,7 @@ async function deleteTestimonial(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
     req.body.adminToken
   );
-  if (checkPermissions.deleteTestimonial) {
+  if (checkPermissions.role.deleteTestimonial) {
     const testimonialResult = await testimonialServices.deleteTestimonial(
       req.params.id
     );

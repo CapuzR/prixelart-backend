@@ -149,55 +149,59 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
+function verifyToken(token, secret) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
+}
+
 const checkPermissions = async (req, res) => {
   try {
     let token;
-    let error;
     if (req.body?.adminToken !== undefined) {
       token = req.body.adminToken;
       if (token) {
-        await jwt.verify(
-          token,
-          process.env.JWT_SECRET,
-          async (err, decoded) => {
-            if (err) {
-              return res.send({
-                auth: false,
-                message: "Falló autenticación de token.",
-              });
-            } else if (decoded && decoded !== undefined) {
-              let readedRole = await adminRoleModel.findOne({
-                area: decoded.area,
-              });
-              await res.send({ readedRole });
-            }
-          }
-        );
+        const decoded = await verifyToken(token);
+        if (decoded && decoded !== undefined) {
+          let readedRole = await adminRoleModel.findOne({
+            area: decoded.area,
+          });
+          await res.send({ readedRole });
+        } else {
+          return {
+            auth: false,
+            error: err,
+            message: "Falló autenticación de token.",
+          };
+        }
       }
     } else {
       token = req;
-      jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-        token = decoded;
-        error = err;
-      });
-      let readedRole = await adminRoleModel.findOne({
-        area: token.area,
-      });
-      if (error) {
-        console.log(error);
-        return undefined;
+      const decoded = await verifyToken(token);
+      if (decoded && decoded !== undefined) {
+        let readedRole = await adminRoleModel.findOne({ area: decoded.area });
+        return { admin: decoded, role: readedRole };
       } else {
-        return readedRole;
+        return {
+          auth: false,
+          error: err,
+          message: "Falló autenticación de token.",
+        };
       }
     }
   } catch (e) {
-    res.send({
+    return {
       success: false,
-      error_info: "auth error",
+      error_info: e,
       error_message:
         "No has iniciado sesión. Por favor inicia sesión para continuar.",
-    });
-    console.log(e);
+    };
   }
 };
 
