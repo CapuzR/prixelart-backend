@@ -1,4 +1,5 @@
 const orderServices = require("./orderService");
+const movementServices = require("../movements/movementServices");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 const multer = require("multer");
@@ -6,7 +7,7 @@ const multerS3 = require("multer-s3-transform");
 const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
-const nanoid = require("nanoid");
+const { nanoid } = require("nanoid");
 dotenv.config();
 const Order = require("./orderModel");
 const excelJS = require("exceljs");
@@ -23,7 +24,7 @@ const createOrder = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createOrder) {
+    if (checkPermissions.role.createOrder) {
       const orderData = {
         orderId: req.body.orderId,
         orderType: req.body.orderType,
@@ -41,8 +42,37 @@ const createOrder = async (req, res) => {
         observations: req.body.observations,
         consumer: req.body.consumerId,
       };
-      const result = await orderServices.createOrder(orderData);
-      res.send(result);
+
+      const order = await orderServices.createOrder(orderData);
+      if (
+        order.res.success &&
+        req.body.billingData?.orderPaymentMethod === "Balance Prixer"
+      ) {
+        const mov = {
+          _id: nanoid(),
+          createdOn: new Date(),
+          createdBy: `${checkPermissions.admin.firstname} ${checkPermissions.admin.lastname}`,
+          date: new Date(),
+          destinatary: req.body.billingData.destinatary,
+          description: `Pago de la orden #${req.body.orderId}`,
+          type: "Retiro",
+          value: req.body.total,
+        };
+
+        const payment = await movementServices.createMovement(mov);
+
+        const adjust = await movementServices.updateBalance(mov);
+
+        if (payment.success === true && adjust) {
+          const updatedOrder = await orderServices.updateOrderPayStatus(
+            orderData.orderId,
+            "Pagado"
+          );
+        }
+        await res.send({ order, payment, adjust });
+      } else {
+        await res.send(order);
+      }
     } else {
       return res.send({
         success: false,
@@ -164,7 +194,7 @@ const updateOrder = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.orderStatus) {
+    if (checkPermissions.role.orderStatus) {
       const updatedOrder = await orderServices.updateOrder(
         req.params.id,
         req.body.status
@@ -186,7 +216,7 @@ const updateOrderPayStatus = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.detailPay) {
+    if (checkPermissions.role.detailPay) {
       const updatedOrder = await orderServices.updateOrderPayStatus(
         req.params.id,
         req.body.payStatus
@@ -208,7 +238,7 @@ const updateSeller = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.area === "Master") {
+    if (checkPermissions.role.area === "Master") {
       const updatedOrder = await orderServices.updateSeller(
         req.params.id,
         req.body.seller
@@ -230,7 +260,7 @@ const updateItemStatus = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.orderStatus) {
+    if (checkPermissions.role.orderStatus) {
       const updatedOrder = await orderServices.updateItemStatus(
         req.body.status,
         req.body.index,
@@ -252,7 +282,7 @@ const deleteOrder = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.area === "Master") {
+    if (checkPermissions.role.area === "Master") {
       const orderForDelete = await orderServices.deleteOrder(req.params.id);
       data = {
         orderForDelete,
@@ -277,7 +307,7 @@ const createPaymentMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createPaymentMethod) {
+    if (checkPermissions.role.createPaymentMethod) {
       const result = await orderServices.createPaymentMethod(req.body);
       res.send(result);
     } else {
@@ -328,7 +358,7 @@ const updatePaymentMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createPaymentMethod) {
+    if (checkPermissions.role.createPaymentMethod) {
       const updatedPaymentMethod = await orderServices.updatePaymentMethod(
         req.body
       );
@@ -349,7 +379,7 @@ const deletePaymentMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.deletePaymentMethod) {
+    if (checkPermissions.role.deletePaymentMethod) {
       const paymentMethodForDelete = await orderServices.deletePaymentMethod(
         req.params.id
       );
@@ -376,7 +406,7 @@ const createShippingMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createShippingMethod) {
+    if (checkPermissions.role.createShippingMethod) {
       const result = await orderServices.createShippingMethod(req.body);
       res.send(result);
     } else {
@@ -415,7 +445,7 @@ const updateShippingMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createShippingMethod) {
+    if (checkPermissions.role.createShippingMethod) {
       const updateShippingMethod = await orderServices.updateShippingMethod(
         req.body
       );
@@ -436,7 +466,7 @@ const deleteShippingMethod = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.deleteShippingMethod) {
+    if (checkPermissions.role.deleteShippingMethod) {
       const shippingMethodForDelete = await orderServices.deleteShippingMethod(
         req.params.id
       );
@@ -457,150 +487,6 @@ const deleteShippingMethod = async (req, res) => {
   }
 };
 
-const downloadOrders = async (req, res) => {
-  const workbook = new excelJS.Workbook();
-  const worksheet = workbook.addWorksheet("Pedidos");
-  const path = "/Users/Usuario/Downloads/Pedidos.xlsx";
-  worksheet.columns = [
-    { header: "status", key: "status", width: 20 },
-    { header: "Fecha de solicitud", key: "createdOn", width: 10 },
-    { header: "Nombre del cliente", key: "basicData", width: 24 },
-    { header: "Fecha de entrega", key: "shippingDate", width: 10 },
-    { header: "certificado", key: "", width: 10 },
-    { header: "Prixer", key: "prixer", width: 18 },
-    { header: "Arte", key: "art", width: 24 },
-    { header: "Producto", key: "product", width: 20 },
-    { header: "Atributo", key: "attribute", width: 20 },
-    { header: "Cantidad", key: "quantity", width: 5 },
-    { header: "Observación", key: "observations", width: 18 },
-    { header: "Vendedor", key: "createdBy", width: 20 },
-    { header: "Método de entrega", key: "shippingData", width: 15 },
-    { header: "Validación del pago", key: "payStatus", width: 10 },
-    { header: "Costo unitario", key: "price", width: 10 },
-  ];
-  worksheet.getRow(1).eachCell((cell) => {
-    cell.font = { bold: true };
-    cell.border = {
-      top: { style: "thin" },
-      left: { style: "thin" },
-      bottom: { style: "thin" },
-      right: { style: "thin" },
-    };
-  });
-  let readedOrder = await Order.find({}).select("-_id").exec();
-
-  readedOrder.map((order, i) => {
-    const v2 = {
-      status: order?.status,
-      createdOn: order.createdOn,
-      basicData: order.basicData?.firstname + " " + order.basicData?.lastname,
-      shippingDate: "",
-      // Certificado
-      prixer: "",
-      art: "",
-      product: "",
-      attributes: "",
-      quantity: "",
-      observations: order?.observations,
-      createdBy: order.createdBy?.username,
-      shippingData: "",
-      payDate: "",
-      month: "",
-      payStatus: order.payStatus,
-      price: "",
-    };
-
-    let shippingData = " ";
-    if (order.shippingData?.shippingMethod !== undefined) {
-      shippingData = shippingData.concat(
-        order.shippingData?.shippingMethod?.name
-      );
-    }
-    let shippingDate;
-    if (order.shippingData?.shippingDate !== undefined) {
-      shippingDate = order.shippingData?.shippingDate;
-    }
-    let prixer = "";
-    let art = "";
-    let product = "";
-    let attributes = "";
-    let quantity = "";
-    let price = "";
-    order.requests.map((item) => {
-      prixer = prixer.concat(item.art.prixerUsername, ". ");
-
-      art = art.concat(item.art.title, ". ");
-
-      product = product.concat(item.product.name, ". ");
-
-      if (
-        item.product.selection?.attributes &&
-        item.product.selection?.attributes[1]?.value
-      ) {
-        attributes = attributes.concat(
-          item.product.selection?.attributes[0]?.value,
-          ", ",
-          item.product.selection?.attributes[1]?.value,
-          ". "
-        );
-      } else if (
-        item.product.selection?.attributes &&
-        item.product.selection?.attributes[0]?.value
-      ) {
-        attributes = attributes.concat(
-          item.product.selection.attributes[0].value,
-          ". "
-        );
-      }
-
-      quantity = quantity.concat(item.quantity, "| ");
-      if (
-        item.product.publicEquation !== undefined &&
-        item.product.publicEquation !== ""
-      ) {
-        price = price.concat("$", item.product.publicEquation, "| ");
-      } else if (
-        item.product.prixerEquation !== undefined &&
-        item.product.prixerEquation !== ""
-      ) {
-        price = item.product.prixerEquation;
-      } else price = price.concat("$", item.product.publicPrice.from, "| ");
-    });
-    setTimeout(() => {
-      v2.prixer = prixer;
-      v2.art = art;
-      v2.product = product;
-      v2.attributes = attributes;
-      v2.quantity = quantity;
-      v2.price = price;
-      v2.shippingData = shippingData;
-      v2.shippingDate = shippingDate;
-      worksheet.addRow(v2).eachCell({ includeEmpty: true }, (cell) => {
-        cell.border = {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" },
-        };
-        cell.alignment = { vertical: "middle", horizontal: "left" };
-      });
-    }, 100);
-  });
-  setTimeout(async () => {
-    await workbook.xlsx.writeFile(path);
-
-    try {
-      res.send({
-        status: "success",
-        message: "Archivo descargado exitosamente.",
-        path: `/Users/Usuario/Downloads/Pedidos.xlsx`,
-      });
-    } catch (err) {
-      console.log(err);
-      res.send({ status: "error", message: "Algo salió mal." });
-    }
-  }, 200);
-};
 module.exports = {
   createOrder,
   createOrder4Client,
@@ -626,5 +512,4 @@ module.exports = {
   readAllShippingMethodV2,
   updateShippingMethod,
   deleteShippingMethod,
-  downloadOrders,
 };

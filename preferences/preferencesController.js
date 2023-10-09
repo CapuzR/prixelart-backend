@@ -145,7 +145,7 @@ const updateTermsAndConditions = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyTermsAndCo) {
+    if (checkPermissions.role.modifyTermsAndCo) {
       const result = await termsAndConditions.find();
       const updating = await termsAndConditions.findOne({ _id: result[0]._id });
       updating.termsAndConditions = req.body.termsAndConditions;
@@ -178,7 +178,7 @@ const updateDollarValue = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyDollar) {
+    if (checkPermissions.role.modifyDollar) {
       const result = await preferenceService.updateDollarValue(
         req.body.dollarValue
       );
@@ -200,7 +200,7 @@ const getBestSellers = async (req, res) => {
     if (products) {
       let productsv2 = products.filter((prod) => prod.bestSeller === true);
       const data = {
-        bestSellers: productsv2,
+        products: productsv2,
       };
       return res.send(data);
     } else {
@@ -220,7 +220,7 @@ const updateBestSellers = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions) {
+    if (checkPermissions.role.modifyBestSellers) {
       const update = await preferenceService.updateBestSellers(req.body.data);
       res.send(update);
     } else {

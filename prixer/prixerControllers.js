@@ -3,6 +3,8 @@ const multerS3 = require("multer-s3-transform");
 const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
+const { nanoid } = require("nanoid");
+
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
   endpoint: spacesEndpoint,
@@ -148,7 +150,7 @@ const updateVisibility = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.prixerBan) {
+    if (checkPermissions.role.prixerBan) {
       const prixerData = {
         status: req.body.status,
       };
@@ -174,7 +176,7 @@ const updateTermsAgreeGeneral = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.modifyTermsAndCo) {
+    if (checkPermissions.role.modifyTermsAndCo) {
       // const prixerData = {
       //   termsAgree: req.body.termsAgree,
       // };

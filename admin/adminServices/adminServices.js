@@ -105,7 +105,10 @@ const updateAdminRole = async (id, role) => {
     if (!updatedAdminRole) {
       return console.log("AdminRole update error: " + err);
     }
-    return updatedAdminRole;
+    return {
+      message: "Rol de administrador actualizado con éxito.",
+      role: updatedAdminRole,
+    };
   } catch (error) {
     console.log(error);
     return error;

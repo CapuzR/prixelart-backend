@@ -24,6 +24,7 @@ const ConsumerSchema = Schema({
   nationalIdType: { type: String, required: false },
   nationalId: { type: String, required: false },
   gender: { type: String, required: false },
+  prixerId: { type: String, required: false },
 });
 
 ConsumerSchema.index(

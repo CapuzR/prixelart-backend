@@ -8,7 +8,7 @@ const createDiscount = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createDiscount) {
+    if (checkPermissions.role.createDiscount) {
       const newDiscount = {
         _id: req.body._id,
         name: req.body.name,
@@ -35,7 +35,7 @@ const updateDiscount = async (req, res) => {
     let checkPermissions = await adminAuthServices.checkPermissions(
       req.body.adminToken
     );
-    if (checkPermissions.createDiscount) {
+    if (checkPermissions.role.createDiscount) {
       const updatedDiscount = await discountServices.updateDiscount(
         req.body._id,
         req.body
@@ -85,7 +85,7 @@ async function deleteDiscount(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
     req.body.adminToken
   );
-  if (checkPermissions.deleteDiscount) {
+  if (checkPermissions.role.deleteDiscount) {
     const productResult = await discountServices.deleteDiscount(req);
     data = {
       productResult,

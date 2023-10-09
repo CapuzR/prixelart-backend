@@ -134,17 +134,11 @@ const getBestSellers = async (orders) => {
       .sort(function (a, b) {
         return b.quantity - a.quantity;
       })
-      .slice(0, 9);
-
-    const prodv3 = allProducts.filter(function (product) {
-      return prodv2.some(function (selected) {
-        return selected.name === product.name;
-      });
-    });
+      .slice(0, 10);
 
     const data = {
       info: "Estos son los productos más vendidos",
-      products: prodv3,
+      products: prodv2,
     };
     return data;
   } catch (error) {

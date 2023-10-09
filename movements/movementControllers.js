@@ -8,7 +8,7 @@ const createMovement = async (req, res) => {
     // let checkPermissions = await adminAuthServices.checkPermissions(
     //   req.body.adminToken
     // );
-    // if (checkPermissions.setPrixerBalance) {
+    // if (checkPermissions.role.setPrixerBalance) {
     const movement = {
       _id: req.body._id,
       createdOn: req.body.createdOn,

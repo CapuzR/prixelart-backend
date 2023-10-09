@@ -1,6 +1,6 @@
 const artServices = require("./artServices");
 const userControllers = require("../user/userControllers/userControllers");
-
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 //CRUD
 
 const createArt = async (req, res) => {
@@ -199,14 +199,24 @@ async function deleteArt(req, res) {
 
 const disableArt = async (req, res) => {
   try {
-    const artResult = await artServices.disableArt(req.params.id, req.body);
-    data = {
-      data: {
-        artResult,
-        success: true,
-      },
-    };
-    return res.send(artResult);
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.role.artBan) {
+      const artResult = await artServices.disableArt(req.params.id, req.body);
+      data = {
+        data: {
+          artResult,
+          success: true,
+        },
+      };
+      return res.send(artResult);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
   } catch (err) {
     res.status(500).send(err);
     console.log(err);
