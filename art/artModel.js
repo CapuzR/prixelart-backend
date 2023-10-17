@@ -29,17 +29,13 @@ const ArtSchema = Schema({
   visible: { type: Boolean, default: true },
   crops: { type: Array, required: true },
   points: { type: Number, default: 50 },
+  bestSeller: { type: Boolean, required: false },
 });
 
-ArtSchema.index(
-  {
-    title: "text",
-    // 'description': 'text',
-    // 'tags': 'text'
-  }
-  // {
-  //     default_language: "none"
-  // }
-);
+ArtSchema.index({
+  title: "text",
+  // 'description': 'text',
+  // 'tags': 'text'
+});
 
 module.exports = mongoose.model("Art", ArtSchema, "arts");

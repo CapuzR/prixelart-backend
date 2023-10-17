@@ -31,6 +31,7 @@ const AdminRoleSchema = Schema({
   deleteConsumer: { type: Boolean, required: false },
   artBan: { type: Boolean, required: false },
   modifyBestSellers: { type: Boolean, required: false },
+  modifyArtBestSellers: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("AdminRole", AdminRoleSchema, "adminRole");

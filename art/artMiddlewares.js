@@ -55,7 +55,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title).replace(/ /g, "_").toLowerCase() +
+            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-square.webp"
@@ -72,7 +72,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title).replace(/ /g, "_").toLowerCase() +
+            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-large.webp"
@@ -87,7 +87,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title).replace(/ /g, "_").toLowerCase() +
+            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-medium.webp"
@@ -102,7 +102,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title).replace(/ /g, "_").toLowerCase() +
+            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-small.webp"
@@ -146,7 +146,7 @@ function originalArtCb(request, res, next) {
       const publicArtUrl =
         process.env.PUBLIC_BUCKET_URL +
         "/" +
-        accents.remove(request.body.title).replace(/ /g, "_").toLowerCase() +
+        accents.remove(request.body.title)?.replace(/ /g, "_").toLowerCase() +
         "-" +
         request.body.artId;
 

@@ -136,9 +136,14 @@ const getBestSellers = async (orders) => {
       })
       .slice(0, 10);
 
+    const prodv3 = allProducts.filter((prod) =>
+      prodv2.some((ref) => ref.name === prod.name)
+    );
+
     const data = {
       info: "Estos son los productos más vendidos",
-      products: prodv2,
+      ref: prodv2,
+      products: prodv3,
     };
     return data;
   } catch (error) {

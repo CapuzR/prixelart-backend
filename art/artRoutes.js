@@ -59,4 +59,6 @@ router.put(
   artControllers.rankArt
 );
 
+router.get("/art/bestSellers", artControllers.readBestSellers);
+
 module.exports = router;

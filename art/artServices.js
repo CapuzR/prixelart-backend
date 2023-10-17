@@ -567,6 +567,46 @@ const deleteArt = async (artId) => {
   }
 };
 
+const getBestSellers = async (orders) => {
+  try {
+    const allArts = await Art.find({});
+    let arts = [];
+
+    allArts.map((art) => {
+      arts.push({ name: art.title, quantity: 0 });
+    });
+
+    await orders.orders.map(async (order) => {
+      await order.requests.map(async (item) => {
+        await arts.find((element) => {
+          if (element.name === item.art.title) {
+            element.quantity = element.quantity + 1;
+          }
+        });
+      });
+    });
+
+    const artv2 = arts
+      .sort(function (a, b) {
+        return b.quantity - a.quantity;
+      })
+      .slice(0, 10);
+
+    const artv3 = allArts.filter((art) =>
+      artv2.some((ref) => ref.name === art.title)
+    );
+
+    const data = {
+      info: "Estas son las obras más vendidas",
+      ref: artv2,
+      arts: artv3,
+    };
+    return data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 const removeArt = async () => {
   // const removedPrixers = await Prixer.deleteMany({});
   // if(removedPrixers) {
@@ -596,4 +636,5 @@ module.exports = {
   deleteArt,
   removeArt,
   rankArt,
+  getBestSellers,
 };

@@ -1,10 +1,9 @@
 const { dollarValue } = require("./preferencesModel");
 const Product = require("../product/productModel");
-
+const Art = require("../art/artModel");
 const updateDollarValue = async (dollar) => {
   try {
     const result = await dollarValue.find();
-    // if (result[0] !== undefined) {
     const updating = await dollarValue.findOne({ _id: result[0]._id });
     updating.dollarValue = dollar;
     await updating.save();
@@ -12,14 +11,6 @@ const updateDollarValue = async (dollar) => {
       success: true,
       newDollar: updating,
     };
-    // } else {
-    // let newDollar = await new dollarValue({
-    //   dollarValue: dollar,
-    // }).save();
-    // return {
-    //   res: { success: true, dollarId: newDollar._id },
-    // };
-    // }
   } catch (e) {
     console.log(e);
     return "Error al actualizar el valor.";
@@ -46,7 +37,27 @@ const updateBestSellers = async (bestSellers) => {
     return error;
   }
 };
+
+const updateArtBestSellers = async (bestSellers) => {
+  try {
+    let artApplied = [];
+    await Art.updateMany({ bestSeller: false });
+    await bestSellers.map(async (art) => {
+      const artv2 = await Art.findByIdAndUpdate(art, { bestSeller: true });
+      artApplied.push(artv2);
+    });
+    return {
+      arts: artApplied,
+      success: true,
+      message: "Artes actualizados exitosamente.",
+    };
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
 module.exports = {
   updateDollarValue,
   updateBestSellers,
+  updateArtBestSellers,
 };

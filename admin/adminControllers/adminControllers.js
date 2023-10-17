@@ -145,6 +145,7 @@ const updateAdminRole = async (req, res) => {
         setPrixerBalance: req.body.setPrixerBalance,
         artBan: req.body.artBan,
         modifyBestSellers: req.body.modifyBestSellers,
+        modifyArtBestSellers: req.body.modifyArtBestSellers,
       };
       const updatedAdminRole = await adminServices.updateAdminRole(
         idToUpdate,
