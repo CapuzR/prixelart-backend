@@ -6,6 +6,7 @@ const { nanoid } = require("nanoid");
 const productServices = require("./productServices");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const orderServices = require("../order/orderService");
+
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
   endpoint: spacesEndpoint,

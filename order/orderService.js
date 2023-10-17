@@ -67,7 +67,11 @@ const sendEmail = async (orderData) => {
 
 const readOrderById = async (Id) => {
   try {
-    let order = await Order.findOne({ orderId: Id }).exec();
+    let order = await Order.findOne({ orderId: Id })
+      .select(
+        "-_id -consumerId -basicData -billingData -paymentVoucher -observations"
+      )
+      .exec();
     return order;
   } catch (e) {
     console.log(e);

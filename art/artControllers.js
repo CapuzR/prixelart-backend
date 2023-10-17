@@ -1,7 +1,7 @@
 const artServices = require("./artServices");
 const userControllers = require("../user/userControllers/userControllers");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-//CRUD
+const orderServices = require("../order/orderService");
 
 const createArt = async (req, res) => {
   try {
@@ -237,6 +237,17 @@ const rankArt = async (req, res) => {
   }
 };
 
+const readBestSellers = async (req, res) => {
+  try {
+    const allOrders = await orderServices.readAllOrders();
+    const getBestSellers = await artServices.getBestSellers(allOrders);
+    res.send(getBestSellers);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
 module.exports = {
   createArt,
   readAllArts,
@@ -255,6 +266,7 @@ module.exports = {
   deleteArt,
   disableArt,
   rankArt,
+  readBestSellers,
 };
 
 // //CRUD END

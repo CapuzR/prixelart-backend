@@ -10,7 +10,9 @@ const {
   readDollarValue,
   updateDollarValue,
   getBestSellers,
+  getArtBestSellers,
   updateBestSellers,
+  updateArtBestSellers,
 } = require("./preferencesController");
 const express = require("express");
 const preferencesRoutes = express.Router();
@@ -56,10 +58,17 @@ preferencesRoutes.post(
   updateDollarValue
 );
 preferencesRoutes.get("/getBestSellers", getBestSellers);
+preferencesRoutes.get("/getArtBestSellers", getArtBestSellers);
 preferencesRoutes.put(
   "/updateBestSellers",
   adminAuthServices.ensureAuthenticated,
   updateBestSellers
+);
+
+preferencesRoutes.put(
+  "/updateArtBestSellers",
+  adminAuthServices.ensureAuthenticated,
+  updateArtBestSellers
 );
 
 module.exports = preferencesRoutes;

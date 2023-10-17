@@ -19,6 +19,8 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readOrder
 );
+
+router.post("/order/readByPrixer", orderControllers.readOrder);
 router.post(
   "/order/read-all",
   adminAuthServices.ensureAuthenticated,

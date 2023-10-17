@@ -10,6 +10,8 @@ const prixerModel = require("../prixer/prixerModel");
 const preferenceService = require("./preferencesService");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const productModel = require("../product/productModel");
+const artModel = require("../art/artModel");
+
 dotenv.config();
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -215,6 +217,28 @@ const getBestSellers = async (req, res) => {
   }
 };
 
+const getArtBestSellers = async (req, res) => {
+  try {
+    let arts = await artModel.find();
+    if (arts) {
+      let artsv2 = arts.filter((art) => art.bestSeller === true);
+      const data = {
+        arts: artsv2,
+      };
+      return res.send(data);
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return res.send(data);
+    }
+  } catch (error) {
+    res.status(500).send(error);
+    console.log(error);
+  }
+};
+
 const updateBestSellers = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -222,6 +246,27 @@ const updateBestSellers = async (req, res) => {
     );
     if (checkPermissions.role.modifyBestSellers) {
       const update = await preferenceService.updateBestSellers(req.body.data);
+      res.send(update);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const updateArtBestSellers = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.role.modifyArtBestSellers) {
+      const update = await preferenceService.updateArtBestSellers(
+        req.body.data
+      );
       res.send(update);
     } else {
       return res.send({
@@ -246,4 +291,6 @@ module.exports = {
   updateDollarValue,
   getBestSellers,
   updateBestSellers,
+  updateArtBestSellers,
+  getArtBestSellers,
 };
