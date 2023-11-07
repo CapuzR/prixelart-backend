@@ -73,6 +73,7 @@ const testimonial = require("./testimonials/testimonialRoutes");
 const discount = require("./discount/discountRoutes");
 const account = require("./account/accountRoutes");
 const movements = require("./movements/movementRoutes");
+const services = require("./serviceOfPrixers/serviceRoutes");
 app.use(cookieParser());
 
 app.use(express.urlencoded({ limit: "1mb", extended: false }));
@@ -90,6 +91,7 @@ app.use("/", testimonial);
 app.use("/", discount);
 app.use("/", account);
 app.use("/", movements);
+app.use("/", services);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);

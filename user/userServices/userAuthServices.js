@@ -2,6 +2,7 @@ const Users = require("../userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userServices = require("./userServices");
+const prixerServices = require("../../prixer/prixerServices");
 const emailSender = require("../../utils/emailSender");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -11,6 +12,7 @@ const authenticate = async (userData) => {
     email: userData.email,
   });
 
+  const prixer = await prixerServices.readPrixerbyId({ _id: user._id });
   if (user) {
     if (!bcrypt.compareSync(userData.password, user.password)) {
       return {
@@ -26,25 +28,23 @@ const authenticate = async (userData) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        password: user.password,
         id: user.id,
         account: user.account,
         time: new Date(),
       };
 
+      if (prixer) {
+        payload.prixerId = prixer.prixerId;
+      }
+
       const token = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: process.env.TOKEN_EXPIRE_TIME,
       });
-
-      // const token = jwt.sign(payload, config.jwtSecret, {
-      //     expiresIn: config.tokenExpireTime
-      // });
 
       return {
         success: true,
         token: token,
         username: user.username,
-        // email: user.email,
         userId: user.id,
         error_info: null,
         error_message: null,
