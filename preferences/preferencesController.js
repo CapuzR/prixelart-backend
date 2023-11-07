@@ -149,11 +149,27 @@ const updateTermsAndConditions = async (req, res) => {
     );
     if (checkPermissions.role.modifyTermsAndCo) {
       const result = await termsAndConditions.find();
+
       const updating = await termsAndConditions.findOne({ _id: result[0]._id });
-      updating.termsAndConditions = req.body.termsAndConditions;
-      await updating.save();
-      const updated = await prixerModel.updateMany({}, { termsAgree: false });
-      res.send({ terms: updating, prixers: updated });
+
+      if (result[0] === null) {
+        const newTerms = {
+          termsAndConditions: req.body.termsAndConditions,
+        };
+        const terms = await termsAndConditions(newTerms).save();
+        if (terms) {
+          const updated = await prixerModel.updateMany(
+            {},
+            { termsAgree: false }
+          );
+          res.send({ terms: req.body.termsAndConditions, prixers: updated });
+        }
+      } else {
+        updating.termsAndConditions = req.body.termsAndConditions;
+        await updating.save();
+        const updated = await prixerModel.updateMany({}, { termsAgree: false });
+        res.send({ terms: updating, prixers: updated });
+      }
     } else {
       return res.send({
         success: false,

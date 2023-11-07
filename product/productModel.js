@@ -10,6 +10,8 @@ const ProductSchema = Schema({
   considerations: { type: String, required: true },
   productionTime: { type: String, required: false },
   thumbUrl: { type: String, required: false },
+  mockupImg: { type: String, required: false },
+  coordinates: { type: String, required: false },
   sources: {
     // typeFile: {type: String, required: true},
     images: { type: Array, required: true },
