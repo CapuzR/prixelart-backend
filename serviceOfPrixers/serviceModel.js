@@ -18,7 +18,6 @@ const ServiceSchema = Schema({
   },
   serviceArea: { type: String, required: true },
   productionTime: { type: String, required: false },
-  // considerations: { type: String, required: true },
   publicPrice: {
     from: { type: Number, required: true },
     to: { type: Number, required: false },
