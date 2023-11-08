@@ -150,9 +150,7 @@ const updateTermsAndConditions = async (req, res) => {
     if (checkPermissions.role.modifyTermsAndCo) {
       const result = await termsAndConditions.find();
 
-      const updating = await termsAndConditions.findOne({ _id: result[0]._id });
-
-      if (result[0] === null) {
+      if (result[0] === undefined) {
         const newTerms = {
           termsAndConditions: req.body.termsAndConditions,
         };
@@ -165,6 +163,10 @@ const updateTermsAndConditions = async (req, res) => {
           res.send({ terms: req.body.termsAndConditions, prixers: updated });
         }
       } else {
+        const updating = await termsAndConditions.findOne({
+          _id: result[0]._id,
+        });
+
         updating.termsAndConditions = req.body.termsAndConditions;
         await updating.save();
         const updated = await prixerModel.updateMany({}, { termsAgree: false });
@@ -178,7 +180,7 @@ const updateTermsAndConditions = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.send({ message: 505 });
+    res.send({ message: "Error en la actualización", error: error });
   }
 };
 
