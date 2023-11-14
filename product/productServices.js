@@ -101,6 +101,19 @@ const updateProduct = async (productData, productId) => {
   }
 };
 
+const updateMockup = async (data, id) => {
+  try {
+    delete data.adminToken;
+    const updateProduct = await Product.findByIdAndUpdate(id, { mockUp: data });
+    if (!updateProduct) {
+      return console.log("Product update error: " + err);
+    } else return "Actualización realizada con éxito.";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const deleteProduct = async (req) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -180,6 +193,7 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
+  updateMockup,
   deleteProduct,
   getBestSellers,
   deleteVariant,

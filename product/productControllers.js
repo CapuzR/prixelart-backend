@@ -206,6 +206,35 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const updateMockup = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.role.createProduct) {
+      const mockUp = req.body;
+      if (req.file !== undefined) {
+        mockUp.mockupImg = req.file.transforms[0].location;
+      }
+      const result = await productServices.updateMockup(mockUp, req.params.id);
+      data = {
+        result: result,
+        success: true,
+        message: "Actualización realizada exitosamente",
+      };
+      return res.send(data);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
 const readBestSellers = async (req, res) => {
   try {
     const allOrders = await orderServices.readAllOrders();
@@ -385,6 +414,7 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
+  updateMockup,
   readBestSellers,
   deleteProduct,
   updateVariants,
