@@ -136,7 +136,6 @@ const updateMyService = async (req, res) => {
       },
       publicPrice: {
         from: Number(req.body.priceFrom),
-        to: Number(req.body?.priceTo),
       },
       //   prixerPrice: {
       //     from: req.body.prixerPriceFrom,
@@ -158,7 +157,7 @@ const updateMyService = async (req, res) => {
     }
     if (typeof req.body.images === "string") {
       parseObject.sources.images.push({ type: "images", url: req.body.images });
-    } else if (req.body.images.length > 1) {
+    } else if (req.body.images?.length > 1) {
       req.body.images.map((prev) => {
         parseObject.sources.images.push({ type: "images", url: prev });
       });

@@ -34,6 +34,13 @@ router.put(
   productControllers.updateProduct
 );
 
+router.put(
+  "/product/updateMockup/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.upload.single("newMockupImg"),
+  productControllers.updateMockup
+);
+
 router.get("/product/bestSellers", productControllers.readBestSellers);
 
 router.put(
