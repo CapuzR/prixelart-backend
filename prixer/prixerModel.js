@@ -19,6 +19,7 @@ const PrixerSchema = Schema({
   avatar: { type: String, required: false },
   status: { type: Boolean, required: false },
   termsAgree: { type: Boolean, required: false },
+  bio: { type: Object, required: false },
 });
 
 module.exports = mongoose.model("Prixer", PrixerSchema, "prixers");

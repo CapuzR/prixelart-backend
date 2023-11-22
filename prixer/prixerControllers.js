@@ -70,6 +70,16 @@ const getPrixer = async (req, res) => {
   }
 };
 
+const getBio = async (req, res) => {
+  try {
+    const user = await userControllers.readUserByUsername(req.params.id);
+    const readedBio = await prixerServices.readBio(user);
+    res.send(readedBio);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
 const readAllPrixers = async (req, res) => {
   try {
     const readedPrixers = await prixerServices.readAllPrixers({ status: true });
@@ -171,6 +181,26 @@ const updateVisibility = async (req, res) => {
   }
 };
 
+const updateBio = async (req, res) => {
+  try {
+    let bio = {
+      biography: req.body.biography,
+      images: req.body.bioImages,
+    };
+    const images = [];
+    req.files.map((img, i) => {
+      images.push(img.transforms[0].location);
+    });
+    bio.images = images;
+
+    const update = await prixerServices.updateBio(req.params.id, bio);
+    return res.send(update);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const updateTermsAgreeGeneral = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -230,26 +260,16 @@ const upload = multer({
     bucket: process.env.PUBLIC_BUCKET_NAME,
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
-      req.body.Id = nanoid(7); //=> "5-JDFkc"
-      // req.body.avatar =
-      //   process.env.PUBLIC_BUCKET_URL +
-      //   "/" +
-      //   file.fieldname +
-      //   "-" +
-      //   req.body.Id +
-      //   "-" +
-      //   req.body.Id +
-      //   "-large.webp";
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
       {
         id: "largeThumb",
         key: function (req, file, cb) {
-          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+          cb(null, file.fieldname + "-" + nanoid(7) + "-large.webp");
         },
         transform: function (req, file, cb) {
-          cb(null, sharp().resize(320, 320).webp({ quality: 80 }));
+          cb(null, sharp().resize(600, 600).webp({ quality: 80 }));
         },
       },
     ],
@@ -261,8 +281,10 @@ module.exports = {
   readAllPrixers,
   readPrixer,
   getPrixer,
+  getBio,
   updatePrixer,
   updateVisibility,
+  updateBio,
   updateTermsAgree,
   updateTermsAgreeGeneral,
   disablePrixer,
