@@ -82,6 +82,13 @@ const readPrixerbyId = async (user) => {
   return readedPrixer;
 };
 
+const readBio = async (user) => {
+  let readedPrixer = await Prixer.findOne({ userId: user._id }).exec();
+  if (readedPrixer) {
+    const data = readedPrixer.bio;
+    return { data: data, success: true };
+  }
+};
 const readAllPrixers = async () => {
   try {
     const readedPrixers = await Prixer.find({ status: true }).exec();
@@ -228,8 +235,22 @@ const updateVisibility = async (prixerId, prixerData) => {
     const updatedPrixer = await toUpdatePrixer.save();
     if (!updatedPrixer) {
       return console.log("Prixer update error: " + err);
-    }
-    return "Actualización realizada con éxito.";
+    } else return "Actualización realizada con éxito.";
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
+const updateBio = async (prixerId, prixerData) => {
+  try {
+    const toUpdatePrixer = await Prixer.findByIdAndUpdate(prixerId, {
+      bio: prixerData,
+    });
+    if (!toUpdatePrixer) {
+      return console.log("Prixer update error: " + err);
+    } else
+      return { success: true, message: "Actualización realizada con éxito." };
   } catch (e) {
     console.log(e);
     return e;
@@ -290,7 +311,9 @@ module.exports = {
   readAllPrixersFullv2,
   readPrixer,
   readPrixerbyId,
+  readBio,
   updatePrixer,
+  updateBio,
   updateVisibility,
   updateTermsAgreeGeneral,
   updateTermsAgree,

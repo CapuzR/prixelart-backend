@@ -1,7 +1,7 @@
 "use strict";
 const { upload } =
   // avatarUpload
-  require("../preferences/preferencesController");
+  require("./prixerControllers");
 
 const express = require("express");
 const router = express.Router();
@@ -19,6 +19,7 @@ router.post(
 );
 router.post("/prixer/read", prixerControllers.readPrixer);
 router.get("/prixer/get/:id", prixerControllers.getPrixer);
+router.get("/prixer/getBio/:id", prixerControllers.getBio);
 router.get("/prixer/read-all", prixerControllers.readAllPrixers);
 router.get("/prixer/read-all-full", prixerControllers.readAllPrixersFull);
 router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
@@ -28,6 +29,12 @@ router.post(
   // prixerMiddlewares.avatarUpload,
   userMdw.ensureAuthenticated,
   prixerControllers.updatePrixer
+);
+router.put(
+  "/prixer/updateBio/:id",
+  userMdw.ensureAuthenticated,
+  upload.array("newBioImages", 4),
+  prixerControllers.updateBio
 );
 router.put(
   "/prixer/update-home/:id",
