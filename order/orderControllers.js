@@ -1,7 +1,7 @@
 const orderServices = require("./orderService");
 const movementServices = require("../movements/movementServices");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-
+const { createConsumer } = require("../consumer/consumerService");
 const multer = require("multer");
 const multerS3 = require("multer-s3-transform");
 const dotenv = require("dotenv");
@@ -87,28 +87,50 @@ const createOrder = async (req, res) => {
 
 const createOrder4Client = async (req, res) => {
   try {
-    const orderData = {
-      orderId: req.body.orderId,
-      orderType: req.body.orderType,
-      createdOn: req.body.createdOn,
-      createdBy: req.body.createdBy,
-      dollarValue: req.body.dollarValue,
-      subtotal: req.body.subtotal,
-      tax: req.body.tax,
-      total: req.body.total,
-      basicData: req.body.basicData,
-      shippingData: req.body.shippingData,
-      billingData: req.body.billingData,
-      requests: req.body.requests,
-      status: req.body.status,
-      observations: req.body.observations,
-      consumer: req.body.consumerId,
+    // Crear u obtener cliente
+    const createClient = await createConsumer(req.body.consumerData);
+
+    // Crear Pedido
+    const createOrder = await orderServices.createOrder(req.body.input);
+
+    const response = {
+      consumer: createClient,
+      order: createOrder,
     };
-    const result = await orderServices.createOrder(orderData);
-    res.send(result);
+    if (
+      createOrder.res.success &&
+      req.body.input.billingData?.orderPaymentMethod === "Balance Prixer"
+    ) {
+      // Cobro de Prixer Balance (leer Prixer, crear movimiento, actualizar Balance)
+
+      const mov = {
+        _id: nanoid(),
+        createdOn: new Date(),
+        createdBy: "Prixelart Page",
+        date: new Date(),
+        destinatary: req.body.input.billingData.destinatary,
+        description: `Pago de la orden #${req.body.input.orderId}`,
+        type: "Retiro",
+        value: req.body.input.total,
+      };
+      const payment = await movementServices.createMovement(mov);
+      response.payment = payment;
+
+      const adjust = await movementServices.updateBalance(mov);
+      response.adjust = adjust;
+
+      if (payment.success === true && adjust.success === true) {
+        const updatedOrder = await orderServices.updateOrderPayStatus(
+          orderData.orderId,
+          "Pagado"
+        );
+        response.update = updatedOrder;
+      }
+    }
+    res.send(response);
   } catch (err) {
     res.status(500).send(err);
-    console.log("err", err);
+    console.log("error: ", err);
   }
 };
 

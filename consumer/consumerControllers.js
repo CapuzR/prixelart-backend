@@ -13,7 +13,9 @@ const createConsumer = async (req, res) => {
 
 const readConsumer = async (req, res) => {
   try {
-    const readedConsumer = await consumerServices.readConsumerByEmail(req.body);
+    const readedConsumer = await consumerServices.readConsumerByEmail(
+      req.body.email
+    );
     res.send(readedConsumer);
   } catch (err) {
     console.log(err);
