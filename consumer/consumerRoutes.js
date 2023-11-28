@@ -12,7 +12,7 @@ router.post(
 );
 router.post(
   "/consumer/read",
-  adminAuthServices.ensureAuthenticated,
+  // adminAuthServices.ensureAuthenticated,
   consumerControllers.readConsumer
 );
 router.post(

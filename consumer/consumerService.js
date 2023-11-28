@@ -32,9 +32,14 @@ const createConsumer = async (consumerData) => {
 };
 
 const readConsumerByEmail = async (consumerData) => {
-  return await Consumer.findOne({ email: consumerData.email })
+  const readedConsumer = await Consumer.findOne({ email: consumerData })
     .select("-_id")
     .exec();
+  if (readedConsumer) {
+    return { success: true, consumer: readedConsumer };
+  } else {
+    return { success: false };
+  }
 };
 
 const readConsumerById = async (id) => {

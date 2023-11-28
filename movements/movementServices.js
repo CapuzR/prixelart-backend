@@ -30,7 +30,7 @@ const updateBalance = async (movement) => {
       const updatedAccount = account.save();
       return updatedAccount;
     }
-    return prixer;
+    return { success: true };
   } catch (error) {
     console.log(error);
     return error;
