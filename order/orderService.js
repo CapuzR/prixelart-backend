@@ -84,7 +84,9 @@ const readOrderByUsername = async (username) => {
 };
 
 const readAllOrders = async () => {
-  let readedOrder = await Order.find({}).select("-_id").exec();
+  let readedOrder = await Order.find({ status: { $ne: "Anulado" } })
+    .select("-_id")
+    .exec();
   let ordersv2 = readedOrder.sort(function (a, b) {
     if (a.createdOn < b.createdOn) {
       return 1;
@@ -137,6 +139,22 @@ const readOrdersByPrixer = async (prixer) => {
   }
 };
 
+const readOrdersByEmail = async (email) => {
+  let orders = await Order.find({});
+  let filteredOrders = orders.filter(
+    (order) => order.basicData?.email === email
+  );
+  if (filteredOrders) {
+    const data = { info: "Las órdenes disponibles", orders: filteredOrders };
+    return data;
+  } else {
+    const data = {
+      info: "No hay órdenes registradas.",
+      orders: null,
+    };
+    return data;
+  }
+};
 const addVoucher = async (id, paymentVoucher) => {
   try {
     const toUpdateOrder = await Order.findOne({ orderId: id });
@@ -460,78 +478,6 @@ const deleteShippingMethod = async (shippingMethodId) => {
     return error;
   }
 };
-//Order Payment
-// const createOrderPayment = async (orderPaymentData) => {
-//   try {
-//     const readedOrderPaymentByEmail = await readOrderPaymentByEmail(
-//       orderPaymentData
-//     );
-//     const readedOrderPaymentByUsername = await readOrderPaymentByUsername(
-//       orderPaymentData.username
-//     );
-//     if (readedOrderPaymentByUsername) {
-//       return {
-//         success: false,
-//         info: "error_username",
-//         message: "Disculpa, el nombre de usuario ya está registrado.",
-//       };
-//     }
-
-//     if (readedOrderPaymentByEmail) {
-//       return {
-//         success: false,
-//         info: "error_email",
-//         message: "Disculpa, el correo del usuario ya está registrado.",
-//       };
-//     }
-//     let newOrderPayment = await new Order(orderPaymentData).save();
-//     return {
-//       res: { success: true, orderPaymentId: newOrderPayment._id },
-//       newOrderPayment: newOrderPayment,
-//     };
-//   } catch (e) {
-//     return "Incapaz de crear el usuario, intenta de nuevo o consulta a soporte.";
-//   }
-// };
-
-// const readOrderPaymentByEmail = async (orderPaymentData) => {
-//   return await OrderPayment.findOne({ email: orderPaymentData.email })
-//     .select("-_id")
-//     .exec();
-// };
-// const readOrderPaymentByUsername = async (username) => {
-//   return await OrderPayment.findOne({ username: username }).exec();
-// };
-
-// const readAllOrderPayments = async () => {
-//   let readedOrderPayments = await OrderPayment.find({}).select("-_id").exec();
-//   if (readedOrder) {
-//     return readedOrderPayments;
-//   }
-//   return false;
-// };
-
-// const updateOrderPayment = async (orderPaymentData) => {
-//   try {
-//     const toUpdateOrderPayment = await OrderPayment.findOne({
-//       email: orderPaymentData.email,
-//     });
-//     await toUpdateOrderPayment.set(orderPaymentData);
-//     const updatedOrderPayment = await toUpdateOrderPayment.save();
-//     if (!updatedOrderPayment) {
-//       return console.log("Order update error: " + err);
-//     }
-
-//     return updatedOrderPayment;
-//   } catch (e) {
-//     return {
-//       success: false,
-//       message:
-//         e +
-//         "Disculpa. No se pudo actualizar este consumidor, inténtalo de nuevo por favor.",
-//     };
-//   }
-// };
 
 module.exports = {
   createOrder,
@@ -541,6 +487,7 @@ module.exports = {
   readOrderByUsername,
   readAllOrders,
   readOrdersByPrixer,
+  readOrdersByEmail,
   updateOrder,
   updateOrderPayStatus,
   updateSeller,

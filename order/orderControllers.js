@@ -211,6 +211,16 @@ const readOrdersByPrixer = async (req, res) => {
   }
 };
 
+const readOrdersByEmail = async (req, res) => {
+  try {
+    const readedOrders = await orderServices.readOrdersByEmail(req.body.email);
+    res.send(readedOrders);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 const updateOrder = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -518,6 +528,7 @@ module.exports = {
   readOrder,
   readAllOrders,
   readOrdersByPrixer,
+  readOrdersByEmail,
   updateOrder,
   updateOrderPayStatus,
   updateSeller,
