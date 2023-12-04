@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const orderControllers = require("./orderControllers");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+const userMdw = require("../user/userMiddlewares");
 
 // Order
 router.post(
@@ -26,7 +27,13 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   orderControllers.readAllOrders
 );
-router.post("/order/byPrixer", orderControllers.readOrdersByPrixer);
+router.post(
+  "/order/byPrixer",
+  userMdw.ensureAuthenticated,
+  orderControllers.readOrdersByPrixer
+);
+router.post("/order/byEmail", orderControllers.readOrdersByEmail);
+
 router.put(
   "/order/addVoucher/:id",
   orderControllers.upload.single("paymentVoucher"),

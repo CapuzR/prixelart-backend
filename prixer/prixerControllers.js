@@ -183,15 +183,23 @@ const updateVisibility = async (req, res) => {
 
 const updateBio = async (req, res) => {
   try {
+    let img = [req.body.bioImages];
     let bio = {
       biography: req.body.biography,
-      images: req.body.bioImages,
+      images: img.flat(Infinity),
     };
+
     const images = [];
-    req.files.map((img, i) => {
+    await req.files.map((img, i) => {
       images.push(img.transforms[0].location);
     });
-    bio.images = images;
+
+    if (bio.images.length === 0) {
+      bio.images = images;
+    } else if (req.body.bioImages) {
+      const newImgs = bio.images.concat(images);
+      bio.images = newImgs;
+    }
 
     const update = await prixerServices.updateBio(req.params.id, bio);
     return res.send(update);
