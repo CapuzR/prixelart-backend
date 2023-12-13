@@ -30,6 +30,7 @@ const ArtSchema = Schema({
   crops: { type: Array, required: true },
   points: { type: Number, default: 50 },
   bestSeller: { type: Boolean, required: false },
+  sells: { type: Number, required: false },
 });
 
 ArtSchema.index({
