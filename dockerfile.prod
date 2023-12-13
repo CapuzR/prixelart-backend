@@ -9,7 +9,8 @@ ENV HOME='.'
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 RUN npm uninstall sharp
-RUN npm install --os=linuxmusl --cpu=x64 sharp
+RUN npm install sharp
+LD_LIBRARY_PATH=/snap/core20/current/lib/x86_64-linux-gnu /snap/node/current/bin/node -e "require('sharp')"
 RUN npm install
 # RUN apk --no-cache add --virtual builds-deps build-base python
 # RUN npm config set python /usr/bin/python
