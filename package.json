@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/CapuzR/prixelart-be#readme",
   "dependencies": {
+    "@img/sharp-linuxmusl-x64": "^0.33.0",
     "@sendgrid/mail": "^7.4.4",
     "aws-sdk": "^2.907.0",
     "bcrypt": "^5.1.0",
