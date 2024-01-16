@@ -1,4 +1,4 @@
-FROM node:20.3.0 as build
+FROM node:20.3-alpine as build
 
 RUN mkdir -p /home/node/backend/node_modules && chown -R node:node /home/node/backend
 
