@@ -12,7 +12,7 @@ const readAdminById = async (adminData) => {
 };
 
 const readSellers = async () => {
-  let readedSellers = await Admin.find({ area: "Ventas" })
+  let readedSellers = await Admin.find({ isSeller: true })
     .select("firstname lastname")
     .exec();
   if (readedSellers) {
