@@ -9,7 +9,7 @@ ENV HOME='.'
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 RUN npm uninstall sharp
-RUN npm install sharp
+RUN npm install --os=linuxmusl --cpu=x64 sharp
 RUN npm install
 # RUN apk --no-cache add --virtual builds-deps build-base python
 # RUN npm config set python /usr/bin/python
