@@ -64,15 +64,15 @@ const readOneById = async (artSystemId) => {
 
 const randomArts = async () => {
   try {
+    const readedArts = await Art.find({});
+
     const docCount = await Art.estimatedDocumentCount();
     var random = Math.floor(Math.random() * docCount);
-    const readedArts = await Art.findOne()
-      .sort({ points: -1, visible: -1 })
-      .exec();
+    const readedArt = readedArts[random];
     if (readedArts) {
       const data = {
         info: "Sorpresa...",
-        arts: readedArts,
+        arts: readedArt,
       };
 
       return data;

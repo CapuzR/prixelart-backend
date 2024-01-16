@@ -44,6 +44,7 @@ const updateAdmin = async (req, res) => {
         area: req.body.area,
         username: req.body.username,
         email: req.body.email,
+        isSeller: req.body.isSeller,
       };
 
       const updatedAdmin = await adminServices.updateAdmin(

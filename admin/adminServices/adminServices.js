@@ -12,7 +12,7 @@ const readAdminById = async (adminData) => {
 };
 
 const readSellers = async () => {
-  let readedSellers = await Admin.find({ area: "Ventas" })
+  let readedSellers = await Admin.find({ isSeller: true })
     .select("firstname lastname")
     .exec();
   if (readedSellers) {
@@ -43,14 +43,14 @@ const readAdminByUsername = async (username) => {
 
 const updateAdmin = async (id, adminData) => {
   try {
-    const toUpdateAdmin = await Admin.findOne({ _id: id });
-    toUpdateAdmin.set(adminData);
-    const updatedAdmin = await toUpdateAdmin.save();
-    if (!updatedAdmin) {
+    const toUpdateAdmin = await Admin.findByIdAndUpdate(id, adminData);
+    // toUpdateAdmin.set(adminData);
+    // const updatedAdmin = await toUpdateAdmin.save();
+    if (!toUpdateAdmin) {
       return console.log("Admin update error: " + err);
     }
 
-    return updatedAdmin;
+    return toUpdateAdmin;
   } catch (e) {
     return {
       success: false,
