@@ -12,6 +12,7 @@ const AdminSchema = Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   token: { type: String, default: "" },
+  isSeller: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("Admin", AdminSchema, "admin");
