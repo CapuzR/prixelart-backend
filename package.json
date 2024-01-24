@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/CapuzR/prixelart-be#readme",
   "dependencies": {
-    "@img/sharp-linuxmusl-x64": "^0.33.0",
     "@sendgrid/mail": "^7.4.4",
     "aws-sdk": "^2.907.0",
     "bcrypt": "^5.1.0",
@@ -53,11 +52,10 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "remove-accents": "^0.4.3",
-    "sharp": "^0.31.3"
+    "sharp": "^0.33.2"
   },
   "devDependencies": {
     "@types/underscore.string": "^0.0.38",
-    "jest": "^26.6.3",
     "nodemon": "^2.0.19",
     "supertest": "^6.1.3"
   }
