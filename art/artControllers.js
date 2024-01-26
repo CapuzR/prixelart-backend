@@ -49,6 +49,16 @@ const readAllArts = async (req, res) => {
   }
 };
 
+const readLatest = async (req, res) => {
+  try {
+    const readedArts = await artServices.readLatest();
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const readByQuery = async (req, res) => {
   try {
     const query = {
@@ -251,6 +261,7 @@ const readBestSellers = async (req, res) => {
 module.exports = {
   createArt,
   readAllArts,
+  readLatest,
   readByUsernameAndQuery,
   readByUsernameQueryAndCategory,
   readByUsernameAndCategory,

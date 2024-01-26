@@ -1,6 +1,6 @@
 const Art = require("./artModel");
 const { organizeArtData } = require("../utils/util");
-const ObjectId = require("mongoose").Types.ObjectId;
+const mongoose = require("mongoose");
 const accents = require("remove-accents");
 //CRUD
 const createArt = async (artData) => {
@@ -42,6 +42,9 @@ const readOneById = async (artSystemId) => {
       // .select("-_id -__v -imageUrl")
       // .sort({ points: -1, visible: -1 })
       .exec();
+    const createdAt = mongoose.Types.ObjectId(readedArt._id);
+    const date = createdAt.getTimestamp();
+    readedArt.createAt = date;
     if (readedArt) {
       const data = {
         info: "Yei. Enjoy",
@@ -264,6 +267,45 @@ const readAllArts = async () => {
   }
 };
 
+const readLatest = async () => {
+  try {
+    const readedArts = await Art.find({})
+      // .sort({ points: -1, visible: -1 })
+      .select("-__v -imageUrl -crops -status")
+      .exec();
+
+    const v2 = [];
+    readedArts.map((art) => {
+      const createdAt = mongoose.Types.ObjectId(art._id);
+      const date = createdAt.getTimestamp();
+      art.createAt = date;
+      delete art._id;
+      v2.push(art);
+    });
+    v2.reverse();
+    const v3 = v2.slice(0, 20);
+    if (readedArts) {
+      const data = {
+        info: "Todos los artes disponibles",
+        arts: v3,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      info: "Transcurrió demasiado tiempo, inténtalo de nuevo",
+      arts: null,
+    };
+  }
+};
+
 const readByQueryAndCategory = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
@@ -462,6 +504,7 @@ const getOneById = async (artId) => {
       // .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
+
     if (readedArts) {
       const data = {
         info: "Arte encontrado",
@@ -623,6 +666,7 @@ module.exports = {
   readByUserIdAndCategory,
   readByUserIdQueryAndCategory,
   readAllArts,
+  readLatest,
   readByQueryAndCategory,
   readByQuery,
   readByCategory,
