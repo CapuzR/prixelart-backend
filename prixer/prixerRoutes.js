@@ -41,7 +41,11 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   prixerControllers.updateVisibility
 );
-router.put("/prixer/update-terms/:id", prixerControllers.updateTermsAgree);
+router.put(
+  "/prixer/update-terms/:id",
+  userMdw.ensureAuthenticated,
+  prixerControllers.updateTermsAgree
+);
 router.put(
   "/prixer/update-home/updateTermsAgree",
   adminAuthServices.ensureAuthenticated,

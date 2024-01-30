@@ -12,6 +12,8 @@ router.post(
   serviceControllers.createService
 );
 
+router.get("/service/getAll", serviceControllers.getAll);
+router.get("/service/getAllActive", serviceControllers.getAllActive);
 router.post(
   "/service/readMyServices",
   userMdw.ensureAuthenticated,

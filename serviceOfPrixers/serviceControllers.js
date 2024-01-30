@@ -90,6 +90,26 @@ const createService = async (req, res) => {
   }
 };
 
+const getAll = async (req, res) => {
+  try {
+    const readedServices = await serviceServices.getAll();
+    res.send(readedServices);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+const getAllActive = async (req, res) => {
+  try {
+    const readedServices = await serviceServices.getAllActive();
+    res.send(readedServices);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
 const readMyServices = async (req, res) => {
   try {
     const readedServices = await serviceServices.readMyServices(
@@ -191,6 +211,8 @@ const deleteService = async (req, res) => {
 module.exports = {
   upload,
   createService,
+  getAll,
+  getAllActive,
   readMyServices,
   getServicesByPrixer,
   updateMyService,

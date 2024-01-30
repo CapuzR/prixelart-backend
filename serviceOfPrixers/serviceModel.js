@@ -23,6 +23,8 @@ const ServiceSchema = Schema({
     to: { type: Number, required: false },
   },
   appliedProducts: { type: Array, required: false },
+  disabledReason: { type: String, required: false },
+  visible: { type: Boolean, default: true },
 });
 
 module.exports = mongoose.model("Service", ServiceSchema, "services");
