@@ -286,7 +286,7 @@ const updateTermsAgree = async (prixerId, prixerData) => {
     if (!updatedPrixer) {
       return console.log("Prixer update error: " + err);
     }
-    return "Actualización realizada con éxito.";
+    return { success: true, message: "Actualización realizada con éxito." };
   } catch (e) {
     console.log(e);
     return e;

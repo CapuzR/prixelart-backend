@@ -22,6 +22,51 @@ const createService = async (serviceData) => {
   }
 };
 
+const getAll = async () => {
+  try {
+    const readedServices = await Service.find();
+    if (readedServices) {
+      const data = {
+        info: "El Prixer sí tiene servicios registrados",
+        services: readedServices,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "El Prixer no tiene servicios registrados",
+        services: null,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const getAllActive = async () => {
+  try {
+    const readedServices = await Service.find({
+      active: true,
+      //,  visible: true
+    });
+    if (readedServices) {
+      const data = {
+        info: "El Prixer sí tiene servicios registrados",
+        services: readedServices,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "El Prixer no tiene servicios registrados",
+        services: null,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const readMyServices = async (prixerId) => {
   try {
     const readedServices = await Service.find({ prixer: prixerId }).exec();
@@ -116,6 +161,8 @@ const deleteService = async (id) => {
 };
 module.exports = {
   createService,
+  getAll,
+  getAllActive,
   readMyServices,
   readByPrixer,
   updateMyService,
