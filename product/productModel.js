@@ -25,6 +25,7 @@ const ProductSchema = Schema({
     from: { type: String, required: false },
     to: { type: String, required: false },
   }, //prixerPrice
+  cost: { type: String, required: false },
   attributes: { type: Array, required: false }, //activeAttributes
   active: { type: Boolean, required: true },
   variants: { type: Array, required: false },
