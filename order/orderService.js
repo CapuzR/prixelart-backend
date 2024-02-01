@@ -36,8 +36,7 @@ const sendEmail = async (orderData) => {
       },
       templateId: "d-68b028bb495347059d343137d2517857",
       dynamic_template_data: {
-        name:
-          orderData.basicData.firstname + " " + orderData.basicData.lastname,
+        name: orderData.basicData.name + " " + orderData.basicData.lastname,
         lastname: orderData.basicData.lastname,
         basicData: orderData.basicData,
         shippingData: orderData.shippingData,

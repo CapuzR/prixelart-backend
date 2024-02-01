@@ -69,6 +69,7 @@ const createProduct = async (req, res, next) => {
           images: imagesResult,
           // video: req.body.video
         },
+        cost: req.body.cost,
         publicPrice: {
           from: req.body.publicPriceFrom,
           to: req.body.publicPriceTo,
@@ -170,6 +171,7 @@ const updateProduct = async (req, res) => {
         considerations: req.body.considerations,
         productionTime: req.body.productionTime,
         sources: { images: newResult },
+        cost: req.body.cost,
         publicPrice: {
           from: req.body.publicPriceFrom,
           to: req.body.publicPriceTo,
