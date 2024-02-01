@@ -4,6 +4,8 @@ const sharp = require("sharp");
 const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const serviceServices = require("./serviceServices");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+
 const { parse } = require("dotenv");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
@@ -199,6 +201,35 @@ const updateMyService = async (req, res) => {
   }
 };
 
+const disableService = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.role.artBan) {
+      const serviceResult = await serviceServices.disableService(
+        req.params.id,
+        req.body.visible
+      );
+      data = {
+        data: {
+          serviceResult,
+          success: true,
+        },
+      };
+      return res.send(serviceResult);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 const deleteService = async (req, res) => {
   try {
     const serviceToDelete = await serviceServices.deleteService(req.params.id);
@@ -216,5 +247,6 @@ module.exports = {
   readMyServices,
   getServicesByPrixer,
   updateMyService,
+  disableService,
   deleteService,
 };
