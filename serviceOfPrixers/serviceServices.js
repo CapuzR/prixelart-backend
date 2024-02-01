@@ -139,6 +139,21 @@ const updateMyService = async (id, data) => {
   }
 };
 
+const disableService = async (id, data) => {
+  try {
+    const toUpdateService = await Service.findByIdAndUpdate(id, {
+      active: data,
+    });
+    if (!toUpdateService) {
+      return console.log("Art update error: " + err);
+    }
+    return "Actualización realizada con éxito.";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const deleteService = async (id) => {
   try {
     const toDelete = await Service.findByIdAndDelete(id);
@@ -166,5 +181,6 @@ module.exports = {
   readMyServices,
   readByPrixer,
   updateMyService,
+  disableService,
   deleteService,
 };

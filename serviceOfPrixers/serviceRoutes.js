@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const userMdw = require("../user/userMiddlewares");
 const serviceControllers = require("./serviceControllers");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 router.post(
   "/service/create",
@@ -30,6 +31,12 @@ router.put(
   serviceControllers.upload.array("newServiceImages", 6),
   userMdw.ensureAuthenticated,
   serviceControllers.updateMyService
+);
+
+router.put(
+  "/service/disable/:id",
+  adminAuthServices.ensureAuthenticated,
+  serviceControllers.disableService
 );
 
 router.put(
