@@ -42,7 +42,11 @@ router.put(
 );
 
 router.get("/product/bestSellers", productControllers.readBestSellers);
-
+router.put(
+  "/product/updateMany",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.updateMany
+);
 router.put(
   "/product/updateVariants/:id",
   adminAuthServices.ensureAuthenticated,
