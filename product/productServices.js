@@ -93,8 +93,35 @@ const updateProduct = async (productData, productId) => {
     );
     if (!updateProduct) {
       return console.log("Product update error: " + err);
+    } else {
+      return {
+        message: "Actualización realizada con éxito.",
+        product: updateProduct,
+      };
     }
-    return "Actualización realizada con éxito.";
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const masiveUpdate = async (data) => {
+  try {
+    const updates = [];
+    await data.map(async (prod, i) => {
+      const updatedProduct = await Product.findByIdAndUpdate(prod._id, prod);
+
+      if (!updatedProduct) {
+        updates.push(`${prod.name} : ${false}`);
+      } else {
+        updates.push(`${prod.name} : ${true}`);
+      }
+    });
+    return {
+      message: "Actualizaciones realizadas con éxito.",
+      products: updates,
+      success: true,
+    };
   } catch (error) {
     console.log(error);
     return error;
@@ -193,6 +220,7 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
+  masiveUpdate,
   updateMockup,
   deleteProduct,
   getBestSellers,

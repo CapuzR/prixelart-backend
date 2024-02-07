@@ -208,6 +208,28 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const updateMany = async (req, res) => {
+  try {
+    let checkPermissions = await adminAuthServices.checkPermissions(
+      req.body.adminToken
+    );
+    if (checkPermissions.role.createProduct) {
+      const masiveUpdate = await productServices.masiveUpdate(
+        req.body.products
+      );
+      return res.send(masiveUpdate);
+    } else {
+      return res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
 const updateMockup = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -256,11 +278,10 @@ const updateVariants = async (req, res) => {
       const product = { _id: req.params.id };
       const productToUpdate = await productServices.readById(product);
       const productv2 = productToUpdate.products[0];
-
       const newVariant = {
         _id: req.body.variant_id,
         variantImage: [],
-        active: Boolean(req.body.variantActive),
+        active: req.body.variantActive === "true" ? true : false,
         name: req.body.variantName,
         description: req.body.variantDescription,
         category: req.body.variantCategory,
@@ -286,6 +307,7 @@ const updateVariants = async (req, res) => {
                 },
               ]
             : [],
+        cost: req.body.variantPrice,
         publicPrice: {
           from: req.body.variantPublicPriceFrom,
           to: req.body.variantPublicPriceTo,
@@ -346,12 +368,10 @@ const updateVariants = async (req, res) => {
       if (productv2.variants[0] !== null) {
         productv2.variants.map((variant, i) => {
           if (variant._id === newVariant._id) {
-            productv2.variants.splice(i, 1);
+            productv2.variants.splice(i, 1, newVariant);
           }
         });
       }
-
-      productv2.variants.push(newVariant);
 
       const productResult = await productServices.updateProduct(
         productv2,
@@ -416,6 +436,7 @@ module.exports = {
   readAllProducts,
   readAllProductsAdmin,
   updateProduct,
+  updateMany,
   updateMockup,
   readBestSellers,
   deleteProduct,
