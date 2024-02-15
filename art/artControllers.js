@@ -25,6 +25,8 @@ const updateArt = async (req, res) => {
       tags: req.body.tags,
       artType: req.body.artType,
       artLocation: req.body.artLocation,
+      exclusive: req.body.exclusive,
+      comission: req.body.comission,
     };
     const artResult = await artServices.updateArt(req.params.id, artData);
     data = {

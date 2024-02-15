@@ -538,6 +538,8 @@ const updateArt = async (artId, artData) => {
     toUpdateArt.tags = artData.tags;
     toUpdateArt.artType = artData.artType;
     toUpdateArt.artLocation = artData.artLocation;
+    toUpdateArt.exclusive = artData.exclusive;
+    toUpdateArt.comission = artData.comission;
     // toUpdateArt.imageUrl = artData.imageUrl;
     // toUpdateArt.thumbnailUrl = artData.thumbnail;
     // toUpdateArt.largeThumbUrl = artData.largeThumbUrl;
