@@ -398,6 +398,7 @@ const readByQuery = async (query) => {
         artTags.includes(text)
       );
     });
+
     if (specifyArt !== null) {
       const data = {
         info: "El arte que buscas",

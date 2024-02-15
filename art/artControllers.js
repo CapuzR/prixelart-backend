@@ -2,6 +2,7 @@ const artServices = require("./artServices");
 const userControllers = require("../user/userControllers/userControllers");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const orderServices = require("../order/orderService");
+const Art = require("./artModel");
 
 const createArt = async (req, res) => {
   try {
@@ -64,8 +65,16 @@ const readByQuery = async (req, res) => {
     const query = {
       text: req.query.text,
     };
-    const readedArts = await artServices.readByQuery(query);
-    res.send(readedArts);
+    if (query.text === "addExclusive") {
+      const updated = await Art.updateMany(
+        {},
+        { exclusive: "standard", comission: 10 }
+      );
+      res.send({ arts: updated, info: "Artes actualizados" });
+    } else {
+      const readedArts = await artServices.readByQuery(query);
+      res.send(readedArts);
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
