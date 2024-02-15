@@ -2,25 +2,27 @@ const organizeArtData = (originData) => {
   const artData = {};
 
   artData.artId = originData.artId;
-  artData.title = originData.title;
-  artData.description = originData.description;
+  artData.artLocation = originData.artLocation || "";
+  artData.artType = originData.artType;
   artData.category = originData.category;
-  artData.tags = originData.tags;
+  artData.comission = originData.comission;
+  artData.exclusive = originData.exclusive;
   artData.crops = originData.crops;
+  artData.description = originData.description;
   artData.imageUrl = originData.artUrl;
   artData.largeThumbUrl = originData.largeThumbUrl;
   artData.mediumThumbUrl = originData.mediumThumbUrl;
-  artData.smallThumbUrl = originData.smallThumbUrl;
-  artData.squareThumbUrl = originData.squareThumbUrl;
-  artData.userId = originData.userId;
-  artData.prixerUsername = originData.prixerUsername;
-  artData.status = originData.status;
-  artData.artType = originData.artType;
-  artData.originalPhotoWidth = originData.originalPhotoWidth;
   artData.originalPhotoHeight = originData.originalPhotoHeight;
   artData.originalPhotoIso = originData.originalPhotoIso;
   artData.originalPhotoPpi = originData.originalPhotoPpi;
-  artData.artLocation = originData.artLocation || "";
+  artData.originalPhotoWidth = originData.originalPhotoWidth;
+  artData.prixerUsername = originData.prixerUsername;
+  artData.smallThumbUrl = originData.smallThumbUrl;
+  artData.squareThumbUrl = originData.squareThumbUrl;
+  artData.status = originData.status;
+  artData.tags = originData.tags;
+  artData.title = originData.title;
+  artData.userId = originData.userId;
 
   return artData;
 };
