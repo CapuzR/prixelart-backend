@@ -139,18 +139,12 @@ const readOrdersByPrixer = async (prixer) => {
 
 const readOrdersByEmail = async (data) => {
   let orders = await Order.find({});
-  let consumerId = await Consumer.find({ prixerId: data.prixerId });
-
+  let consumer = await Consumer.find({ prixerId: data.prixerId });
   let filteredOrders = orders.filter(
     (order) =>
-      order.basicData?.email === data.email || order.consumerId == consumerId
+      order.basicData?.email === data.email || order.consumerId == consumer._id
   );
-
   if (filteredOrders.length > 0) {
-    filteredOrders = filteredOrders.map((order) => {
-      delete order.basicData;
-      delete order.shippingData;
-    });
     const data = { info: "Las órdenes disponibles", orders: filteredOrders };
     return data;
   } else {
