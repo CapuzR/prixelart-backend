@@ -2,6 +2,8 @@ const Art = require("./artModel");
 const { organizeArtData } = require("../utils/util");
 const mongoose = require("mongoose");
 const accents = require("remove-accents");
+const axios = require("axios");
+
 //CRUD
 const createArt = async (artData) => {
   const isArt = false;
@@ -653,6 +655,21 @@ const getBestSellers = async (orders) => {
     return error;
   }
 };
+
+const searchUrl = async (id) => {
+  try {
+    const readedArt = await Art.find({ artId: id });
+    const response = await axios.get(readedArt[0].smallThumbUrl, {
+      responseType: "arraybuffer",
+    });
+    const imageBuffer = Buffer.from(response.data, "binary");
+    return imageBuffer;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const removeArt = async () => {
   // const removedPrixers = await Prixer.deleteMany({});
   // if(removedPrixers) {
@@ -684,4 +701,5 @@ module.exports = {
   removeArt,
   rankArt,
   getBestSellers,
+  searchUrl,
 };

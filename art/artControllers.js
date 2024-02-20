@@ -67,16 +67,9 @@ const readByQuery = async (req, res) => {
     const query = {
       text: req.query.text,
     };
-    if (query.text === "addExclusive") {
-      const updated = await Art.updateMany(
-        {},
-        { exclusive: "standard", comission: 10 }
-      );
-      res.send({ arts: updated, info: "Artes actualizados" });
-    } else {
-      const readedArts = await artServices.readByQuery(query);
-      res.send(readedArts);
-    }
+
+    const readedArts = await artServices.readByQuery(query);
+    res.send(readedArts);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -269,6 +262,16 @@ const readBestSellers = async (req, res) => {
   }
 };
 
+const readUrl = async (req, res) => {
+  try {
+    const readedImg = await artServices.searchUrl(req.params.imageId);
+    res.setHeader("Content-Type", "image/jpeg");
+    res.send(readedImg);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
 module.exports = {
   createArt,
   readAllArts,
@@ -289,6 +292,7 @@ module.exports = {
   disableArt,
   rankArt,
   readBestSellers,
+  readUrl,
 };
 
 // //CRUD END

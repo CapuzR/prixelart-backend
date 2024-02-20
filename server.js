@@ -74,6 +74,7 @@ const discount = require("./discount/discountRoutes");
 const account = require("./account/accountRoutes");
 const movements = require("./movements/movementRoutes");
 const services = require("./serviceOfPrixers/serviceRoutes");
+const images = require("./art/artRoutes");
 app.use(cookieParser());
 
 app.use(express.urlencoded({ limit: "1mb", extended: false }));
@@ -92,6 +93,7 @@ app.use("/", discount);
 app.use("/", account);
 app.use("/", movements);
 app.use("/", services);
+app.use("/", images);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);

@@ -39,17 +39,27 @@ const updateBalance = async (movement) => {
 
 const readByAccount = async (account) => {
   try {
-    const readedMovements = await Movement.find({ destinatary: account });
-    if (readedMovements) {
-      const data = {
-        info: "Todos los movimientos disponibles",
-        movements: readedMovements,
-      };
-      return data;
+    if (typeof account === "string" && account.length === 24) {
+      const readedMovements = await Movement.find({ destinatary: account })
+        .select("-createdBy")
+        .exec();
+      if (readedMovements) {
+        const data = {
+          info: "Todos los movimientos disponibles",
+          movements: readedMovements,
+        };
+        return data;
+      } else {
+        const data = {
+          info: "No hay movimientos registrados",
+          movements: [],
+        };
+        return data;
+      }
     } else {
       const data = {
-        info: "No hay movimientos registrados",
-        movements: null,
+        info: "No tienes una cuenta asignada aún.",
+        movements: [],
       };
       return data;
     }

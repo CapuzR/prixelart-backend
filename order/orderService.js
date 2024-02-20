@@ -1,4 +1,5 @@
 const Order = require("./orderModel");
+const Consumer = require("../consumer/consumerModel");
 const PaymentMethod = require("./paymentMethodModel");
 const ShippingMethod = require("./shippingMethodModel");
 const OrderPayment = require("./orderPaymentModel");
@@ -67,9 +68,7 @@ const sendEmail = async (orderData) => {
 const readOrderById = async (Id) => {
   try {
     let order = await Order.findOne({ orderId: Id })
-      .select(
-        "-_id -consumerId -basicData -billingData -paymentVoucher -observations"
-      )
+      .select("-_id -billingData -paymentVoucher -observations -createdBy")
       .exec();
     return order;
   } catch (e) {
@@ -138,18 +137,26 @@ const readOrdersByPrixer = async (prixer) => {
   }
 };
 
-const readOrdersByEmail = async (email) => {
+const readOrdersByEmail = async (data) => {
   let orders = await Order.find({});
+  let consumerId = await Consumer.find({ prixerId: data.prixerId });
+
   let filteredOrders = orders.filter(
-    (order) => order.basicData?.email === email
+    (order) =>
+      order.basicData?.email === data.email || order.consumerId == consumerId
   );
-  if (filteredOrders) {
+
+  if (filteredOrders.length > 0) {
+    filteredOrders = filteredOrders.map((order) => {
+      delete order.basicData;
+      delete order.shippingData;
+    });
     const data = { info: "Las órdenes disponibles", orders: filteredOrders };
     return data;
   } else {
     const data = {
       info: "No hay órdenes registradas.",
-      orders: null,
+      orders: [],
     };
     return data;
   }
