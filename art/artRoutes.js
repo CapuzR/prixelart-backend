@@ -61,5 +61,5 @@ router.put(
 );
 
 router.get("/art/bestSellers", artControllers.readBestSellers);
-
+router.get("/images/:imageId", artControllers.readUrl);
 module.exports = router;

@@ -213,7 +213,7 @@ const readOrdersByPrixer = async (req, res) => {
 
 const readOrdersByEmail = async (req, res) => {
   try {
-    const readedOrders = await orderServices.readOrdersByEmail(req.body.email);
+    const readedOrders = await orderServices.readOrdersByEmail(req.body);
     res.send(readedOrders);
   } catch (err) {
     res.status(500).send(err);
