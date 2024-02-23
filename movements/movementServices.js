@@ -25,7 +25,7 @@ const updateBalance = async (movement) => {
       const updatedAccount = account.save();
       return updatedAccount;
     } else if (movement.type === "Retiro") {
-      let balance = account.balance - movement.value;
+      let balance = Number(account.balance) - Number(movement.value);
       account.balance = balance;
       const updatedAccount = account.save();
       return updatedAccount;
