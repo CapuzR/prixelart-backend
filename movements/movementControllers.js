@@ -18,10 +18,18 @@ const createMovement = async (req, res) => {
       type: req.body.type,
       value: req.body.value,
     };
-    const newMovement = await movementServices.createMovement(movement);
+    if (req.body.destinatary === undefined) {
+      res.send({
+        success: false,
+        message:
+          "Cartera no encontrada o inexistente. Crea una cartera para el Prixer e intenta el movimiento nuevamente.",
+      });
+    } else {
+      const newMovement = await movementServices.createMovement(movement);
 
-    const updateBalance = await movementServices.updateBalance(movement);
-    res.send({ newMovement, updateBalance });
+      const updateBalance = await movementServices.updateBalance(movement);
+      await res.send({ newMovement, updateBalance });
+    }
     // } else {
     //   return res.send({
     //     success: false,

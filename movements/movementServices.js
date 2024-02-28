@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const Account = require("../account/accountModel");
 const User = require("../user/userModel");
 
-const createMovement = (movementData) => {
+const createMovement = async (movementData) => {
   try {
-    const newMovement = new Movement(movementData).save();
+    const newMovement = await new Movement(movementData).save();
     return {
       success: true,
       newMovement: newMovement,
