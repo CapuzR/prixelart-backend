@@ -20,6 +20,7 @@ const ArtSchema = Schema({
   originalPhotoIso: { type: String, required: false },
   originalPhotoPpi: { type: String, required: false },
   originalPhotoWidth: { type: String, required: false },
+  owner: { type: String, required: false },
   points: { type: Number, default: 50 },
   prixerUsername: { type: String, required: true },
   publicId: { type: String, required: false },

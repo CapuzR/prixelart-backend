@@ -4,6 +4,10 @@ const dotenv = require("dotenv");
 const sharp = require("sharp");
 const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
+const prixerServices = require("./prixerServices");
+const artServices = require("../art/artServices");
+const userControllers = require("../user/userControllers/userControllers");
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
@@ -11,11 +15,6 @@ const s3 = new aws.S3({
   accessKeyId: process.env.DO_ACCESS_KEY,
   secretAccessKey: process.env.DO_ACCESS_SECRET,
 });
-
-const prixerServices = require("./prixerServices");
-const artServices = require("../art/artServices");
-const userControllers = require("../user/userControllers/userControllers");
-const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 
 //CRUD
 
@@ -102,7 +101,7 @@ const readAllPrixersFull = async (req, res) => {
 
 const readAllPrixersFullv2 = async (req, res) => {
   try {
-    const readedPrixers = await prixerServices.readAllPrixersFull();
+    const readedPrixers = await prixerServices.readAllPrixersFullv2();
     const prixers = readedPrixers.prixers;
     const promises = prixers.map((prixer) =>
       artServices.readAllByUserIdV2(prixer.username)
@@ -183,7 +182,10 @@ const updateVisibility = async (req, res) => {
 
 const updateBio = async (req, res) => {
   try {
-    let img = [req.body.bioImages];
+    let img = [];
+    if (req.body.bioImages !== undefined) {
+      img = [req.body.bioImages];
+    }
     let bio = {
       biography: req.body.biography,
       images: img.flat(Infinity),
@@ -218,13 +220,8 @@ const updateTermsAgreeGeneral = async (req, res) => {
       // const prixerData = {
       //   termsAgree: req.body.termsAgree,
       // };
-      req.body.prixers.map(async (prixer) => {
-        const updates = await prixerServices.updateTermsAgreeGeneral(
-          prixer,
-          req.body.termsAgree
-        );
-        return res.send(updates);
-      });
+      const updated = await prixerModel.updateMany({}, { termsAgree: false });
+      res.send({ terms: req.body.termsAndConditions, prixers: updated });
     } else {
       return res.send({
         success: false,

@@ -73,8 +73,17 @@ const readConsumerByUsername = async (username) => {
 
 const readAllConsumers = async () => {
   let readedConsumer = await Consumer.find({}).exec();
+  let Cv2 = readedConsumer.sort(function (a, b) {
+    if (a.firstname.toLowerCase() > b.firstname.toLowerCase()) {
+      return 1;
+    }
+    if (a.firstname.toLowerCase() < b.firstname.toLowerCase()) {
+      return -1;
+    }
+    return 0;
+  });
   if (readedConsumer) {
-    return readedConsumer;
+    return Cv2;
   }
   return false;
 };

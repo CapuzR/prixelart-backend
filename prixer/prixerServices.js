@@ -1,4 +1,5 @@
 const Prixer = require("./prixerModel");
+const User = require("../user/userModel");
 const userService = require("../user/userServices/userServices");
 
 //CRUD
@@ -49,6 +50,7 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["status"] = readedPrixer?.status;
   prixer["termsAgree"] = readedPrixer?.termsAgree;
   prixer["account"] = readedUser?.account;
+  prixer["role"] = readedUser?.role;
 
   return prixer;
 };
@@ -121,17 +123,11 @@ const readAllPrixersFull = async () => {
           const readedUser = await userService.readUserById({
             id: readedPrixer.userId,
           });
-          if (readedUser) {
+          if (readedUser && readedUser.role === "Prixer") {
             const prixer = mergePrixerAndUser(readedPrixer, readedUser);
             return prixer;
           } else {
-            return {
-              info:
-                "El Prixer " +
-                readedPrixer.username +
-                " no está asignado a un usuario.",
-              prixers: null,
-            };
+            return;
           }
         })
       );
@@ -293,6 +289,16 @@ const updateTermsAgree = async (prixerId, prixerData) => {
   }
 };
 
+const addRole = async (req, res) => {
+  try {
+    const updated = await User.updateMany({}, { role: "Prixer" });
+    res.send({ role: "Prixer", prixers: updated });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const disablePrixer = (prixerData) => {};
 
 const removePrixers = async () => {
@@ -320,4 +326,5 @@ module.exports = {
   disablePrixer,
   removePrixers,
   readAllPrixersFull,
+  addRole,
 };
