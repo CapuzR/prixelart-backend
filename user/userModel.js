@@ -11,6 +11,7 @@ const UserSchema = Schema({
   password: { type: String, required: true },
   account: { type: String, required: false },
   token: { type: String, default: "" },
+  role: { type: String, required: false },
   login_count: Number,
 });
 

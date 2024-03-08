@@ -51,5 +51,10 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   prixerControllers.updateTermsAgreeGeneral
 );
+router.put(
+  "/prixers/addRole",
+  adminAuthServices.ensureAuthenticated,
+  prixerServices.addRole
+);
 
 module.exports = router;
