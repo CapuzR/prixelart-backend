@@ -67,9 +67,20 @@ const readByQuery = async (req, res) => {
     const query = {
       text: req.query.text,
     };
+    // MODIFIER
+    if (query.text === "addOwner") {
+      const arts = await Art.find({});
+      const updated = arts.map((art) => {
+        art.owner = art.prixerUsername;
+        art.save();
+        return art;
+      });
 
-    const readedArts = await artServices.readByQuery(query);
-    res.send(readedArts);
+      res.send({ arts: updated, info: "Artes actualizados" });
+    } else {
+      const readedArts = await artServices.readByQuery(query);
+      res.send(readedArts);
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
