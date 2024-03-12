@@ -1,4 +1,5 @@
 const Users = require("../userModel");
+const Admin = require("../../admin/adminModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userServices = require("./userServices");
@@ -87,7 +88,6 @@ const generateToken = (user) => {
 const forgotPassword = async (email) => {
   try {
     const user = await userServices.readUserByEmailNotExec({ email: email });
-
     if (!user) {
       return res.status(400).json({
         error: "Este usuario no existe, inténtalo de nuevo.",
@@ -123,7 +123,10 @@ const forgotPassword = async (email) => {
       };
     }
 
-    return emailSender.sendEmail(message);
+    const mail = await emailSender.sendEmail(message);
+    if (mail.success === false) {
+      return await emailSender.sendEmail(message);
+    } else return mail;
   } catch (e) {
     console.log(e);
     res.status(500).send(e);
@@ -147,6 +150,30 @@ const resetPassword = async (token, newPassword) => {
     return result;
   } catch (e) {
     res.status(500).send(e);
+  }
+};
+
+const resetByAdmin = async (id, newPassword) => {
+  try {
+    const admin = await Admin.findOne({ _id: id });
+    const salt = await bcrypt.genSalt(2);
+    const hash = await bcrypt.hash(newPassword, salt);
+    admin.password = hash;
+    const updatedAdmin = await admin.save();
+    if (updatedAdmin) {
+      return {
+        success: true,
+        info: "Contraseña modificada correctamente.",
+      };
+    } else {
+      return {
+        success: false,
+        info: "No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.",
+      };
+    }
+  } catch (error) {
+    res.status(500).send(error);
+    console.log(error);
   }
 };
 
@@ -180,4 +207,5 @@ module.exports = {
   forgotPassword,
   checkPasswordToken,
   resetPassword,
+  resetByAdmin,
 };

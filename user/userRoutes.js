@@ -5,7 +5,7 @@ const router = express.Router();
 const userMdw = require("./userMiddlewares");
 const userControllers = require("./userControllers/userControllers");
 const userAuthControllers = require("./userControllers/userAuthControllers");
-
+const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 router.post("/login", userAuthControllers.login);
 router.post("/register", userAuthControllers.register);
 router.post("/logout", userAuthControllers.logout);
@@ -28,6 +28,11 @@ router.post(
   "/update-user-data",
   userMdw.ensureAuthenticated,
   userControllers.updateUser
+);
+router.post(
+  "/emergency-reset",
+  adminAuthServices.ensureAuthenticated,
+  userAuthControllers.resetByAdmin
 );
 
 module.exports = router;

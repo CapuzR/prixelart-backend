@@ -81,6 +81,17 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const resetByAdmin = async (req, res) => {
+  try {
+    const { id, newPassword } = req.body;
+    const result = await authServices.resetByAdmin(id, newPassword);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send(error);
+    console.log(error);
+  }
+};
+
 const checkPasswordToken = async (req, res) => {
   try {
     const { token } = req.body;
@@ -98,5 +109,6 @@ module.exports = {
   changePassword,
   forgotPassword,
   resetPassword,
+  resetByAdmin,
   checkPasswordToken,
 };
