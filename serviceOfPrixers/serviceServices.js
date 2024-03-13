@@ -100,6 +100,35 @@ const readMyServices = async (prixerId) => {
   }
 };
 
+const readService = async (id) => {
+  try {
+    let readedService = await Service.findById(id);
+    if (readedService) {
+      const p = readedService.prixer;
+      const user = await Prixer.findOne({ _id: p });
+      if (user) {
+        readedService.prixer = user.username;
+      }
+      const data = {
+        info: "Servicio encontrado.",
+        service: readedService,
+        success: true,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "Servicio no encontrado",
+        service: null,
+        success: false,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const readByPrixer = async (prixer) => {
   try {
     const data = { username: prixer };
@@ -191,6 +220,7 @@ module.exports = {
   getAll,
   getAllActive,
   readMyServices,
+  readService,
   readByPrixer,
   updateMyService,
   disableService,
