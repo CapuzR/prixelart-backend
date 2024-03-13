@@ -112,6 +112,16 @@ const getAllActive = async (req, res) => {
   }
 };
 
+const readService = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const readedService = await serviceServices.readService(id);
+    res.send(readedService);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
 const readMyServices = async (req, res) => {
   try {
     const readedServices = await serviceServices.readMyServices(
@@ -245,6 +255,7 @@ module.exports = {
   getAll,
   getAllActive,
   readMyServices,
+  readService,
   getServicesByPrixer,
   updateMyService,
   disableService,
