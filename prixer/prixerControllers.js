@@ -162,11 +162,10 @@ const updateVisibility = async (req, res) => {
     if (checkPermissions.role.prixerBan) {
       const prixerData = {
         status: req.body.status,
+        account: req.body.account,
+        id: req.params.id,
       };
-      const updates = await prixerServices.updateVisibility(
-        req.params.id,
-        prixerData
-      );
+      const updates = await prixerServices.updateVisibility(prixerData);
       return res.send(updates);
     } else {
       return res.send({

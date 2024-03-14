@@ -1,6 +1,7 @@
 const Prixer = require("./prixerModel");
 const User = require("../user/userModel");
 const userService = require("../user/userServices/userServices");
+const accountServices = require("../account/accountServices");
 
 //CRUD
 const createPrixer = async (prixerData) => {
@@ -49,7 +50,7 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
   prixer["avatar"] = readedPrixer?.avatar;
   prixer["status"] = readedPrixer?.status;
   prixer["termsAgree"] = readedPrixer?.termsAgree;
-  prixer["account"] = readedUser?.account;
+  prixer["account"] = readedUser?.account || undefined;
   prixer["role"] = readedUser?.role;
 
   return prixer;
@@ -221,17 +222,29 @@ const updatePrixer = async (prixerData, userData) => {
   }
 };
 
-const updateVisibility = async (prixerId, prixerData) => {
+const updateVisibility = async (prixerData) => {
   try {
     const toUpdatePrixer = await Prixer.findOne({
-      _id: prixerId,
+      _id: prixerData.id,
     });
-    toUpdatePrixer.status = prixerData.status;
+    if (prixerData.status === false && typeof prixerData.account === "string") {
+      toUpdatePrixer.status = prixerData.status;
 
-    const updatedPrixer = await toUpdatePrixer.save();
-    if (!updatedPrixer) {
-      return console.log("Prixer update error: " + err);
-    } else return "Actualización realizada con éxito.";
+      const deleteAccount = await accountServices.deleteAccount(
+        prixerData.account
+      );
+      const updateUser = await User.findById(toUpdatePrixer.userId, {
+        account: undefined,
+      });
+
+      const updatedPrixer = await toUpdatePrixer.save();
+
+      return { updatedPrixer, deleteAccount, updateUser };
+    } else {
+      toUpdatePrixer.status = prixerData.status;
+      const updatedPrixer = await toUpdatePrixer.save();
+      return updatedPrixer;
+    }
   } catch (e) {
     console.log(e);
     return e;
