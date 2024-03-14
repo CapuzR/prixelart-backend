@@ -14,6 +14,7 @@ const createAccount = (account) => {
     }
   } catch (e) {
     console.log(e);
+    return e;
   }
 };
 
@@ -32,6 +33,7 @@ const addAccount = async (email, id) => {
     }
   } catch (e) {
     console.log(e);
+    return e;
   }
 };
 
@@ -41,6 +43,7 @@ const checkBalance = async (id) => {
     return { balance: account.balance };
   } catch (error) {
     console.log(error);
+    return error;
   }
 };
 
@@ -50,11 +53,24 @@ const readAll = async () => {
     return { accounts: accountList };
   } catch (error) {
     console.log(error);
+    return error;
   }
 };
+
+const deleteAccount = async (id) => {
+  try {
+    const del = await Account.findByIdAndDelete(id);
+    return del;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 module.exports = {
   createAccount,
   addAccount,
   checkBalance,
   readAll,
+  deleteAccount,
 };
