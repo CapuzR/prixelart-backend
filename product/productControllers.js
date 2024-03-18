@@ -365,12 +365,16 @@ const updateVariants = async (req, res) => {
         newVariant.attributes.push(a);
       }
 
-      if (productv2.variants[0] !== null) {
+      if (productv2.variants.length > 0) {
         productv2.variants.map((variant, i) => {
           if (variant._id === newVariant._id) {
             productv2.variants.splice(i, 1, newVariant);
+          } else {
+            productv2.variants.push(newVariant);
           }
         });
+      } else {
+        productv2.variants = [newVariant];
       }
 
       const productResult = await productServices.updateProduct(
