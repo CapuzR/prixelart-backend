@@ -194,12 +194,11 @@ const getBestSellers = async (orders) => {
 const deleteVariant = async (data) => {
   try {
     const selectedProduct = data.product;
-    const indexVariant = data.variant;
+    const id = data.variant;
 
     const productToUpdate = await Product.findById(selectedProduct);
-    productToUpdate.variants.splice(indexVariant, 1);
-    // productToUpdate.variants = [];
-
+    const newVariants = productToUpdate.variants.filter((v) => v._id !== id);
+    productToUpdate.variants = newVariants;
     const updatedProduct = await Product.findByIdAndUpdate(
       selectedProduct,
       productToUpdate
