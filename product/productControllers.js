@@ -364,19 +364,17 @@ const updateVariants = async (req, res) => {
         });
         newVariant.attributes.push(a);
       }
-
       if (productv2.variants.length > 0) {
-        productv2.variants.map((variant, i) => {
-          if (variant._id === newVariant._id) {
-            productv2.variants.splice(i, 1);
+        const newArray = productv2.variants.filter((variant, i) => {
+          if (variant._id !== newVariant._id) {
+            return variant;
           }
         });
-        productv2.variants.push(newVariant);
-
+        newArray.push(newVariant);
+        productv2.variants = newArray;
       } else {
         productv2.variants = [newVariant];
       }
-
       const productResult = await productServices.updateProduct(
         productv2,
         req.params.id
