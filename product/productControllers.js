@@ -365,11 +365,9 @@ const updateVariants = async (req, res) => {
         newVariant.attributes.push(a);
       }
       if (productv2.variants.length > 0) {
-        const newArray = productv2.variants.filter((variant, i) => {
-          if (variant._id !== newVariant._id) {
-            return variant;
-          }
-        });
+        const newArray = productv2.variants.filter(
+          (variant, i) => variant._id !== newVariant._id
+        );
         newArray.push(newVariant);
         productv2.variants = newArray;
       } else {

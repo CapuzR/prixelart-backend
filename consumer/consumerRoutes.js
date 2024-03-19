@@ -25,6 +25,12 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   consumerControllers.readAllConsumers
 );
+
+router.post(
+  "/consumer/read-prixers",
+  adminAuthServices.ensureAuthenticated,
+  consumerControllers.readConsumersPrixers
+);
 router.post(
   "/consumer/update",
   adminAuthServices.ensureAuthenticated,
