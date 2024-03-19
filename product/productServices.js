@@ -195,7 +195,6 @@ const deleteVariant = async (data) => {
   try {
     const selectedProduct = data.product;
     const id = data.variant;
-
     const productToUpdate = await Product.findById(selectedProduct);
     const newVariants = productToUpdate.variants.filter((v) => v._id !== id);
     productToUpdate.variants = newVariants;
