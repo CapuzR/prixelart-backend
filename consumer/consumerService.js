@@ -88,6 +88,23 @@ const readAllConsumers = async () => {
   return false;
 };
 
+const readConsumersPrixers = async () => {
+  let readedConsumer = await Consumer.find({ consumerType: "Prixer" }).exec();
+  let Cv2 = readedConsumer.sort(function (a, b) {
+    if (a.firstname.toLowerCase() > b.firstname.toLowerCase()) {
+      return 1;
+    }
+    if (a.firstname.toLowerCase() < b.firstname.toLowerCase()) {
+      return -1;
+    }
+    return 0;
+  });
+  if (readedConsumer) {
+    return Cv2;
+  }
+  return false;
+};
+
 const updateConsumer = async (consumerData) => {
   try {
     const toUpdateConsumer = await Consumer.findOne({
@@ -130,6 +147,7 @@ module.exports = {
   readConsumerByQuery,
   readConsumerByUsername,
   readAllConsumers,
+  readConsumersPrixers,
   updateConsumer,
   deleteConsumer,
 };

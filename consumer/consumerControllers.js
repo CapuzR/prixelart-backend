@@ -44,6 +44,17 @@ const readAllConsumers = async (req, res) => {
   }
 };
 
+const readConsumersPrixers = async (req, res) => {
+  try {
+    const readedConsumers = await consumerServices.readConsumersPrixers();
+    res.send(readedConsumers);
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).send(err);
+  }
+};
+
 const updateConsumer = async (req, res) => {
   try {
     const updatedConsumer = await consumerServices.updateConsumer(req.body);
@@ -80,6 +91,7 @@ module.exports = {
   readConsumer,
   readConsumerByQuery,
   readAllConsumers,
+  readConsumersPrixers,
   updateConsumer,
   deleteConsumer,
 };
