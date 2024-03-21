@@ -277,6 +277,7 @@ const updateVariants = async (req, res) => {
     if (checkPermissions.role.createProduct) {
       const product = { _id: req.params.id };
       const productToUpdate = await productServices.readById(product);
+
       const productv2 = productToUpdate.products[0];
       const newVariant = {
         _id: req.body.variant_id,
@@ -364,15 +365,17 @@ const updateVariants = async (req, res) => {
         });
         newVariant.attributes.push(a);
       }
+
       if (productv2.variants.length > 0) {
         const newArray = productv2.variants.filter(
           (variant, i) => variant._id !== newVariant._id
         );
-        newArray.push(newVariant);
         productv2.variants = newArray;
       } else {
-        productv2.variants = [newVariant];
+        productv2.variants = [];
       }
+      productv2.variants.push(newVariant);
+
       const productResult = await productServices.updateProduct(
         productv2,
         req.params.id

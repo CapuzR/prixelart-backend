@@ -200,14 +200,19 @@ const deleteVariant = async (data) => {
       (variant) => variant._id !== id
     );
     productToUpdate.variants = variants;
+
     const updatedProduct = await Product.findByIdAndUpdate(
       selectedProduct,
-      productToUpdate
+      productToUpdate,
+      { new: true }
     );
     if (!updatedProduct) {
       return console.log("Cannot delete variant:" + err);
     }
-    return "Variante eliminada con éxito";
+    return {
+      message: "Variante eliminada con éxito",
+      product: updatedProduct,
+    };
   } catch (error) {
     console.log(error);
     return error;
