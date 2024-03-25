@@ -89,7 +89,8 @@ const updateProduct = async (productData, productId) => {
   try {
     const updateProduct = await Product.findByIdAndUpdate(
       productId,
-      productData
+      productData,
+      { new: true }
     );
     if (!updateProduct) {
       return console.log("Product update error: " + err);

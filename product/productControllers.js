@@ -277,8 +277,8 @@ const updateVariants = async (req, res) => {
     if (checkPermissions.role.createProduct) {
       const product = { _id: req.params.id };
       const productToUpdate = await productServices.readById(product);
-
       const productv2 = productToUpdate.products[0];
+
       const newVariant = {
         _id: req.body.variant_id,
         variantImage: [],

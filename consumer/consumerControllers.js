@@ -23,6 +23,17 @@ const readConsumer = async (req, res) => {
   }
 };
 
+const readConsumerById = async (req, res) => {
+  try {
+    const readedConsumer = await consumerServices.readConsumerById(
+      req.body.consumer
+    );
+    res.send(readedConsumer);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
 const readConsumerByQuery = async (req, res) => {
   try {
     const readedConsumer = await consumerServices.readConsumerByQuery(req.body);
@@ -89,6 +100,7 @@ const deleteConsumer = async (req, res) => {
 module.exports = {
   createConsumer,
   readConsumer,
+  readConsumerById,
   readConsumerByQuery,
   readAllConsumers,
   readConsumersPrixers,
