@@ -143,6 +143,7 @@ const deleteConsumer = async (consumer) => {
 };
 module.exports = {
   createConsumer,
+  readConsumerById,
   readConsumerByEmail,
   readConsumerByQuery,
   readConsumerByUsername,

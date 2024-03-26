@@ -20,6 +20,13 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   consumerControllers.readConsumerByQuery
 );
+
+router.post(
+  "/consumer/read-by-id",
+  adminAuthServices.ensureAuthenticated,
+  consumerControllers.readConsumerById
+);
+
 router.post(
   "/consumer/read-all",
   adminAuthServices.ensureAuthenticated,
