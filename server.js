@@ -76,6 +76,7 @@ const movements = require("./movements/movementRoutes");
 const services = require("./serviceOfPrixers/serviceRoutes");
 const images = require("./art/artRoutes");
 const organizations = require("./organizations/organizationRoutes");
+const surcharge = require("./surcharge/surchargeRoutes");
 app.use(cookieParser());
 
 app.use(express.urlencoded({ limit: "1mb", extended: false }));
@@ -96,6 +97,7 @@ app.use("/", movements);
 app.use("/", services);
 app.use("/", images);
 app.use("/", organizations);
+app.use("/", surcharge);
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);

@@ -21,6 +21,11 @@ router.post("/prixer/read", prixerControllers.readPrixer);
 router.get("/prixer/get/:id", prixerControllers.getPrixer);
 router.get("/prixer/getBio/:id", prixerControllers.getBio);
 router.get("/prixer/read-all", prixerControllers.readAllPrixers);
+router.post(
+  "/prixer/getOwnersAndPrixers",
+  adminAuthServices.ensureAuthenticated,
+  prixerControllers.getOwnersAndPrixers
+);
 router.get("/prixer/read-all-full", prixerControllers.readAllPrixersFull);
 router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
 router.post(
