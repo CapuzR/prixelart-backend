@@ -1,4 +1,5 @@
 const Prixer = require("./prixerModel");
+const Organizations = require("../organizations/organizationModel");
 const User = require("../user/userModel");
 const userService = require("../user/userServices/userServices");
 const accountServices = require("../account/accountServices");
@@ -193,6 +194,36 @@ const readAllPrixersFullv2 = async () => {
   }
 };
 
+const getOwnersAndPrixers = async () => {
+  try {
+    const readedOrgs = await Organizations.find({ status: true });
+    const readedPrixers = await Prixer.find({ status: true });
+    let users = [];
+    readedOrgs.map((org) => {
+      users.push(org.username);
+    });
+    readedPrixers.map((prixer) => {
+      users.push(prixer.username);
+    });
+    if (readedPrixers) {
+      const data = {
+        info: "Todos los Usuarios activos",
+        users: users,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay Prixers registrados",
+        prixers: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const updatePrixer = async (prixerData, userData) => {
   try {
     const toUpdatePrixer = await Prixer.findOne({ userId: userData.id });
@@ -330,6 +361,7 @@ module.exports = {
   readAllPrixersFullv2,
   readPrixer,
   readPrixerbyId,
+  getOwnersAndPrixers,
   readBio,
   updatePrixer,
   updateBio,

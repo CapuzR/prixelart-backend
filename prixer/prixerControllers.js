@@ -121,6 +121,18 @@ const readAllPrixersFullv2 = async (req, res) => {
   }
 };
 
+const getOwnersAndPrixers = async (req, res) => {
+  try {
+    const readedPrixers = await prixerServices.getOwnersAndPrixers({
+      status: true,
+    });
+    res.send(readedPrixers);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 const updatePrixer = async (req, res) => {
   try {
     const prixer = {
@@ -294,6 +306,7 @@ module.exports = {
   disablePrixer,
   readAllPrixersFull,
   readAllPrixersFullv2,
+  getOwnersAndPrixers,
   upload,
 };
 
