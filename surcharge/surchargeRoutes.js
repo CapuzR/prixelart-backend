@@ -27,6 +27,12 @@ router.post(
   surchargeControllers.readAllSurcharge
 );
 
+router.get(
+  "/surcharge/read-active",
+  // adminAuthServices.ensureAuthenticated,
+  surchargeControllers.readActiveSurcharge
+);
+
 // router.post("/discount/read-allv2", discountControllers.readAllDiscounts);
 
 router.put(
