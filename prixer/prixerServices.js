@@ -127,7 +127,7 @@ const readAllPrixersFull = async () => {
           });
           if (readedUser && readedUser.role === "Prixer") {
             const prixer = mergePrixerAndUser(readedPrixer, readedUser);
-            return prixer;
+            if (prixer !== null) {return prixer};
           } else {
             return;
           }

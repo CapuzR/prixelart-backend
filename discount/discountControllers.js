@@ -86,9 +86,9 @@ async function deleteDiscount(req, res) {
     req.body.adminToken
   );
   if (checkPermissions.role.deleteDiscount) {
-    const productResult = await discountServices.deleteDiscount(req);
+    const discountResult = await discountServices.deleteDiscount(req);
     data = {
-      productResult,
+      discountResult,
       success: true,
     };
     return res.send(data);

@@ -83,6 +83,28 @@ const readAllSurcharge = async () => {
   }
 };
 
+const readActiveSurcharge = async () => {
+  try {
+    const readedSurcharges = await Surcharge.find({ active: true });
+    if (readedSurcharges) {
+      const data = {
+        info: "Todos los recargos disponibles",
+        surcharges: readedSurcharges,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay recargos registrados",
+        surcharges: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const deleteSurcharge = async (req) => {
   try {
     // const allProducts = await Product.find();
@@ -104,6 +126,7 @@ const deleteSurcharge = async (req) => {
 module.exports = {
   createSurcharge,
   readAllSurcharge,
+  readActiveSurcharge,
   updateSurcharge,
   deleteSurcharge,
 };

@@ -62,6 +62,16 @@ const readAllSurcharge = async (req, res) => {
   }
 };
 
+const readActiveSurcharge = async (req, res) => {
+  try {
+    const readedSurcharges = await surchargeServices.readActiveSurcharge();
+    res.send(readedSurcharges);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const deleteSurcharge = async (req, res) => {
   let checkPermissions = await adminAuthServices.checkPermissions(
     req.body.adminToken
@@ -84,5 +94,6 @@ module.exports = {
   createSurcharge,
   updateSurcharge,
   readAllSurcharge,
+  readActiveSurcharge,
   deleteSurcharge,
 };
