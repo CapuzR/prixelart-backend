@@ -46,7 +46,7 @@ const uploadThumbnailArt = multer({
     bucket: process.env.PUBLIC_BUCKET_NAME,
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
-      req.body.artId = nanoid(7); //=> "5-JDFkc"
+      req.body.artId = nanoid(7); //=> "5-JDFkfc"
       cb(null, /^image/i.test(file.mimetype));
     },
     transforms: [
@@ -55,7 +55,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
+            accents(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-square.webp"
@@ -72,7 +72,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
+            accents(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-large.webp"
@@ -87,7 +87,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
+            accents(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-medium.webp"
@@ -102,7 +102,7 @@ const uploadThumbnailArt = multer({
         key: function (req, file, cb) {
           cb(
             null,
-            accents.remove(req.body.title)?.replace(/ /g, "_").toLowerCase() +
+            accents(req.body.title)?.replace(/ /g, "_").toLowerCase() +
               "-" +
               req.body.artId +
               "-small.webp"

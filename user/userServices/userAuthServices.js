@@ -31,6 +31,7 @@ const authenticate = async (userData) => {
         lastName: user.lastName,
         id: user.id,
         account: user.account,
+        role: user.role,
         time: new Date(),
       };
 
