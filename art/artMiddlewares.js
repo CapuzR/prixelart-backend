@@ -128,7 +128,7 @@ function artThumbsCb(request, response, next) {
           "Disculpa, ocurrió un error inesperado. Por favor inténtalo de nuevo.",
       });
     } else {
-      console.log("Thumbnails subidos correctamente.");
+      // console.log("Thumbnails subidos correctamente.");
     }
   };
 }

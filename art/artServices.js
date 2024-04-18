@@ -666,7 +666,7 @@ const searchUrl = async (id) => {
     const imageBuffer = Buffer.from(response.data, "binary");
     return imageBuffer;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return error;
   }
 };
