@@ -26,7 +26,7 @@ const upload = multer({
       {
         id: "largeThumb",
         key: function (req, file, cb) {
-          cb(null, file.fieldname + "-" + nanoid(7) + "-large.webp");
+          cb(null, nanoid(7) + "-large.webp");
         },
         transform: function (req, file, cb) {
           cb(null, sharp().resize(300, 300).webp({ quality: 80 }));
@@ -236,7 +236,7 @@ const updateMockup = async (req, res) => {
       req.body.adminToken
     );
     if (checkPermissions.role.createProduct) {
-      const mockUp = req.body;
+      const mockUp = req?.body;
       if (req.file !== undefined) {
         mockUp.mockupImg = req.file.transforms[0].location;
       }

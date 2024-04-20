@@ -659,13 +659,14 @@ const getBestSellers = async (orders) => {
 const searchUrl = async (id) => {
   try {
     const readedArt = await Art.find({ artId: id });
-    const response = await axios.get(readedArt[0].smallThumbUrl, {
+    const urlArt = readedArt[0].smallThumbUrl?.replace(/ /gi, "_");
+    const response = await axios.get(urlArt, {
       responseType: "arraybuffer",
     });
     const imageBuffer = Buffer.from(response.data, "binary");
     return imageBuffer;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return error;
   }
 };

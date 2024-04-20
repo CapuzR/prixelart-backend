@@ -127,15 +127,14 @@ const readAllPrixersFull = async () => {
           });
           if (readedUser && readedUser.role === "Prixer") {
             const prixer = mergePrixerAndUser(readedPrixer, readedUser);
-            if (prixer !== null) {return prixer};
-          } else {
-            return;
+            return prixer;
           }
         })
       );
+      const filteredData = data.filter((element) => element !== undefined);
       const prixers = {
         info: "Prixers disponibles",
-        prixers: data,
+        prixers: filteredData,
       };
       return prixers;
     } else {
