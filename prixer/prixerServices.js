@@ -93,6 +93,7 @@ const readBio = async (user) => {
     return { data: data, success: true };
   }
 };
+
 const readAllPrixers = async () => {
   try {
     const readedPrixers = await Prixer.find({ status: true }).exec();
@@ -324,8 +325,9 @@ const updateTermsAgree = async (prixerId, prixerData) => {
     const updatedPrixer = await toUpdatePrixer.save();
     if (!updatedPrixer) {
       return console.log("Prixer update error: " + err);
+    } else {
+      return { success: true, message: "Actualización realizada con éxito." };
     }
-    return { success: true, message: "Actualización realizada con éxito." };
   } catch (e) {
     console.log(e);
     return e;

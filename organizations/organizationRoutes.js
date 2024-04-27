@@ -21,5 +21,12 @@ router.post(
 );
 router.get("/organization/read-all-full", orgControllers.readAllOrgFull);
 router.get("/organization/read-all-full-v2", orgControllers.readAllOrgFullv2);
+router.get("/organization/getBio/:id", orgControllers.getBio);
+
+router.put(
+  "/organization/updateComission/:id",
+  adminAuthServices.ensureAuthenticated,
+  orgControllers.updateComission
+);
 
 module.exports = router;
