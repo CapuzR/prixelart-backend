@@ -6,6 +6,7 @@ const aws = require("aws-sdk");
 const { nanoid } = require("nanoid");
 const orgServices = require("./organizationServices");
 const artServices = require("../art/artServices");
+const userControllers = require("../user/userControllers/userControllers");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
@@ -66,6 +67,32 @@ const readAllOrgFullv2 = async (req, res) => {
   }
 };
 
+const getBio = async (req, res) => {
+  try {
+    const user = await userControllers.readUserByUsername(req.params.id);
+    const readedBio = await orgServices.readBio(user);
+    res.send(readedBio);
+  } catch (err) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
+const updateComission = async (req, res) => {
+  try {
+    const orgData = {
+      comission: req.body.comission,
+      appliedProducts: req.body.appliedProducts,
+    };
+    const update = await orgServices.updateComission(req.params.id, orgData);
+
+    res.send(update);
+  } catch (error) {
+    res.status(500).send(err);
+    console.log(err);
+  }
+};
+
 const upload = multer({
   storage: multerS3({
     s3: s3,
@@ -93,5 +120,7 @@ module.exports = {
   turnToPrixer,
   readAllOrgFull,
   readAllOrgFullv2,
+  getBio,
+  updateComission,
   upload,
 };

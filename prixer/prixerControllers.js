@@ -79,6 +79,7 @@ const getBio = async (req, res) => {
     console.log(err);
   }
 };
+
 const readAllPrixers = async (req, res) => {
   try {
     const readedPrixers = await prixerServices.readAllPrixers({ status: true });

@@ -86,7 +86,7 @@ const turnOrgToPrixer = async (username) => {
 const mergeOrgAndUser = (org, readedUser) => {
   let organization = {};
 
-  organization["prixerId"] = org.id;
+  organization["orgId"] = org.id;
   organization["username"] = readedUser.username;
   organization["firstName"] = readedUser.firstName;
   organization["lastName"] = readedUser.lastName;
@@ -105,12 +105,15 @@ const mergeOrgAndUser = (org, readedUser) => {
   organization["termsAgree"] = org?.termsAgree;
   organization["account"] = readedUser?.account;
   organization["role"] = readedUser?.role;
+  organization["comission"] = org?.comission;
+  organization["appliedProducts"] = org?.appliedProducts;
 
   return organization;
 };
 
 const readAllOrgFull = async () => {
   try {
+    // await Org.updateMany({}, { $set: { comission: 10, appliedProducts: [] } });
     const readedOrg = await Org.find({}).exec();
     let data = [];
     if (readedOrg) {
@@ -147,9 +150,36 @@ const readAllOrgFull = async () => {
   }
 };
 
+const readBio = async (user) => {
+  let readedOrg = await Org.findOne({ userId: user._id }).exec();
+  if (readedOrg) {
+    const data = readedOrg.bio;
+    return { data: data, success: true };
+  }
+};
+
+const updateComission = async (orgId, orgData) => {
+  try {
+    const toUpdateOrg = await Org.findOne({ _id: orgId });
+    toUpdateOrg.comission = orgData.comission;
+    toUpdateOrg.appliedProducts = orgData.appliedProducts;
+    const updatedOrg = await toUpdateOrg.save();
+    if (!updatedOrg) {
+      return console.log("Org update error: " + err);
+    } else {
+      return { success: true, message: "Actualización realizada con éxito." };
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 module.exports = {
   turnPrixerToOrg,
   turnOrgToPrixer,
   readAllOrgFull,
   mergeOrgAndUser,
+  readBio,
+  updateComission,
 };
