@@ -167,7 +167,10 @@ const updateComission = async (orgId, orgData) => {
     if (!updatedOrg) {
       return console.log("Org update error: " + err);
     } else {
-      return { success: true, message: "Actualización realizada con éxito." };
+      return {
+        success: true,
+        message: "Actualización de comisiones realizada con éxito.",
+      };
     }
   } catch (error) {
     console.log(error);

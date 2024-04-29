@@ -141,8 +141,7 @@ const readOrdersByEmail = async (data) => {
   let orders = await Order.find({});
   let consumer = await Consumer.find({ prixerId: data.prixerId });
   let filteredOrders = orders.filter(
-    (order) =>
-      order.basicData?.email === data.email || order.consumerId == consumer._id
+    (order) => order.basicData && order.basicData.email === data.email
   );
   if (filteredOrders.length > 0) {
     const data = { info: "Las órdenes disponibles", orders: filteredOrders };
