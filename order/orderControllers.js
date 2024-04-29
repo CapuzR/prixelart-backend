@@ -40,7 +40,7 @@ const createOrder = async (req, res) => {
         requests: req.body.requests,
         status: req.body.status,
         observations: req.body.observations,
-        consumer: req.body.consumerId,
+        consumerData: req.body.consumerData,
       };
 
       const order = await orderServices.createOrder(orderData);
