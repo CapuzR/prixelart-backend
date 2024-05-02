@@ -82,10 +82,20 @@ const getAllActive = async () => {
 const readMyServices = async (prixerId) => {
   try {
     const readedServices = await Service.find({ prixer: prixerId }).exec();
+    const fixedServices = await Promise.all(
+      readedServices.map(async (s) => {
+        const p = s.prixer;
+        const user = await Prixer.findOne({ _id: p });
+        if (user) {
+          s.prixer = user.username;
+        }
+        return s;
+      })
+    );
     if (readedServices) {
       const data = {
         info: "El Prixer sí tiene servicios registrados",
-        services: readedServices,
+        services: fixedServices,
       };
       return data;
     } else {
@@ -141,9 +151,19 @@ const readByPrixer = async (prixer) => {
       const filteredServices = readedServices.filter(
         (service) => service.active === true
       );
+      const fixedServices = await Promise.all(
+        filteredServices.map(async (s) => {
+          const p = s.prixer;
+          const user = await Prixer.findOne({ _id: p });
+          if (user) {
+            s.prixer = user.username;
+          }
+          return s;
+        })
+      );
       const data = {
         info: "El príxer sí tiene servicios registrados",
-        services: filteredServices,
+        services: fixedServices,
       };
       return data;
     } else {

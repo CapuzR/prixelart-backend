@@ -34,7 +34,7 @@ const ArtSchema = Schema({
   userId: { type: String, required: true },
   comission: { type: Number, required: false },
   visible: { type: Boolean, default: true },
-  certificate: { type: String, required: false },
+  certificate: { type: Object, required: false },
 });
 
 ArtSchema.index({
