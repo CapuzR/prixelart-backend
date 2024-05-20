@@ -81,8 +81,10 @@ const getBio = async (req, res) => {
 const updateComission = async (req, res) => {
   try {
     const orgData = {
-      comission: req.body.comission,
       appliedProducts: req.body.appliedProducts,
+      base: req.body.base,
+      comission: req.body.comission,
+      considerations: req.body.considerations,
     };
     const update = await orgServices.updateComission(req.params.id, orgData);
 

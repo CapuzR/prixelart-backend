@@ -49,13 +49,15 @@ const createSurcharge = async (surchargeData) => {
 //   };
 
 const updateSurcharge = async (id, data) => {
-  const updateSurcharge = await Surcharge.findByIdAndUpdate(id, data);
+  const updateSurcharge = await Surcharge.findByIdAndUpdate(id, data, {
+    new: true,
+  });
   if (updateSurcharge) {
     //   const products = data.appliedProducts;
     //   await appliedProducts(products, data);
     return {
       success: true,
-      discountData: updateSurcharge,
+      surchargeData: updateSurcharge,
       // products: applied,
     };
   }

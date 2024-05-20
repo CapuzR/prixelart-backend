@@ -40,7 +40,15 @@ const addAccount = async (email, id) => {
 const checkBalance = async (id) => {
   try {
     const account = await Account.findOne({ _id: id });
-    return { balance: account.balance };
+    if (account) {
+      return { balance: account.balance };
+    } else {
+      return {
+        balance: 0,
+        success: false,
+        message: "Cartera no encontrada, inténtalo de nuevo.",
+      };
+    }
   } catch (error) {
     console.log(error);
     return error;
