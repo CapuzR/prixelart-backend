@@ -107,6 +107,7 @@ const mergeOrgAndUser = (org, readedUser) => {
   organization["role"] = readedUser?.role;
   organization["comission"] = org?.comission;
   organization["appliedProducts"] = org?.appliedProducts;
+  organization["agreement"] = org?.agreement;
 
   return organization;
 };
@@ -161,8 +162,8 @@ const readBio = async (user) => {
 const updateComission = async (orgId, orgData) => {
   try {
     const toUpdateOrg = await Org.findOne({ _id: orgId });
-    toUpdateOrg.comission = orgData.comission;
-    toUpdateOrg.appliedProducts = orgData.appliedProducts;
+    toUpdateOrg.agreement = orgData;
+
     const updatedOrg = await toUpdateOrg.save();
     if (!updatedOrg) {
       return console.log("Org update error: " + err);

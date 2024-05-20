@@ -17,6 +17,7 @@ const createSurcharge = async (req, res) => {
         appliedProducts: req.body.appliedProducts,
         appliedUsers: req.body.appliedUsers,
         appliedPercentage: req.body.appliedPercentage,
+        considerations: req.body.considerations,
       };
       res.send(await surchargeServices.createSurcharge(newSurcharge));
     } else {

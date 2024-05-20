@@ -20,8 +20,9 @@ const OrganizationSchema = Schema({
   status: { type: Boolean, required: false },
   termsAgree: { type: Boolean, required: false },
   bio: { type: Object, required: false },
-  comission: { type: Number, required: false, default: 10 },
-  appliedProducts: { type: Array, required: false, default: [] },
+  // comission: { type: Number, required: false, default: 10 },
+  // appliedProducts: { type: Array, required: false, default: [] },
+  agreement: { type: Object, required: false },
 });
 
 module.exports = mongoose.model(

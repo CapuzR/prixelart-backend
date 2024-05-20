@@ -14,6 +14,7 @@ const surchargeSchema = Schema({
   appliedUsers: { type: Array, required: false },
   // appliedArtist: { type: Array, required: false },
   appliedPercentage: { type: String, required: false },
+  considerations: { type: Object, required: false },
 });
 
 module.exports = mongoose.model("Surcharge", surchargeSchema, "surcharges");
