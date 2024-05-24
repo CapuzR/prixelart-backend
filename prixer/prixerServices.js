@@ -126,7 +126,10 @@ const readAllPrixersFull = async () => {
           const readedUser = await userService.readUserById({
             id: readedPrixer.userId,
           });
-          if (readedUser && readedUser.role === "Prixer") {
+          if (
+            readedUser &&
+            (readedUser.role === "Prixer" || readedUser.role === undefined)
+          ) {
             const prixer = mergePrixerAndUser(readedPrixer, readedUser);
             return prixer;
           }
