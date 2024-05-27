@@ -592,6 +592,7 @@ const rankArt = async (artId, artData) => {
     const fromRank = await Art.findOne({ artId });
 
     fromRank.points = parseInt(artData.points);
+    fromRank.certificate = artData.certificate;
 
     const artRankUpdated = await fromRank.save();
 
