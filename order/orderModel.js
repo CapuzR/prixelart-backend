@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 const OrderSchema = Schema({
   orderId: { type: String, required: true },
-  consumerData: { type: String, required: false },
+  consumerData: { type: Object, required: false },
   orderType: { type: String, required: true },
   createdOn: { type: Date, required: true },
   createdBy: { type: Object, required: true },
