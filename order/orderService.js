@@ -82,7 +82,13 @@ const readOrderByUsername = async (username) => {
 };
 
 const readAllOrders = async () => {
-  let readedOrder = await Order.find({ status: { $ne: "Anulado" } })
+  const currentDate = new Date();
+  const fiveMonthsAgo = new Date();
+  fiveMonthsAgo.setMonth(currentDate.getMonth() - 5);
+  let readedOrder = await Order.find({
+    status: { $ne: "Anulado" },
+    createdOn: { $gte: fiveMonthsAgo },
+  })
     .select("-_id")
     .exec();
   let ordersv2 = readedOrder.sort(function (a, b) {
