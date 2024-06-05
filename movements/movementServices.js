@@ -117,10 +117,21 @@ const readByOrderId = async (orderId) => {
   }
 };
 
+const deleteByPrixer = async (account) => {
+  try {
+    const deletedMov = await Movement.deleteMany({ destinatary: account });
+    return { movements: deletedMov, message: "Movimientos eliminados." };
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 module.exports = {
   createMovement,
   updateBalance,
   readByAccount,
   readAllMovements,
   readByOrderId,
+  deleteByPrixer,
 };

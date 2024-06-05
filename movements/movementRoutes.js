@@ -36,4 +36,10 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   movementControllers.readByOrderId
 );
+
+router.put(
+  "/movement/deleteByPrixer",
+  adminAuthServices.ensureAuthenticated,
+  movementControllers.deleteByPrixer
+);
 module.exports = router;
