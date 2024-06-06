@@ -30,6 +30,7 @@ const ProductSchema = Schema({
   active: { type: Boolean, required: true },
   variants: { type: Array, required: false },
   hasSpecialVar: { type: Boolean, required: true },
+  autoCertified: { type: Boolean, required: false },
   discount: { type: String, required: false },
   bestSeller: { type: Boolean, required: false },
   mockUp: { type: Object, required: false },

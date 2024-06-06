@@ -82,6 +82,7 @@ const createProduct = async (req, res, next) => {
         active: req.body.active,
         variants: req.body.variants ? req.body.variants : [],
         hasSpecialVar: req.body.hasSpecialVar,
+        autoCertified: req.body.autoCertified,
       };
       res.send(await productServices.createProduct(parseObject));
     } else {
@@ -185,6 +186,7 @@ const updateProduct = async (req, res) => {
         active: req.body.active,
         variants: productsVariants,
         hasSpecialVar: req.body.hasSpecialVar,
+        autoCertified: req.body.autoCertified,
       };
       const productResult = await productServices.updateProduct(
         parseObject,
