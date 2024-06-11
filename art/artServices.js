@@ -243,7 +243,7 @@ const readByUserIdQueryAndCategory = async (user, query) => {
 
 const readAllArts = async () => {
   try {
-    const readedArts = await Art.find({})
+    const readedArts = await Art.find({ visible: true })
       .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
@@ -572,9 +572,8 @@ const updateArt = async (artId, artData) => {
 const disableArt = async (artId, artData) => {
   try {
     const toUpdateArt = await Art.findOne({ artId });
-
     toUpdateArt.disabledReason = artData.disabledReason;
-    toUpdateArt.visible = artData.visible;
+    toUpdateArt.visible = Boolean(artData.visible);
 
     const updatedArt = await toUpdateArt.save();
     if (!updatedArt) {
