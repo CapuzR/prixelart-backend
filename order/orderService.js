@@ -87,7 +87,7 @@ const readAllOrders = async () => {
   fiveMonthsAgo.setMonth(currentDate.getMonth() - 5);
   let readedOrder = await Order.find({
     status: { $ne: "Anulado" },
-    createdOn: { $gte: fiveMonthsAgo },
+    // createdOn: { $gte: fiveMonthsAgo },
   })
     .select("-_id")
     .exec();
