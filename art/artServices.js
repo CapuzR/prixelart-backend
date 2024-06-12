@@ -586,6 +586,20 @@ const disableArt = async (artId, artData) => {
   }
 };
 
+const unableArts = async (username) => {
+  try {
+    const change = await Art.updateMany(
+      { prixerUsername: username },
+      { visible: false }
+    );
+
+    return `${change.nModified} documentos de Arte actualizados.`;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const rankArt = async (artId, artData) => {
   try {
     const fromRank = await Art.findOne({ artId });
@@ -698,6 +712,7 @@ module.exports = {
   readOneById,
   updateArt,
   disableArt,
+  unableArts,
   deleteArt,
   removeArt,
   rankArt,

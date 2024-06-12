@@ -3,6 +3,8 @@ const Organizations = require("../organizations/organizationModel");
 const User = require("../user/userModel");
 const userService = require("../user/userServices/userServices");
 const accountServices = require("../account/accountServices");
+const artServices = require("../art/artServices");
+const serviceServices = require("../serviceOfPrixers/serviceServices");
 
 //CRUD
 const createPrixer = async (prixerData) => {
@@ -261,24 +263,25 @@ const updateVisibility = async (prixerData) => {
     const toUpdatePrixer = await Prixer.findOne({
       _id: prixerData.id,
     });
-    if (prixerData.status === false && typeof prixerData.account === "string") {
-      toUpdatePrixer.status = prixerData.status;
+    let unableArts, unableServices;
+    // if (prixerData.status === false && typeof prixerData.account === "string") {
+    toUpdatePrixer.status = prixerData.status;
+    if (prixerData.status === false) {
+      unableArts = await artServices.unableArts(toUpdatePrixer.username);
 
-      const deleteAccount = await accountServices.deleteAccount(
-        prixerData.account
-      );
-      const updateUser = await User.findById(toUpdatePrixer.userId, {
-        account: undefined,
-      });
-
-      const updatedPrixer = await toUpdatePrixer.save();
-
-      return { updatedPrixer, deleteAccount, updateUser };
-    } else {
-      toUpdatePrixer.status = prixerData.status;
-      const updatedPrixer = await toUpdatePrixer.save();
-      return updatedPrixer;
+      unableServices = await serviceServices.unableServices(toUpdatePrixer.id);
     }
+    // const deleteAccount = await accountServices.deleteAccount(
+    //   prixerData.account
+    // );
+    // const updateUser = await User.findById(toUpdatePrixer.userId, {
+    //   account: undefined,
+    // });
+    // const updatedPrixer = await toUpdatePrixer.save();
+    // } else {
+    const updatedPrixer = await toUpdatePrixer.save();
+    return { updatedPrixer, unableArts, unableServices };
+    // }
   } catch (e) {
     console.log(e);
     return e;
