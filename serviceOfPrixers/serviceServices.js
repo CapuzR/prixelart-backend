@@ -215,6 +215,17 @@ const disableService = async (id, data) => {
   }
 };
 
+const unableServices = async (id) => {
+  try {
+    const change = await Service.updateMany({ prixer: id }, { visible: false });
+
+    return `${change.nModified} documentos de Arte actualizados.`;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
 const deleteService = async (id) => {
   try {
     const toDelete = await Service.findByIdAndDelete(id);
@@ -244,5 +255,6 @@ module.exports = {
   readByPrixer,
   updateMyService,
   disableService,
+  unableServices,
   deleteService,
 };
