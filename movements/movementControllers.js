@@ -70,9 +70,9 @@ const readByOrderId = async (req, res) => {
   }
 };
 
-const deleteByPrixer = async (req, res) => {
+const deleteMovement = async (req, res) => {
   try {
-    const deleteMov = await movementServices.deleteByPrixer(req.body._id);
+    const deleteMov = await movementServices.deleteMovement(req.body);
     res.send(deleteMov);
   } catch (error) {
     console.log(err);
@@ -84,5 +84,5 @@ module.exports = {
   readByAccount,
   readAllMovements,
   readByOrderId,
-  deleteByPrixer,
+  deleteMovement,
 };

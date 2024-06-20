@@ -117,10 +117,27 @@ const readByOrderId = async (orderId) => {
   }
 };
 
-const deleteByPrixer = async (account) => {
+const deleteMovement = async (data) => {
   try {
-    const deletedMov = await Movement.deleteMany({ destinatary: account });
-    return { movements: deletedMov, message: "Movimientos eliminados." };
+    const mov = await Movement.findById(data.movement);
+    const deleteMov = await Movement.findByIdAndDelete(data.movement);
+    const selectedUser = await User.find({ username: data.user });
+    const balances = await Account.find({
+      _id: selectedUser[0].account,
+    });
+    const adjustBalance = balances[0];
+    const balance = adjustBalance.balance;
+    if (mov.type === "Retiro") {
+      adjustBalance.balance = balance + mov.value;
+    } else {
+      adjustBalance.balance = balance - mov.value;
+    }
+    const updatedBalance = adjustBalance.save();
+
+    return {
+      movement: { mov, deleteMov },
+      balance: { adjustBalance, updatedBalance },
+    };
   } catch (error) {
     console.log(error);
     return error;
@@ -133,5 +150,5 @@ module.exports = {
   readByAccount,
   readAllMovements,
   readByOrderId,
-  deleteByPrixer,
+  deleteMovement,
 };

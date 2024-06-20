@@ -38,8 +38,8 @@ router.post(
 );
 
 router.put(
-  "/movement/deleteByPrixer",
+  "/movement/delete/:id",
   adminAuthServices.ensureAuthenticated,
-  movementControllers.deleteByPrixer
+  movementControllers.deleteMovement
 );
 module.exports = router;
