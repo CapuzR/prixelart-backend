@@ -28,5 +28,10 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orgControllers.updateComission
 );
-
+router.put(
+  "/organization/updateBio/:id",
+  userMdw.ensureAuthenticated,
+  upload.array("newBioImages", 4),
+  orgControllers.updateBio
+);
 module.exports = router;

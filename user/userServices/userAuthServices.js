@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userServices = require("./userServices");
 const prixerServices = require("../../prixer/prixerServices");
+const orgServices = require("../../organizations/organizationServices");
 const emailSender = require("../../utils/emailSender");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -12,9 +13,12 @@ const authenticate = async (userData) => {
   const user = await userServices.readUserByEmail({
     email: userData.email,
   });
-
-  const prixer = await prixerServices.readPrixerbyId({ _id: user._id });
-  if (user) {
+  let org, prixer;
+  if (user.role === "Organization") {
+     org = await orgServices.readOrgbyId({ _id: user._id });
+  } else
+{   prixer = await prixerServices.readPrixerbyId({ _id: user._id });
+}  if (user) {
     if (!bcrypt.compareSync(userData.password, user.password)) {
       return {
         success: false,
@@ -35,7 +39,9 @@ const authenticate = async (userData) => {
         time: new Date(),
       };
 
-      if (prixer) {
+      if (user.role === "Organization") {
+        payload.orgId = org.orgId;
+      } else {
         payload.prixerId = prixer.prixerId;
       }
 

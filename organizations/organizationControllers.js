@@ -95,6 +95,36 @@ const updateComission = async (req, res) => {
   }
 };
 
+const updateBio = async (req, res) => {
+  try {
+    let img = [];
+    if (req.body.bioImages !== undefined) {
+      img = [req.body.bioImages];
+    }
+    let bio = {
+      biography: req.body.biography,
+      images: img.flat(Infinity),
+    };
+
+    const images = [];
+    await req.files.map((img, i) => {
+      images.push(img.transforms[0].location);
+    });
+
+    if (bio.images.length === 0) {
+      bio.images = images;
+    } else if (req.body.bioImages) {
+      const newImgs = bio.images.concat(images);
+      bio.images = newImgs;
+    }
+    const update = await orgServices.updateBio(req.params.id, bio);
+    return res.send(update);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const upload = multer({
   storage: multerS3({
     s3: s3,
@@ -124,5 +154,6 @@ module.exports = {
   readAllOrgFullv2,
   getBio,
   updateComission,
+  updateBio,
   upload,
 };

@@ -162,7 +162,7 @@ function originalArtCb(request, res, next) {
       request.body.smallThumbUrl = publicArtUrl + "-small.webp";
       request.body.squareThumbUrl = publicArtUrl + "-square.webp";
       request.body.artUrl = privateArtUrl;
-      console.log("Archivo original subido correctamente.");
+      // console.log("Archivo original subido correctamente.");
       next();
     }
   };
