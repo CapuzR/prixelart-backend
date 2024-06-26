@@ -112,6 +112,17 @@ const mergeOrgAndUser = (org, readedUser) => {
   return organization;
 };
 
+const readOrgbyId = async (user) => {
+  let readedOrg = await Org.findOne({ userId: user._id }).exec();
+  if (readedOrg) {
+    const readedUser = await userService.readUserById({ id: user._id });
+    const org =  mergeOrgAndUser(readedOrg, readedUser);
+    return org;
+  }
+
+  return readedOrg;
+};
+
 const readAllOrgFull = async () => {
   try {
     // await Org.updateMany({}, { $set: { comission: 10, appliedProducts: [] } });
@@ -179,11 +190,28 @@ const updateComission = async (orgId, orgData) => {
   }
 };
 
+const updateBio = async (orgId, orgData) => {
+  try {
+    const toUpdateOrg = await Org.findByIdAndUpdate(orgId, {
+      bio: orgData,
+    });
+    if (!toUpdateOrg) {
+      return console.log("Organization update error.");
+    } else
+      return { success: true, message: "Actualización realizada con éxito." };
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+};
+
 module.exports = {
   turnPrixerToOrg,
   turnOrgToPrixer,
+  readOrgbyId,
   readAllOrgFull,
   mergeOrgAndUser,
   readBio,
   updateComission,
+  updateBio
 };
