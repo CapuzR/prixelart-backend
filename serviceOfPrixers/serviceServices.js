@@ -1,5 +1,6 @@
 const Service = require("./serviceModel");
 const Prixer = require("../prixer/prixerModel");
+const Org = require("../organizations/organizationModel");
 const prixerService = require("../prixer/prixerServices");
 const userService = require("../user/userServices/userServices");
 
@@ -81,9 +82,14 @@ const getAllActive = async () => {
 
 const readMyServices = async (prixerId) => {
   try {
-    const readedServices = await Service.find({ prixer: prixerId }).exec();
+    const readedPrixer = await Prixer.findOne({username: prixerId}).exec();
+    const readedOrg = await Org.findOne({ username: prixerId }).exec();
+    
+    const readedServicesAsPrixer = await Service.find({ prixer: readedPrixer._id }).exec();
+    const readedServicesAsOrg = await Service.find({ prixer: readedOrg._id }).exec();
+    const allServices = [readedServicesAsPrixer, readedServicesAsOrg].flat(Infinity);
     const fixedServices = await Promise.all(
-      readedServices.map(async (s) => {
+      allServices.map(async (s) => {
         const p = s.prixer;
         const user = await Prixer.findOne({ _id: p });
         if (user) {
@@ -92,7 +98,7 @@ const readMyServices = async (prixerId) => {
         return s;
       })
     );
-    if (readedServices) {
+    if (allServices) {
       const data = {
         info: "El Prixer sí tiene servicios registrados",
         services: fixedServices,
