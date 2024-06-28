@@ -1,6 +1,6 @@
 const Service = require("./serviceModel");
 const Prixer = require("../prixer/prixerModel");
-const prixerService = require("../prixer/prixerServices");
+const Org = require("../organizations/organizationModel");
 const userService = require("../user/userServices/userServices");
 
 const createService = async (serviceData) => {
@@ -54,10 +54,14 @@ const getAllActive = async () => {
       const fixedServices = await Promise.all(
         readedServices.map(async (s) => {
           const p = s.prixer;
-          const user = await Prixer.findOne({ _id: p });
-          if (user) {
-            s.prixer = user.username;
-          }
+          if (p !== ("undefined" || undefined)) {
+            const user = await Prixer.findOne({ _id: p });
+          const org = await Org.findOne({ _id: p });
+          if (user !== null) {
+            s.prixer = user?.username;
+          } else  if ( org !== null ) {
+            s.prixer = org?.username;
+          }}
           return s;
         })
       );
@@ -81,9 +85,14 @@ const getAllActive = async () => {
 
 const readMyServices = async (prixerId) => {
   try {
-    const readedServices = await Service.find({ prixer: prixerId }).exec();
+    const readedPrixer = await Prixer.findOne({username: prixerId}).exec();
+    const readedOrg = await Org.findOne({ username: prixerId }).exec();
+    
+    const readedServicesAsPrixer = await Service.find({ prixer: readedPrixer._id }).exec();
+    const readedServicesAsOrg = await Service.find({ prixer: readedOrg._id }).exec();
+    const allServices = [readedServicesAsPrixer, readedServicesAsOrg].flat(Infinity);
     const fixedServices = await Promise.all(
-      readedServices.map(async (s) => {
+      allServices.map(async (s) => {
         const p = s.prixer;
         const user = await Prixer.findOne({ _id: p });
         if (user) {
@@ -92,7 +101,7 @@ const readMyServices = async (prixerId) => {
         return s;
       })
     );
-    if (readedServices) {
+    if (allServices) {
       const data = {
         info: "El Prixer sí tiene servicios registrados",
         services: fixedServices,
@@ -141,23 +150,24 @@ const readService = async (id) => {
 
 const readByPrixer = async (prixer) => {
   try {
-    const data = { username: prixer };
     const readedUser = await userService.readUserByUsername(prixer);
-    const readedPrixer = await prixerService.readPrixer(readedUser);
-    const readedServices = await Service.find({
-      prixer: readedPrixer.prixerId,
+     const readedOrg = await Org.find({userId: readedUser._id});
+     const readedPrix = await Prixer.find({userId: readedUser._id});
+    const readedServicesAsPrixer = await Service.find({
+      prixer: readedPrix[0]?._id,
     }).exec();
-    if (readedServices) {
+     const readedServicesAsOrg = await Service.find({
+      prixer: readedOrg[0]?._id,
+     }).exec();
+
+    const readedServices = [readedServicesAsPrixer, readedServicesAsOrg].flat(Infinity);
+    if (readedServices.length > 0) {
       const filteredServices = readedServices.filter(
         (service) => service.active === true
       );
       const fixedServices = await Promise.all(
         filteredServices.map(async (s) => {
-          const p = s.prixer;
-          const user = await Prixer.findOne({ _id: p });
-          if (user) {
-            s.prixer = user.username;
-          }
+            s.prixer = readedUser.username;
           return s;
         })
       );
