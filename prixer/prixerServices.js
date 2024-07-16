@@ -60,7 +60,6 @@ const mergePrixerAndUser = (readedPrixer, readedUser) => {
 };
 
 const readPrixer = async (prixerData) => {
-  //Este prixerData.id debería cambiarse por prixerData.userId. Hay que validar dónde está y cambiarlo (Incluyendo los tests).
   if (prixerData === null) {
     return null;
   } else {
