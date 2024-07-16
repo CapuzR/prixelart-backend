@@ -214,7 +214,6 @@ const updateBio = async (req, res) => {
       const newImgs = bio.images.concat(images);
       bio.images = newImgs;
     }
-
     const update = await prixerServices.updateBio(req.params.id, bio);
     return res.send(update);
   } catch (err) {

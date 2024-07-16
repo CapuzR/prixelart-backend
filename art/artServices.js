@@ -40,7 +40,7 @@ const createArt = async (artData) => {
 
 const readOneById = async (artSystemId) => {
   try {
-    const readedArt = await Art.findOne({ artId: artSystemId })
+    const readedArt = await Art.findOne({ artId: artSystemId, visible: true })
       // .select("-_id -__v -imageUrl")
       // .sort({ points: -1, visible: -1 })
       .exec();
@@ -69,7 +69,7 @@ const readOneById = async (artSystemId) => {
 
 const randomArts = async () => {
   try {
-    const readedArts = await Art.find({});
+    const readedArts = await Art.find({visible: true});
 
     const docCount = await Art.estimatedDocumentCount();
     var random = Math.floor(Math.random() * docCount);
@@ -97,10 +97,10 @@ const randomArts = async () => {
 const readByUserIdByQuery = async (user, query) => {
   try {
     const text = accents.remove(query).toLowerCase();
-    const readedArts = await Art.find({ prixerUsername: user })
+    const readedArts = await Art.find({ prixerUsername: user, visible: true })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
-    const specifyArt = await Art.findOne({ artId: query });
+    const specifyArt = await Art.findOne({ artId: query, visible: true });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
@@ -157,6 +157,7 @@ const readByUserIdAndCategory = async (user, query) => {
     const readedArts = await Art.find({
       prixerUsername: user,
       category: query,
+      visible: true
     })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
@@ -186,10 +187,11 @@ const readByUserIdQueryAndCategory = async (user, query) => {
     const readedArts = await Art.find({
       prixerUsername: user,
       category: category,
+      visible: true 
     })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
-    const specifyArt = await Art.find({ artId: query.text });
+    const specifyArt = await Art.find({ artId: query.text, visible: true  });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
@@ -271,7 +273,7 @@ const readAllArts = async () => {
 
 const readLatest = async () => {
   try {
-    const readedArts = await Art.find({})
+    const readedArts = await Art.find({visible: true })
       // .sort({ points: -1, visible: -1 })
       .select("-__v -imageUrl -crops -status")
       .exec();
@@ -312,10 +314,10 @@ const readByQueryAndCategory = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
     const category = query.category;
-    const readedArts = await Art.find({ category: category })
+    const readedArts = await Art.find({ category: category, visible: true  })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
-    const specifyArt = await Art.find({ artId: query.text });
+    const specifyArt = await Art.find({ artId: query.text, visible: true  });
 
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
@@ -371,10 +373,10 @@ const readByQueryAndCategory = async (query) => {
 const readByQuery = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase();
-    const readedArts = await Art.find({})
+    const readedArts = await Art.find({visible: true })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
-    const specifyArt = await Art.findOne({ artId: query.text });
+    const specifyArt = await Art.findOne({ artId: query.text, visible: true  });
     const filterArts = readedArts.filter((art, index) => {
       const artTitle = accents.remove(art.title).toLowerCase();
       const artDescription = accents.remove(art.description).toLowerCase();
@@ -429,7 +431,7 @@ const readByQuery = async (query) => {
 const readByCategory = async (query) => {
   try {
     const category = query.category;
-    const readedArts = await Art.find({ category: category })
+    const readedArts = await Art.find({ category: category, visible: true  })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
@@ -453,7 +455,7 @@ const readByCategory = async (query) => {
 
 const readAllByUserId = async (userId) => {
   try {
-    const readedArts = await Art.find({ userId: userId })
+    const readedArts = await Art.find({ userId: userId, visible: true  })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
@@ -478,7 +480,7 @@ const readAllByUserId = async (userId) => {
 
 const readAllByUserIdV2 = async (username) => {
   try {
-    const readedArts = await Art.find({ prixerUsername: username })
+    const readedArts = await Art.find({ prixerUsername: username, visible: true  })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
@@ -503,7 +505,7 @@ const readAllByUserIdV2 = async (username) => {
 
 const getOneById = async (artId) => {
   try {
-    const readedArts = await Art.find({ artId: artId })
+    const readedArts = await Art.find({ artId: artId, visible: true  })
       // .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
@@ -530,7 +532,7 @@ const getOneById = async (artId) => {
 
 const updateArt = async (artId, artData) => {
   try {
-    const toUpdateArt = await Art.findOne({ artId });
+    const toUpdateArt = await Art.findOne({ artId  });
     // toUpdateArt.set(art);
     // const toUpdateArt = await Art.findByIdAndUpdate(artId);
     // toUpdateArt.artId = artData.artId;
@@ -571,7 +573,7 @@ const updateArt = async (artId, artData) => {
 
 const disableArt = async (artId, artData) => {
   try {
-    const toUpdateArt = await Art.findOne({ artId });
+    const toUpdateArt = await Art.findOne({ artId});
     toUpdateArt.disabledReason = artData.disabledReason;
     toUpdateArt.visible = Boolean(artData.visible);
 
@@ -602,7 +604,7 @@ const unableArts = async (username) => {
 
 const rankArt = async (artId, artData) => {
   try {
-    const fromRank = await Art.findOne({ artId });
+    const fromRank = await Art.findOne({ artId  });
 
     fromRank.points = parseInt(artData.points);
     fromRank.certificate = artData.certificate;
@@ -631,7 +633,7 @@ const deleteArt = async (artId) => {
 
 const getBestSellers = async (orders) => {
   try {
-    const allArts = await Art.find({});
+    const allArts = await Art.find({visible: true });
     let arts = [];
 
     allArts.map((art) => {
@@ -672,7 +674,7 @@ const getBestSellers = async (orders) => {
 
 const searchUrl = async (id) => {
   try {
-    const readedArt = await Art.find({ artId: id });
+    const readedArt = await Art.find({ artId: id, visible: true  });
     const urlArt = readedArt[0].smallThumbUrl?.replace(/ /gi, "_");
     const response = await axios.get(urlArt, {
       responseType: "arraybuffer",
