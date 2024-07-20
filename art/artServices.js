@@ -245,13 +245,41 @@ const readByUserIdQueryAndCategory = async (user, query) => {
 
 const readAllArts = async () => {
   try {
-    const readedArts = await Art.find({ visible: true })
+    const readedArts = await Art.find()
       .sort({ points: -1, visible: -1 })
       .select("-_id -__v -imageUrl -crops -status")
       .exec();
     if (readedArts) {
       const data = {
         info: "Todos los artes disponibles",
+        arts: readedArts,
+      };
+      return data;
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      info: "Transcurrió demasiado tiempo, inténtalo de nuevo",
+      arts: null,
+    };
+  }
+};
+
+const readAllArtsv2 = async () => {
+  try {
+    const readedArts = await Art.find({ visible: true })
+      .sort({ points: -1, visible: -1 })
+      .select("-_id -__v -imageUrl -crops -status")
+      .exec();
+    if (readedArts) {
+      const data = {
+        info: "Todos los artes visibles",
         arts: readedArts,
       };
       return data;
@@ -703,6 +731,7 @@ module.exports = {
   readByUserIdAndCategory,
   readByUserIdQueryAndCategory,
   readAllArts,
+  readAllArtsv2,
   readLatest,
   readByQueryAndCategory,
   readByQuery,
