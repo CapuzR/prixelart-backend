@@ -18,6 +18,7 @@ router.get("/art/get-by-id/:id", artControllers.getOneById);
 router.post("/art/read-by-prixer", artControllers.readAllByUsername);
 router.get("/art/read-by-prixerid", artControllers.readAllByPrixerId);
 router.get("/art/read-all", artControllers.readAllArts);
+router.get("/art/read-all-v2", artControllers.readAllArtsv2);
 router.get("/art/get-latest", artControllers.readLatest);
 router.get("/art/read-by-query", artControllers.readByQuery);
 router.get(

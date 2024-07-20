@@ -52,6 +52,16 @@ const readAllArts = async (req, res) => {
   }
 };
 
+const readAllArtsv2 = async (req, res) => {
+  try {
+    const readedArts = await artServices.readAllArtsv2();
+    res.send(readedArts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const readLatest = async (req, res) => {
   try {
     const readedArts = await artServices.readLatest();
@@ -285,25 +295,26 @@ const readUrl = async (req, res) => {
 };
 module.exports = {
   createArt,
-  readAllArts,
-  readLatest,
-  readByUsernameAndQuery,
-  readByUsernameQueryAndCategory,
-  readByUsernameAndCategory,
-  readByQuery,
-  readByCategory,
-  readByQueryAndCategory,
-  randomArts,
-  updateArt,
-  readAllByPrixerId,
-  readAllByUsername,
-  getOneById,
-  readOneById,
   deleteArt,
   disableArt,
+  getOneById,
+  randomArts,
   rankArt,
+  readAllArts,
+  readAllArtsv2,
+  readAllByPrixerId,
+  readAllByUsername,
   readBestSellers,
+  readByCategory,
+  readByQuery,
+  readByQueryAndCategory,
+  readByUsernameAndCategory,
+  readByUsernameAndQuery,
+  readByUsernameQueryAndCategory,
+  readLatest,
+  readOneById,
   readUrl,
+  updateArt,
 };
 
 // //CRUD END
