@@ -12,7 +12,7 @@ const OrderSchema = Schema({
   subtotal: { type: Number, required: true },
   tax: { type: Number, required: true },
   total: { type: Number, required: true },
-  basicData: { type: Object, required: true },
+  basicData: { type: Object, required: false }, // turn after delete the problematic order
   shippingData: { type: Object, required: false },
   shippingCost: { type: Number, required: false },
   billingData: { type: Object, required: false },

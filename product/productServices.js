@@ -32,7 +32,7 @@ const readById = async (product) => {
     } else {
       const data = {
         info: "No hay productos registrados",
-        arts: null,
+        products: null,
       };
       return data;
     }
