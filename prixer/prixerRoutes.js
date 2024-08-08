@@ -1,5 +1,5 @@
 "use strict";
-const { upload } =
+const { upload, upload2 } =
   // avatarUpload
   require("./prixerControllers");
 
@@ -30,7 +30,7 @@ router.get("/prixer/read-all-full", prixerControllers.readAllPrixersFull);
 router.get("/prixer/read-all-full-v2", prixerControllers.readAllPrixersFullv2);
 router.post(
   "/prixer/update",
-  upload.single("avatar"),
+  upload2.single("avatar"),
   // prixerMiddlewares.avatarUpload,
   userMdw.ensureAuthenticated,
   prixerControllers.updatePrixer
@@ -38,7 +38,7 @@ router.post(
 router.put(
   "/prixer/updateBio/:id",
   userMdw.ensureAuthenticated,
-  upload.array("newBioImages", 4),
+  upload2.array("newBioImages", 4),
   prixerControllers.updateBio
 );
 router.put(

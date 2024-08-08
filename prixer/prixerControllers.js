@@ -292,6 +292,28 @@ const upload = multer({
   }),
 });
 
+const upload2 = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.PUBLIC_BUCKET_NAME,
+    acl: "public-read",
+    shouldTransform: function (req, file, cb) {
+      cb(null, /^image/i.test(file.mimetype));
+    },
+    transforms: [
+      {
+        id: "largeThumb",
+        key: function (req, file, cb) {
+          cb(null, file.fieldname + "-" + nanoid(7) + "-large.webp");
+        },
+        transform: function (req, file, cb) {
+          cb(null, sharp().webp({ quality: 80 }));
+        },
+      },
+    ],
+  }),
+});
+
 module.exports = {
   createPrixer,
   readAllPrixers,
@@ -308,6 +330,7 @@ module.exports = {
   readAllPrixersFullv2,
   getOwnersAndPrixers,
   upload,
+  upload2
 };
 
 //CRUD END
