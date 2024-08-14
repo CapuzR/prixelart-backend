@@ -14,7 +14,7 @@ const authenticate = async (userData) => {
     email: userData.email,
   });
   let org, prixer;
-  if (user.role === "Organization") {
+  if (user?.role === "Organization") {
      org = await orgServices.readOrgbyId({ _id: user._id });
   } else
 {   prixer = await prixerServices.readPrixerbyId({ _id: user._id });

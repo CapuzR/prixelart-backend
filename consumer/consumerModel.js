@@ -8,7 +8,7 @@ const ConsumerSchema = Schema({
   active: { type: Boolean, required: true },
   consumerType: { type: String, required: true },
   firstname: { type: String, required: true },
-  lastname: { type: String, required: true },
+  lastname: { type: String, required: false },
   username: { type: String, required: false },
   ci: { type: String, required: false },
   phone: { type: String, required: false },
