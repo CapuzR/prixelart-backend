@@ -88,8 +88,8 @@ const readMyServices = async (prix) => {
     const readedUser = await userService.readUserByUsername(prix);
     const readedOrg = await Org.find({ userId: readedUser._id });
     const readedPrixer = await Prixer.find({ userId: readedUser._id });
-    const readedServicesAsPrixer = await Service.find({ prixer: readedPrixer[0]._id }).exec();
-    const readedServicesAsOrg = await Service.find({ prixer: readedOrg[0]._id }).exec();
+    const readedServicesAsPrixer = await Service.find({ prixer: readedPrixer[0]?._id }).exec();
+    const readedServicesAsOrg = await Service.find({ prixer: readedOrg[0]?._id }).exec();
     const allServices = [readedServicesAsPrixer, readedServicesAsOrg].flat(Infinity);
         if (allServices.length > 0) {
           const fixedServices = await Promise.all(
