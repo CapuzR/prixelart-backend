@@ -61,6 +61,11 @@ router.put(
   orderControllers.updateItemStatus
 );
 
+router.put(
+  "/order/addComissions",
+  adminAuthServices.ensureAuthenticated,
+  orderControllers.addComissions
+)
 router.delete(
   "/order/delete/:id",
   adminAuthServices.ensureAuthenticated,

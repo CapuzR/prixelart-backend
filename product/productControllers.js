@@ -310,16 +310,16 @@ const updateVariants = async (req, res) => {
                 },
               ]
             : [],
-        cost: req.body.variantPrice,
+        cost: Number(req.body.variantPrice.replace(/[,]/gi, ".")),
         publicPrice: {
-          from: req.body.variantPublicPriceFrom,
-          to: req.body.variantPublicPriceTo,
-          equation: req.body.variantPublicPriceEq,
+          from: Number(req.body.variantPublicPriceFrom.replace(/[,]/gi, ".")),
+          to: Number(req.body.variantPublicPriceTo.replace(/[,]/gi, ".")),
+          equation: Number(req.body.variantPublicPriceEq.replace(/[,]/gi, ".")),
         },
         prixerPrice: {
-          from: req.body.variantPrixerPriceFrom,
-          to: req.body.variantPrixerPriceTo,
-          equation: req.body.variantPrixerPriceEq,
+          from: Number(req.body.variantPrixerPriceFrom.replace(/[,]/gi, ".")),
+          to: Number(req.body.variantPrixerPriceTo.replace(/[,]/gi, ".")),
+          equation: Number(req.body.variantPrixerPriceEq.replace(/[,]/gi, ".")),
         },
       };
       const previousImg = req.body.images.split(" ");
