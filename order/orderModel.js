@@ -27,6 +27,7 @@ const OrderSchema = Schema({
   isSaleByPrixer: { type: Boolean, required: false },
   payDate: { type: Date, required: false },
   completionDate: { type: Date, required: false },
+  comissions: { type: Array, required: false }
 });
 
 module.exports = mongoose.model("Order", OrderSchema, "order");
