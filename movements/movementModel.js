@@ -1,7 +1,7 @@
-"use strict";
+"use strict"
 
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose")
+const Schema = mongoose.Schema
 
 const MovementSchema = Schema({
   _id: { type: String, required: true },
@@ -13,6 +13,7 @@ const MovementSchema = Schema({
   order: { type: String, required: false },
   createdOn: { type: Date, required: true },
   createdBy: { type: String, required: false },
-});
+  item: { type: Object, required: false },
+})
 
-module.exports = mongoose.model("Movement", MovementSchema, "movements");
+module.exports = mongoose.model("Movement", MovementSchema, "movements")

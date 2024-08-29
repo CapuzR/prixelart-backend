@@ -125,6 +125,14 @@ const readUserPassByUsername = async (username) => {
   return await User.findOne({ username: username }).exec();
 };
 
+const readUserByAccount = async (account) => {
+  const finded = await User.findOne({account: account}).exec();
+  finded.password = undefined;
+  finded.token = undefined;
+  finded.email = undefined;
+  return finded
+}
+
 const updateUser = async (userData) => {
   const toUpdateUser = await User.findOne({ email: userData.email });
   toUpdateUser.username = userData.username;
@@ -177,6 +185,7 @@ module.exports = {
   readUserByEmail,
   simpleUserUpdate,
   readUserByUsername,
+  readUserByAccount,
   updateUser,
   disableUser,
   removeUser,
