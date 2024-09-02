@@ -146,6 +146,49 @@ const deleteDiscount = async (req) => {
   }
 };
 
+/**
+ * Retrieve discounts based on various filters.
+ * @param {String} userType - The type of user (e.g., 'admin', 'consumer').
+ * @param {String} variantSelected - The selected variant of a product.
+ * @param {String} username - The username of the user.
+ * @param {String} salesPlatform - The platform where the sale is being made.
+ * @param {String} salesAgent - The sales agent involved in the transaction.
+ * @param {String} prixerId - The ID of the Prixer (artist) associated with the art.
+ * @param {String} artId - The ID of the art being purchased.
+ * @returns {Array<Object>} - An array of objects containing `discountType` and `discountValue`.
+ */
+async function getDiscountsByFilters(userType, variantSelected, username, salesPlatform, salesAgent, prixerId, artId) {
+  try {
+    // Build the query object based on the provided filters
+    const query = {};
+    
+    if (userType && userType != 'guest') query['applyFor.userType'] = userType;
+    if (variantSelected) query['appliedProducts'] = variantSelected.name;
+    if (username) query['applyFor.username'] = username;
+    if (salesPlatform) query['applyFor.salesPlatform'] = salesPlatform;
+    if (salesAgent) query['applyFor.salesAgent'] = salesAgent;
+    if (prixerId) query['applyFor.prixerId'] = prixerId;
+    if (artId) query['applyFor.artId'] = artId;
+
+    console.log('discount', query);
+
+    // Fetch discounts based on the query
+    const discounts = await Discount.find(query).select('type value').lean();
+
+    // Map the results to the desired format
+    return discounts.map(discount => ({
+      format: discount.type,
+      type: 'discount',
+      value: discount.value,
+      operation: 'subtract',
+      priority: 1
+    }));
+  } catch (error) {
+    console.error('Error retrieving discounts:', error);
+    throw new Error('Failed to retrieve discounts.');
+  }
+}
+
 module.exports = {
   createDiscount,
   appliedProducts,
@@ -154,4 +197,5 @@ module.exports = {
   readAllDiscountsAdmin,
   updateDiscount,
   deleteDiscount,
+  getDiscountsByFilters
 };

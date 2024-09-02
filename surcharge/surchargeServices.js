@@ -125,10 +125,53 @@ const deleteSurcharge = async (req) => {
   }
 };
 
+/**
+ * Retrieve surcharges based on various filters.
+ * @param {String} userType - The type of user (e.g., 'admin', 'consumer').
+ * @param {String} variantSelected - The selected variant of a product.
+ * @param {String} username - The username of the user.
+ * @param {String} salesPlatform - The platform where the sale is being made.
+ * @param {String} salesAgent - The sales agent involved in the transaction.
+ * @param {String} prixerId - The ID of the Prixer (artist) associated with the art.
+ * @param {String} artId - The ID of the art being purchased.
+ * @returns {Array<Object>} - An array of objects containing `surchargeType` and `surchargeValue`.
+ */
+async function getSurchargesByFilters(userType, variantSelected, username, salesPlatform, salesAgent, prixerId, artId) {
+  try {
+    // Build the query object based on the provided filters
+    const query = {};
+
+    if (userType && userType != 'guest') query['appliedUsers.role'] = userType;
+    if (variantSelected) query['appliedProducts'] = variantSelected.name;
+    if (username) query['appliedUsers.username'] = username;
+    if (salesPlatform) query['appliedPlatform._id'] = salesPlatform;
+    if (salesAgent) query['appliedSalesAgent._id'] = salesAgent;
+    if (prixerId) query['appliedArtist._id'] = prixerId;
+    if (artId) query['appliedArt._id'] = artId;
+
+    // Fetch surcharges based on the query
+    const surcharges = await Surcharge.find(query).select('type value').lean();
+
+    // Map the results to the desired format
+    return surcharges.map(surcharge => ({
+      format: surcharge.type,
+      type: 'surcharge',
+      value: surcharge.value,
+      operation: 'add',
+      priority: 2
+    }));
+  } catch (error) {
+    console.error('Error retrieving surcharges:', error);
+    throw new Error('Failed to retrieve surcharges.');
+  }
+}
+
+
 module.exports = {
   createSurcharge,
   readAllSurcharge,
   readActiveSurcharge,
   updateSurcharge,
   deleteSurcharge,
+  getSurchargesByFilters
 };

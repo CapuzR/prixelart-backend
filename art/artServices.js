@@ -3,6 +3,7 @@ const { organizeArtData } = require("../utils/util");
 const mongoose = require("mongoose");
 const accents = require("remove-accents");
 const axios = require("axios");
+const { getPrixerLevelComission, getPrixelartLevelComission } = require("../prixer/prixerServices");
 
 //CRUD
 const createArt = async (artData) => {
@@ -725,6 +726,44 @@ const removeArt = async () => {
 };
 //CRUD END
 
+/**
+ * Get the commission percentage for a given Prixer and Art.
+ * 
+ * @param {String} prixerId - The ID of the Prixer (artist).
+ * @param {String} artId - The ID of the artwork.
+ * @returns {Number} - The commission percentage for the specified art.
+ */
+async function getPrixerArtCommission(artId, prixerId) {
+  try {
+    
+    if (!artId) return null;
+
+    let comission = null;
+    // Query the art collection to find the art with the given artId and prixerId
+    const art = await Art.findOne({ _id: artId }).lean();
+
+    // Check if the art exists and has a commission field
+    if (!art) {
+      throw new Error('Art not found.');
+    };
+
+    if (art.comission == 0) {
+      comission = getPrixerLevelComission(prixerId);
+      
+      if (!comission) {
+        comission = getPrixelartLevelComission();
+      };
+    };
+
+    // Return the commission percentage; if not set, return a default of 0%
+    return comission;
+  } catch (error) {
+    console.error('Error retrieving art commission:', error);
+    throw new Error('Failed to retrieve art commission.');
+  }
+}
+
+
 module.exports = {
   createArt,
   readByUserIdByQuery,
@@ -749,4 +788,5 @@ module.exports = {
   rankArt,
   getBestSellers,
   searchUrl,
+  getPrixerArtCommission,
 };

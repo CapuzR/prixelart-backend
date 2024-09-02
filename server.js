@@ -13,6 +13,7 @@ var allowedOrigins = [
   "https://" + process.env.FRONT_END_URL,
   "https://www." + process.env.FRONT_END_URL,
   "www." + process.env.FRONT_END_URL,
+  "localhost"
 ];
 var expiryDate = new Date(Date.now() + 2400 * 60 * 1000); // 1 hour
 app.use(

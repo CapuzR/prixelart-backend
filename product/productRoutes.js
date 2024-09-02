@@ -2,6 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
+const userMdw = require("../user/userMiddlewares");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const productControllers = require("./productControllers");
 
@@ -12,6 +13,12 @@ router.post(
   productControllers.createProduct
 );
 router.post("/product/read", productControllers.readById);
+
+router.get("/product_v2/read", productControllers.readAllProducts_v2);
+router.post("/product_v2/getPrice", productControllers.getPrice_v2);
+router.post("/product_v2/createProduct", productControllers.createProduct_v2);
+router.get("/product_v2/read-all", productControllers.readAllProducts_v3);
+
 router.put(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,

@@ -6,6 +6,8 @@ const { nanoid } = require("nanoid");
 const productServices = require("./productServices");
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const orderServices = require("../order/orderService");
+const { userAuthServices } = require("../user/userServices/userAuthServices");
+const { PrixerServices } = require("../prixer/prixerServices");
 
 const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
 const s3 = new aws.S3({
@@ -106,8 +108,86 @@ const readById = async (req, res) => {
   }
 };
 
+// const getRegularConsumerPrice = async (req, res) => {
+//   try {
+//     const price = await productServices.getRegularConsumerPrice(req.body);
+//     res.send(price);
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// };
+
+const createProduct_v2 = async (req, res) => {
+  try {
+      res.send(await productServices.createProduct_v2(req.body));
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
+const readAllProducts_v3 = async (req, res) => {
+  try {
+    const readedProducts = await productServices.readAllProducts_v3();
+    res.send(readedProducts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
+const getPrice_v2 = async (req, res) => {
+  try {
+    let userType = null;
+    let username = null;
+    let prixerId = null;
+    const {
+      selectedVariant,
+      salesPlatform,
+      salesAgent,
+      artId
+    } = req.body;
+    const requester = req.cookies?.token ? userAuthServices.getRequester(req.cookies.token) : undefined;
+    if (requester) {
+      userType = requester.role;
+      username = requester.username;
+      const prixer = PrixerServices.readPrixerbyId(requester.id);
+      prixerId = prixer ? prixer.id : undefined;
+    } else {
+      userType = 'guest';
+      username = undefined;
+      prixerId = undefined;
+    }
+    const payload = {
+      userType,
+      selectedVariant,
+      username,
+      salesPlatform,
+      salesAgent,
+      prixerId,
+      artId
+    };
+    const price = await productServices.getPrice_v2(payload);
+    res.send(price.toString());
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const readAllProducts = async (req, res) => {
   try {
+    const readedProducts = await productServices.readAllProducts();
+    res.send(readedProducts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
+const readAllProducts_v2 = async (req, res) => {
+  try {
+    console.log("paso por aqui");
     const readedProducts = await productServices.readAllProducts();
     res.send(readedProducts);
   } catch (err) {
@@ -447,6 +527,11 @@ module.exports = {
   deleteProduct,
   updateVariants,
   deleteVariant,
+  createProduct_v2,
+  readAllProducts_v2,
+  getPrice_v2,
+  readAllProducts_v3
+  // getRegularConsumerPrice,
 };
 
 // //CRUD END

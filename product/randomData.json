@@ -1,0 +1,138 @@
+[
+    { 
+    "name": "Example Product 2", 
+    "description": "This is an example product", 
+    "category": "Example Category", 
+    "considerations": "Considerations for the example product", 
+    "active": true, 
+    "thumbUrl": "https://example.com/product-thumb.jpg", 
+    "productionTime": "2 weeks", 
+    "variants": [
+        { 
+            "name": "Example Variant", 
+            "description": "This is an example variant", 
+            "thumbUrl": "https://example.com/variant-thumb.jpg", 
+            "active": true, 
+            "considerations": "Considerations for the example variant", 
+            "cost": 10, 
+            "margin": "50", 
+            "attributes": { 
+                "name": "Color", 
+                "value": "Red" 
+            }, 
+            "sources": { 
+                "images": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"], 
+                "video": "https://example.com/video.mp4" 
+            } 
+        },
+        { 
+            "name": "Example Variant 2", 
+            "description": "This is another example variant", 
+            "thumbUrl": "https://example.com/variant-thumb2.jpg", 
+            "active": true, 
+            "considerations": "Considerations for the example variant 2", 
+            "price": "20", 
+            "cost": 15, 
+            "margin": "25", 
+            "attributes": { 
+                "name": "Color", 
+                "value": "Blue" 
+            }, 
+            "sources": { 
+                "images": ["https://example.com/image3.jpg", "https://example.com/image4.jpg"], 
+                "video": "https://example.com/video2.mp4" 
+            } 
+        }
+]
+},
+{
+    "name": "Example Product 3", 
+    "description": "This is another example product", 
+    "category": "Example Category 2", 
+    "considerations": "Considerations for the example product 2", 
+    "active": true, 
+    "thumbUrl": "https://example.com/product-thumb2.jpg", 
+    "productionTime": "3 weeks", 
+    "variants": [
+        { 
+            "name": "Example Variant 3", 
+            "description": "This is an example variant 3", 
+            "thumbUrl": "https://example.com/variant-thumb3.jpg", 
+            "active": true, 
+            "considerations": "Considerations for the example variant 3", 
+            "cost": 20, 
+            "margin": "20", 
+            "attributes": { 
+                "name": "Color", 
+                "value": "Green" 
+            }, 
+            "sources": { 
+                "images": ["https://example.com/image5.jpg", "https://example.com/image6.jpg"], 
+                "video": "https://example.com/video3.mp4" 
+            } 
+        },
+        { 
+            "name": "Example Variant 4", 
+            "description": "This is another example variant 4", 
+            "thumbUrl": "https://example.com/variant-thumb4.jpg", 
+            "active": true, 
+            "considerations": "Considerations for the example variant 4", 
+            "cost": 25, 
+            "margin": "20", 
+            "attributes": { 
+                "name": "Color", 
+                "value": "Yellow" 
+            }, 
+            "sources": { 
+                "images": ["https://example.com/image7.jpg", "https://example.com/image8.jpg"], 
+                "video": "https://example.com/video4.mp4" 
+            } 
+        },
+        { 
+            "name": "Example Variant 5", 
+            "description": "This is another example variant 4", 
+            "thumbUrl": "https://example.com/variant-thumb4.jpg", 
+            "active": true, 
+            "considerations": "Considerations for the example variant 4", 
+            "cost": 25, 
+            "margin": "14", 
+            "attributes": { 
+                "name": "Color", 
+                "value": "Yellow" 
+            }, 
+            "sources": { 
+                "images": ["https://example.com/image7.jpg", "https://example.com/image8.jpg"], 
+                "video": "https://example.com/video4.mp4" 
+            } 
+        }
+    ]
+},
+{
+    "name": "Example Product 4",
+    "description": "This is another example product",
+    "category": "Example Category 3",
+    "considerations": "Considerations for the example product 3",
+    "active": true,
+    "thumbUrl": "https://example.com/product-thumb3.jpg",
+    "productionTime": "4 weeks",
+    "variants": [
+        {
+            "name": "Example Variant 5",
+            "description": "This is an example variant 5",
+            "thumbUrl": "https://example.com/variant-thumb5.jpg",
+            "active": true,
+            "considerations": "Considerations for the example variant 5",
+            "cost": 30,
+            "margin": "10",
+            "attributes": {
+                "name": "Color",
+                "value": "Orange"
+            },
+            "sources": {
+                "images": ["https://example.com/image9.jpg", "https://example.com/image10.jpg"],
+                "video": "https://example.com/video5.mp4"
+            }
+        }
+    ]
+}
+]

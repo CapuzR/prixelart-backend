@@ -25,6 +25,7 @@ const ensureAuthenticated = (req, res, next) => {
           firstName: decoded.firstName,
           lastName: decoded.lastName,
           id: decoded.id,
+          role: decoded.role
         };
         next();
       });

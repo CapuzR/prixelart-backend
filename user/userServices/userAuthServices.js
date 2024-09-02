@@ -208,6 +208,31 @@ const checkPasswordToken = async (token) => {
   }
 };
 
+const getRequester = (token) => {
+  try {
+    
+    if (!token) {
+      return 'guest';
+    } else {
+      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err)
+          return null;
+        return {
+          username: decoded.username,
+          email: decoded.email,
+          firstName: decoded.firstName,
+          lastName: decoded.lastName,
+          id: decoded.id,
+          role: decoded.role
+        };
+      });
+    }
+  } catch (e) {
+    return 'guest';
+  }
+};
+
+
 module.exports = {
   authenticate,
   generateToken,
@@ -215,4 +240,5 @@ module.exports = {
   checkPasswordToken,
   resetPassword,
   resetByAdmin,
+  getRequester,
 };

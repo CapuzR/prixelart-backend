@@ -5,6 +5,7 @@ const userService = require("../user/userServices/userServices");
 const accountServices = require("../account/accountServices");
 const artServices = require("../art/artServices");
 const serviceServices = require("../serviceOfPrixers/serviceServices");
+const { GeneralPreferences } = require("../preferences/preferencesModel");
 
 //CRUD
 const createPrixer = async (prixerData) => {
@@ -361,6 +362,55 @@ const removePrixers = async () => {
 };
 //CRUD END
 
+
+/**
+ * Get the commission percentage for a given Prixer and Art.
+ * 
+ * @param {String} prixerId - The ID of the Prixer (artist).
+ * @returns {Number} - The commission percentage for the specified prixer.
+ */
+async function getPrixerLevelComission(prixerId) {
+  try {
+    // Query the prixer collection
+    const prixer = await Prixer.findOne({ _id: prixerId }).lean();
+
+    // Check if the prixer exists and has a commission field
+    if (!prixer || !prixer.comission) {
+      return null;
+    }
+
+    // Return the commission percentage; if not set, return a default of 0%
+    return prixer.comission;
+  } catch (error) {
+    console.error('Error retrieving prixer level commission:', error);
+    throw new Error('Failed to retrieve prixer level commission.');
+  }
+}
+
+/**
+ * Get the commission percentage for a given Prixer and Art.
+ * 
+ * @returns {Number} - The commission percentage for the specified prixer.
+ */
+async function getPrixelartLevelComission() {
+  try {
+    // Query the prixer collection
+    const generalPref = await GeneralPreferences.findOne().lean();
+
+    // Check if the prixer exists and has a commission field
+    if (!generalPref || !generalPref.prixerStandarComission) {
+      return null;
+    }
+
+    // Return the commission percentage; if not set, return a default of 0%
+    return generalPref.prixerStandarComission;
+  } catch (error) {
+    console.error('Error retrieving prixer level commission:', error);
+    throw new Error('Failed to retrieve prixer level commission.');
+  }
+}
+
+
 module.exports = {
   createPrixer,
   readAllPrixers,
@@ -378,4 +428,6 @@ module.exports = {
   removePrixers,
   readAllPrixersFull,
   addRole,
+  getPrixerLevelComission,
+  getPrixelartLevelComission
 };
