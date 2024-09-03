@@ -29,7 +29,7 @@ const upload = multer({
           cb(null, nanoid(7) + "-large.webp");
         },
         transform: function (req, file, cb) {
-          cb(null, sharp().resize(300, 300).webp({ quality: 80 }));
+          cb(null, sharp().webp({ quality: 100 }));
         },
       },
     ],
