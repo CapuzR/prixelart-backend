@@ -301,8 +301,10 @@ const updateItemStatus = async (newStatus, index, order) => {
 const addComissions = async (id, comissions) => {
   try {
     const toUpdateOrder = await Order.findOne({ orderId: id })
-    delete comissions.adminToken;
-    toUpdateOrder.comissions = [];
+    delete comissions.adminToken
+    if (!toUpdateOrder.comissions) {
+      toUpdateOrder.comissions = []
+    }
     toUpdateOrder?.comissions.push(comissions)
     const updatedOrder = await toUpdateOrder.save()
 

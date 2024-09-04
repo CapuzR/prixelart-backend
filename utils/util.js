@@ -23,7 +23,7 @@ const organizeArtData = (originData) => {
   artData.tags = originData.tags;
   artData.title = originData.title;
   artData.userId = originData.userId;
-
+art.createdOn = new Date();
   return artData;
 };
 
