@@ -58,5 +58,6 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteVariant
 );
+router.get("/mockupImages/:productId", productControllers.readUrl);
 
 module.exports = router;
