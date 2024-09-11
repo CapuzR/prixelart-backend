@@ -137,13 +137,13 @@ const updateProduct = async (req, res) => {
       const previousImg = req.body.images.split(" ");
       if (
         previousImg[0] !== null &&
-        previousImg !== " " &&
-        previousImg.includes("newProductImages")
+        previousImg !== " " 
+        // && previousImg.includes("newProductImages")
       ) {
         newResult.push({ type: "images", url: previousImg });
       } else if (previousImg && previousImg.length > 1) {
         previousImg.map((img, i) => {
-          img.includes("newProductImages") &&
+          // img.includes("newProductImages") &&
             newResult.push({
               type: "images",
               url: img.replace(/[,]/gi, "").trim(),
@@ -261,6 +261,22 @@ const updateMockup = async (req, res) => {
   }
 };
 
+const readUrl = async ( req, res) => {
+  try {
+    const readedImg = await productServices.searchUrl(req.params.productId);
+    if (readedImg) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.send(readedImg);
+    } else {
+      res.status(404).send('Imagen no encontrada');
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+
+}
+
 const readBestSellers = async (req, res) => {
   try {
     const allOrders = await orderServices.readAllOrders();
@@ -271,6 +287,7 @@ const readBestSellers = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
 const updateVariants = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -443,6 +460,7 @@ module.exports = {
   updateProduct,
   updateMany,
   updateMockup,
+  readUrl,
   readBestSellers,
   deleteProduct,
   updateVariants,
