@@ -23,6 +23,7 @@ router.post(
   productControllers.readAllProductsAdmin
 );
 router.get("/product/read-all", productControllers.readAllProducts);
+router.get("/product/read-all-v2", productControllers.readAllProducts_v2);
 
 router.put(
   "/product/update/:id",
