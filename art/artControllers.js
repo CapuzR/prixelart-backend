@@ -282,17 +282,21 @@ const readBestSellers = async (req, res) => {
     res.status(500).send(error);
   }
 };
-
 const readUrl = async (req, res) => {
   try {
     const readedImg = await artServices.searchUrl(req.params.imageId);
-    res.setHeader("Content-Type", "image/jpeg");
-    res.send(readedImg);
+    if (readedImg) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.send(readedImg);
+    } else {
+      res.status(404).send('Imagen no encontrada');
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
   }
 };
+
 module.exports = {
   createArt,
   deleteArt,
