@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const productControllers = require("./productControllers");
+const userMdw = require("../user/userMiddlewares");
 
 router.post(
   "/product/create",
@@ -23,7 +24,10 @@ router.post(
   productControllers.readAllProductsAdmin
 );
 router.get("/product/read-all", productControllers.readAllProducts);
-router.get("/product/read-all-v2", productControllers.readAllProducts_v2);
+router.get("/product/read-all-v2",
+  userMdw.isAuth,
+  productControllers.readAllProducts_v2
+);
 
 router.put(
   "/product/update/:id",
