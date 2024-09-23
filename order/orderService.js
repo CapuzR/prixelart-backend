@@ -85,12 +85,14 @@ const readAllOrders = async () => {
   const currentDate = new Date()
   const fiveMonthsAgo = new Date()
   fiveMonthsAgo.setMonth(currentDate.getMonth() - 5)
+  console.log("fiveMonthsAgo", fiveMonthsAgo);
   let readedOrder = await Order.find({
     status: { $ne: "Anulado" },
     createdOn: { $gte: fiveMonthsAgo },
   })
     .select("-_id")
     .exec()
+    console.log("readedOrder", readedOrder);
   let ordersv2 = readedOrder.sort(function (a, b) {
     if (a.createdOn < b.createdOn) {
       return 1
@@ -101,10 +103,12 @@ const readAllOrders = async () => {
     return 0
   })
   if (readedOrder) {
+    console.log("ordersv2", ordersv2);
     const data = {
       info: "Todas las órdenes disponibles",
       orders: ordersv2,
     }
+    console.log("data", data);
 
     return data
   } else {
