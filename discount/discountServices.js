@@ -146,6 +146,44 @@ const deleteDiscount = async (req) => {
   }
 };
 
+const readDiscountByFilter = async (productName = null, userId = null) => {
+  try {
+    
+    const filter = { $and: [{$or : []}, {active: true}] };
+
+    if (productName) {
+      filter.$and[0].$or.push({ appliedProducts : { $in: [productName] } }); 
+    }
+    
+    if (userId) {
+      filter.$and[0].$or.push({ applyBy : userId });
+    }
+
+    const discounts = await Discount.find(filter);
+
+    if (discounts && discounts.length > 0) {      
+      return {
+        success: true,
+        message: "Discounts found",
+        discounts,
+      };
+    } else {
+      return {
+        success: false,
+        message: "No discounts found with the given filters",
+        discounts: [],
+      };
+    }
+  } catch (error) {
+    console.error("Error reading discounts by filter:", error);
+    return {
+      success: false,
+      message: "An error occurred while retrieving discounts.",
+      error,
+    };
+  }
+};
+
 module.exports = {
   createDiscount,
   appliedProducts,
@@ -154,4 +192,5 @@ module.exports = {
   readAllDiscountsAdmin,
   updateDiscount,
   deleteDiscount,
+  readDiscountByFilter
 };

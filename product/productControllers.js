@@ -116,6 +116,22 @@ const readAllProducts = async (req, res) => {
   }
 };
 
+const readAllProducts_v2 = async (req, res) => {
+  try {
+    const readedProducts = await productServices.readAllProducts_v2(
+      req.user, 
+      req.query.orderType, 
+      req.query.sortBy, 
+      req.query.initialPoint, 
+      req.query.productsPerPage
+    );
+    res.send(readedProducts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+};
+
 const readAllProductsAdmin = async (req, res) => {
   try {
     const readedProducts = await productServices.readAllProductsAdmin();
@@ -456,6 +472,7 @@ module.exports = {
   createProduct,
   readById,
   readAllProducts,
+  readAllProducts_v2,
   readAllProductsAdmin,
   updateProduct,
   updateMany,
