@@ -39,4 +39,32 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-module.exports = { ensureAuthenticated };
+const isAuth = (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      next();
+    } else {
+      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (!err) {
+          req.user = {
+            username: decoded.username,
+            email: decoded.email,
+            firstName: decoded.firstName,
+            lastName: decoded.lastName,
+            id: decoded.id,
+          };
+        }
+        next();
+      });
+    }
+  } catch (e) {
+    res.send({
+      success: false,
+      error_info: "auth error",
+      error_message:
+        "Fatal error, try again.",
+    });
+  }
+};
+module.exports = { ensureAuthenticated, isAuth };
