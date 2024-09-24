@@ -96,9 +96,9 @@ const forgotPassword = async (email) => {
   try {
     const user = await userServices.readUserByEmailNotExec({ email: email });
     if (!user) {
-      return res.status(400).json({
+      return {
         error: "Este usuario no existe, inténtalo de nuevo.",
-      });
+      };
     }
 
     const token = jwt.sign({ _id: user._id }, process.env.RESET_PASSWORD_KEY, {

@@ -561,6 +561,7 @@ module.exports = {
   readOrderById,
   readOrderByUsername,
   readAllOrders,
+  readAllOrdersv2,
   readOrdersByPrixer,
   readOrdersByEmail,
   updateOrder,
