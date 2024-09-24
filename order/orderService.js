@@ -116,6 +116,45 @@ const readAllOrders = async () => {
   }
 }
 
+const readAllOrdersv2 = async (start, quantity) => {
+  const currentDate = new Date()
+  const fiveMonthsAgo = new Date()
+  fiveMonthsAgo.setMonth(currentDate.getMonth() - 5)
+  let readedOrder = await Order.find({
+    status: { $ne: "Anulado" },
+    // createdOn: { $gte: fiveMonthsAgo },
+  })
+    .select("-_id")
+    .exec()
+  let ordersv2 = readedOrder.sort(function (a, b) {
+    if (a.createdOn < b.createdOn) {
+      return 1
+    }
+    if (a.createdOn > b.createdOn) {
+      return -1
+    }
+    return 0
+  })
+
+  const paginatedOrders = ordersv2.slice(start, Number(start) + Number(quantity));
+  // return [paginatedOrders, ordersv2.length];
+  if (readedOrder) {
+    const data = {
+      info: "Todas las órdenes disponibles",
+      orders: paginatedOrders,
+      length: ordersv2.length
+    }
+
+    return data
+  } else {
+    const data = {
+      info: "No hay órdenes registradas",
+      orders: null,
+    }
+    return data
+  }
+}
+
 const readOrdersByPrixer = async (prixer) => {
   let orders = await Order.find({ status: "Completada" })
   let readedOrders = []
