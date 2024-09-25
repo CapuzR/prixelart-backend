@@ -200,6 +200,20 @@ const readAllOrders = async (req, res) => {
   }
 }
 
+const readAllOrdersv2 = async (req, res) => {
+  try {
+    const readedOrders = await orderServices.readAllOrdersv2(
+      // req.body.adminToken,
+      req.body.initialPoint,
+      req.body.itemsPerPage
+    )
+    res.send(readedOrders)
+  } catch (err) {
+    res.status(500).send(err)
+    console.log(err)
+  }
+}
+
 const readOrdersByPrixer = async (req, res) => {
   try {
     const prixer = req.body.prixer
@@ -551,6 +565,7 @@ module.exports = {
   sendEmail,
   readOrder,
   readAllOrders,
+  readAllOrdersv2,
   readOrdersByPrixer,
   readOrdersByEmail,
   updateOrder,
