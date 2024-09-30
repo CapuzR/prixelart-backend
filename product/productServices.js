@@ -45,6 +45,35 @@ const readById = async (product) => {
   }
 }
 
+const readById_v2 = async (id) => {
+  try {
+    const readedProduct = await Product
+    .find({ _id: id })
+    .select('name description priceRange sources variants')
+    const product = readedProduct[0];
+    const variants = readedProduct[0].variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
+    const attributes = Utils.getUniqueAttributesFromVariants(readedProduct[0].variants);
+    if (attributes) {
+      const data = {
+        info: "Todos los productos disponibles",
+        variants: variants,
+        attributes: attributes,
+        product: product
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay productos registrados",
+        products: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 const readAllProducts = async () => {
   try {
     const readedProducts = await Product.find({ active: true })
@@ -306,4 +335,5 @@ module.exports = {
   deleteProduct,
   getBestSellers,
   deleteVariant,
+  readById_v2
 }

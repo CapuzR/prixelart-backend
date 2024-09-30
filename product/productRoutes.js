@@ -13,6 +13,7 @@ router.post(
   productControllers.createProduct
 );
 router.post("/product/read", productControllers.readById);
+router.post("/product/read_v2", productControllers.readById_v2);
 router.put(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,

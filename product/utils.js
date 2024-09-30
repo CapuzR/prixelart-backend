@@ -70,7 +70,34 @@ const getPriceRange = async (variants, user, productName) => {
     return null;
   }
 };
-
+const getUniqueAttributesFromVariants = (variants) => {
+    const attributeMap = {};
+  
+    variants?.forEach((variant) => {
+      if (variant.active && variant.attributes) {
+        variant.attributes.forEach((attr) => {
+          const { name, value } = attr;
+  
+          // If the attribute name doesn't exist in the map, initialize it
+          if (!attributeMap[name]) {
+            attributeMap[name] = new Set(); // Use Set to ensure uniqueness
+          }
+  
+          // Add the value to the set for this attribute name
+          attributeMap[name].add(value);
+        });
+      }
+    });
+  
+    // Convert the map to the desired array format
+    const attributesArray = Object.keys(attributeMap).map((key) => ({
+      name: key,
+      value: Array.from(attributeMap[key]), // Convert Set to Array
+    }));
+  
+    return attributesArray;
+  };
+  
 const productDataPrep = async (products, user, orderType, sortBy, initialPoint, productsPerPage) => {
   let productsRes = [];
 
@@ -126,5 +153,6 @@ const sortProducts = (products, sortBy, sortDirection) => {
 };
 
 module.exports = {
-    productDataPrep
+    productDataPrep,
+    getUniqueAttributesFromVariants
 }

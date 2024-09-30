@@ -106,6 +106,15 @@ const readById = async (req, res) => {
   }
 };
 
+const readById_v2 = async (req, res) => {
+  try {
+    const readedProduct = await productServices.readById_v2(req.body._id);
+    res.send(readedProduct);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 const readAllProducts = async (req, res) => {
   try {
     const readedProducts = await productServices.readAllProducts();
@@ -482,6 +491,7 @@ module.exports = {
   deleteProduct,
   updateVariants,
   deleteVariant,
+  readById_v2
 };
 
 // //CRUD END
