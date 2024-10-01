@@ -190,9 +190,18 @@ const readOrder = async (req, res) => {
   }
 }
 
+const readOrderByShred = async (req, res) => {
+  try {
+    const readedOrder = await orderServices.readOrderByShred(req.params.id)
+    res.send(readedOrder)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
+
 const readAllOrders = async (req, res) => {
   try {
-    const readedOrders = await orderServices.readAllOrders(req.body.adminToken)
+    const readedOrders = await orderServices.readAllOrders()
     res.send(readedOrders)
   } catch (err) {
     res.status(500).send(err)
@@ -203,11 +212,21 @@ const readAllOrders = async (req, res) => {
 const readAllOrdersv2 = async (req, res) => {
   try {
     const readedOrders = await orderServices.readAllOrdersv2(
-      // req.body.adminToken,
       req.body.initialPoint,
-      req.body.itemsPerPage
+      req.body.itemsPerPage,
+      req.body.filters
     )
     res.send(readedOrders)
+  } catch (err) {
+    res.status(500).send(err)
+    console.log(err)
+  }
+}
+
+const readAllOrdersClients = async (req, res) => {
+  try {
+    const readedClients = await orderServices.readAllOrdersClients()
+    res.send(readedClients)
   } catch (err) {
     res.status(500).send(err)
     console.log(err)
@@ -564,8 +583,10 @@ module.exports = {
   addVoucher,
   sendEmail,
   readOrder,
+  readOrderByShred,
   readAllOrders,
   readAllOrdersv2,
+  readAllOrdersClients,
   readOrdersByPrixer,
   readOrdersByEmail,
   updateOrder,
