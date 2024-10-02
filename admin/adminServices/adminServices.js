@@ -15,6 +15,7 @@ const readSellers = async () => {
   let readedSellers = await Admin.find({ isSeller: true })
     .select("firstname lastname")
     .exec();
+    readedSellers = readedSellers.map(seller => `${seller.firstname} ${seller.lastname}`);
   if (readedSellers) {
     return readedSellers;
   }
