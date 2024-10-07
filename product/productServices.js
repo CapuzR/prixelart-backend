@@ -1,7 +1,8 @@
 const Product = require("./productModel")
 const axios = require("axios")
-const { readDiscountByFilter } = require('../discount/discountServices.js')
+const { applyDiscounts } = require('../discount/discountServices.js')
 const Utils = require('./utils');
+const { readOneById } = require('../art/artServices');
 
 const createProduct = async (productData) => {
   try {
@@ -74,6 +75,60 @@ const readById_v2 = async (id) => {
   }
 }
 
+const getVariantPrice = async (user = null, variantId, artId = null) => {
+  try {
+    const product = await Product.findOne({ "variants._id": variantId  });
+    if (!product || !product.variants || product.variants.length === 0) {
+      return null;
+    }
+    const variant = product.variants[0];
+
+    let equation = null;
+
+    if (user && variant.prixerPrice) {
+      equation = variant.prixerPrice.equation;
+    } else if (!user && variant.publicPrice) {
+      equation = variant.publicPrice.equation;
+    }
+
+    const price = Utils.parseAndFormatNumber(equation);
+
+    if (price !== null) {
+      const finalPrice = await applyFeesAndDiscounts(price, product.name, user?.id, artId);
+      return Utils.formatPrice(finalPrice);
+    }
+  } catch (error) {
+    console.error('Error in productService.getVariantPrice:', error);
+    throw error;
+  }
+};
+
+const applyFeesAndDiscounts = async (price, productName, userId, artId) => {
+  
+  const postArtFeePrice = artId ? price / (1 - (await getPrixerFee(artId))) : price / (1 - 0.1);
+  //surcharges here
+  const [finalPrice] = await applyDiscounts([userId ? price : postArtFeePrice], productName, userId);
+  return finalPrice;
+
+};
+
+const getPrixerFee = async (artId) => {
+  try {
+    const artData = await readOneById(artId);
+
+    const commission = artData?.arts?.comission;
+
+    if (commission) {
+      return commission / 100;
+    } else {
+      throw new Error('Commission data not found for the given artId');
+    }
+  } catch (error) {
+    console.error(`Error retrieving Prixer fee for artId ${artId}:`, error);
+    throw error;
+  }
+};
+
 const readAllProducts = async () => {
   try {
     const readedProducts = await Product.find({ active: true })
@@ -106,7 +161,7 @@ const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', init
       .select('name description priceRange sources variants');
 
     if (readedProducts) {
-      let [products, maxLength] = await Utils.productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
+      let [products, maxLength] = await productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
 
       data = {
         info: "Todos los productos disponibles",
@@ -127,7 +182,67 @@ const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', init
   }
 };
 
+const productDataPrep = async (products, user, orderType, sortBy, initialPoint, productsPerPage) => {
+  const productsRes = await Promise.all(
+    products.map(async (product) => {
+      try {
+        const priceRange = await getPriceRange(product.variants, user, product.name);
+        if (priceRange || product.priceRange) {
+          return {
+            id: product._id,
+            name: product.name,
+            description: product.description,
+            sources: product.sources,
+            priceRange: priceRange || product.priceRange,
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error(`Error processing product ${product.name}:`, error);
+        return null;
+      }
+    })
+  );
+  const validProducts = productsRes.filter(product => product !== null);
+  const sortDirection = orderType === 'asc' ? 1 : -1;
+  const sortedProducts = Utils.sortProducts(validProducts, sortBy, sortDirection);
+  const paginatedProducts = sortedProducts.slice(
+    Number(initialPoint),
+    Number(initialPoint) + Number(productsPerPage)
+  );
+  return [paginatedProducts, sortedProducts.length];
+};
 
+const getPriceRange = async (variants, user, productName) => {
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+
+  variants?.forEach((variant) => {
+    const price = Utils.parseAndFormatNumber(
+      user && variant.prixerPrice
+        ? variant.prixerPrice.equation
+        : !user && variant.publicPrice
+        ? variant.publicPrice.equation
+        : null
+    );
+
+    if (price !== null) {
+      minPrice = Math.min(minPrice, price);
+      maxPrice = Math.max(maxPrice, price);
+    }
+  });
+
+  if (minPrice !== Infinity && maxPrice !== -Infinity) {
+    const finalMinPrice = await applyFeesAndDiscounts(minPrice, productName, user?.id);
+    const finalMaxPrice = await applyFeesAndDiscounts(maxPrice, productName, user?.id);
+    return {
+      from: Utils.formatPrice(finalMinPrice),
+      to: Utils.formatPrice(finalMaxPrice),
+    };
+  }
+
+  return null;
+};
 
 const readAllProductsAdmin = async () => {
   try {
@@ -335,5 +450,6 @@ module.exports = {
   deleteProduct,
   getBestSellers,
   deleteVariant,
-  readById_v2
+  readById_v2,
+  getVariantPrice,
 }
