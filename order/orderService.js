@@ -149,7 +149,22 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
     query.shippingDate = filters.shippingDate
   }
   if (filters.client) {
-    query.client = filters.client
+    const nameParts = filters.client.split(" ");
+    
+    if (nameParts.length >= 2) {
+      const firstName = nameParts[0];
+      const lastName = nameParts[1];
+  
+      query.$and = [
+        { "basicData.name": { $regex: new RegExp(firstName, "i") } },
+        { "basicData.lastname": { $regex: new RegExp(lastName, "i") } },
+      ];
+    } else {
+      query.$or = [
+        { "basicData.name": { $regex: new RegExp(nameParts[0], "i") } },
+        { "basicData.lastname": { $regex: new RegExp(nameParts[0], "i") } },
+      ];
+    }
   }
   if (filters.payStatus) {
     if (filters.payStatus === "Pendiente") {
