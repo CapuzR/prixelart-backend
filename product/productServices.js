@@ -1,4 +1,5 @@
 const Product = require("./productModel")
+const Category = require("./categoryModel.js")
 const axios = require("axios")
 const { readDiscountByFilter } = require('../discount/discountServices.js')
 
@@ -434,6 +435,50 @@ const deleteVariant = async (data) => {
   }
 }
 
+const readAllCategories = async () => {
+  try {
+    const readedCategories = await Category.find()
+    if (readedCategories) {
+      const data = {
+        info: "Todas las categorías existentes",
+        products: readedCategories,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay categorías registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const readActiveCategories = async () => {
+  try {
+    const readedCategories = await Category.find({active: true})
+    if (readedCategories) {
+      const data = {
+        info: "Todas las categorías existentes",
+        products: readedCategories,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay categorías registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 module.exports = {
   createProduct,
   readById,
@@ -447,4 +492,6 @@ module.exports = {
   deleteProduct,
   getBestSellers,
   deleteVariant,
+  readAllCategories,
+  readActiveCategories
 }

@@ -467,6 +467,26 @@ async function deleteVariant(req, res) {
   }
 }
 
+const readAllCategories = async (req, res) => {
+  try {
+    const categories = await productServices.readAllCategories();
+    res.send(categories);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+}
+
+const readActiveCategories = async (req, res) => {
+  try {
+    const categories = await productServices.readActiveCategories();
+    res.send(categories);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+}
+
 module.exports = {
   upload,
   createProduct,
@@ -482,6 +502,8 @@ module.exports = {
   deleteProduct,
   updateVariants,
   deleteVariant,
+  readAllCategories,
+  readActiveCategories
 };
 
 // //CRUD END

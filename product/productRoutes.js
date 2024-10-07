@@ -65,4 +65,14 @@ router.put(
 );
 router.get("/mockupImages/:productId", productControllers.readUrl);
 
+router.get(
+  "/product/read-categories",
+  productControllers.readAllCategories
+);
+
+router.get(
+  "/product/read-active-categories",
+  productControllers.readActiveCategories
+);
+
 module.exports = router;
