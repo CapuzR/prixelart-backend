@@ -2,6 +2,7 @@ const Product = require("./productModel")
 const Category = require("./categoryModel.js")
 const axios = require("axios")
 const { readDiscountByFilter } = require('../discount/discountServices.js')
+const Utils = require('./utils');
 
 const createProduct = async (productData) => {
   try {
@@ -45,6 +46,35 @@ const readById = async (product) => {
   }
 }
 
+const readById_v2 = async (id) => {
+  try {
+    const readedProduct = await Product
+    .find({ _id: id })
+    .select('name description priceRange sources variants')
+    const product = readedProduct[0];
+    const variants = readedProduct[0].variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
+    const attributes = Utils.getUniqueAttributesFromVariants(readedProduct[0].variants);
+    if (attributes) {
+      const data = {
+        info: "Todos los productos disponibles",
+        variants: variants,
+        attributes: attributes,
+        product: product
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay productos registrados",
+        products: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 const readAllProducts = async () => {
   try {
     const readedProducts = await Product.find({ active: true })
@@ -67,148 +97,6 @@ const readAllProducts = async () => {
   }
 }
 
-const getProductPriceRange_v3 = (variants) => {
-  let prices = [];
-  console.log("variants", variants);
-  variants?.forEach((variant, i) => {
-    const cost = Number(variant.cost);
-    const margin = Number(variant.margin);
-    const price = cost / (1 - (margin / 100));
-    variants[i].price = Math.round(price * 100) / 100;
-    prices.push(price);
-  });
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-  console.log("minPrice", minPrice);
-  console.log("maxPrice", maxPrice);
-  return { from: minPrice, to: maxPrice };
-};
-
-const applyDiscounts = async (values = [], productName = null, userId = null) => {
-  try {
-    const discountResponse = await readDiscountByFilter(productName, userId);
-
-    if (discountResponse.success && discountResponse.discounts.length > 0) {
-      const discountedValues = values.map((value) => {
-        let discountedValue = value;
-
-        discountResponse.discounts.forEach((discount) => {
-          if (discount.type === 'Porcentaje') {
-            discountedValue -= (discount.value / 100) * discountedValue;
-          } else if (discount.type === 'Monto') {
-            discountedValue -= discount.value;
-          }
-        });
-        return Math.max(0, discountedValue);
-      });
-
-      return discountedValues;
-    } else {
-      return values;
-    }
-  } catch (error) {
-    console.error("Error applying discounts:", error);
-    return values;
-  }
-};
-
-
-const getPriceRange = async (variants, user, productName) => {
-  let minPrice = Infinity;
-  let maxPrice = -Infinity;
-
-  const parseAndFormatNumber = (value) => {
-    if (typeof value !== 'string') return null;
-    const parsedNumber = parseFloat(value.replace(',', '.'));
-    if (!isNaN(parsedNumber)) {
-      return parsedNumber;
-    }
-    return null;
-  };
-
-  variants?.forEach((variant) => {
-    let equation = null;
-
-    if (user && variant.prixerPrice) {
-      equation = variant.prixerPrice.equation;
-    } else if (!user && variant.publicPrice) {
-      equation = variant.publicPrice.equation;
-    }
-
-    const price = parseAndFormatNumber(equation);
-
-    if (price !== null) {
-      minPrice = Math.min(minPrice, price);
-      maxPrice = Math.max(maxPrice, price);
-    }
-  });
-
-  if (minPrice !== Infinity && maxPrice !== -Infinity) {
-    const formatPrice = (price) => price.toFixed(2).replace('.', ',');
-    let postPrixerFeeMinPrice = minPrice/(1-0.1);
-    let postPrixerFeeMaxPrice = maxPrice/(1-0.1);
-    const [ finalMinPrice, finalMaxPrice ] = await applyDiscounts([ postPrixerFeeMinPrice, postPrixerFeeMaxPrice ], productName, user?.id);
-    return { from: formatPrice(finalMinPrice), to: formatPrice(finalMaxPrice) };
-  } else {
-    return null;
-  }
-};
-
-const productDataPrep = async (products, user, orderType, sortBy, initialPoint, productsPerPage) => {
-  let productsRes = [];
-
-  const res = await Promise.all(products.map(async (product) => {
-    let priceRange = await getPriceRange(product.variants, user, product.name);
-
-    if ((priceRange && priceRange !== undefined) || 
-        (product.priceRange && product.priceRange !== undefined)) {
-
-      productsRes.push({
-        id: product._id,
-        name: product.name,
-        description: product.description,
-        sources: product.sources,
-        priceRange: priceRange ? priceRange : product.priceRange,
-      });
-    }
-  }));
-
-  if (res) {
-    const sortDirection = orderType === 'asc' ? 1 : -1;
-    const sortedProducts = sortProducts(productsRes, sortBy, sortDirection);
-    const paginatedProducts = sortedProducts.slice(initialPoint, Number(initialPoint) + Number(productsPerPage));
-    return [paginatedProducts, sortedProducts.length];
-  }
-};
-
-const sortProducts = (products, sortBy, sortDirection) => {
-  // Sort by name (case-insensitive)
-  if (sortBy === 'name') {
-    return products.sort((a, b) => {
-      const nameA = a.name.toLowerCase(); // Ensure case-insensitive sorting
-      const nameB = b.name.toLowerCase();
-      
-      if (nameA < nameB) return sortDirection === 1 ? -1 : 1;
-      if (nameA > nameB) return sortDirection === 1 ? 1 : -1;
-      return 0;
-    });
-  }
-  
-  // Sort by priceRange.from
-  else if (sortBy === 'priceRange') {
-    return products.sort((a, b) => {
-      const priceA = a.priceRange && a.priceRange.from ? parseFloat(a.priceRange.from.replace(',', '.')) : 0;
-      const priceB = b.priceRange && b.priceRange.from ? parseFloat(b.priceRange.from.replace(',', '.')) : 0;
-
-      return sortDirection === 1 ? priceA - priceB : priceB - priceA;
-    });
-  }
-
-  // No sorting criteria provided, return unsorted products
-  return products;
-};
-
-
 const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', initialPoint, productsPerPage) => {
   try {
     let data = {};
@@ -219,7 +107,7 @@ const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', init
       .select('name description priceRange sources variants');
 
     if (readedProducts) {
-      let [products, maxLength] = await productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
+      let [products, maxLength] = await Utils.productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
 
       data = {
         info: "Todos los productos disponibles",
@@ -492,6 +380,7 @@ module.exports = {
   deleteProduct,
   getBestSellers,
   deleteVariant,
+  readById_v2,
   readAllCategories,
   readActiveCategories
 }
