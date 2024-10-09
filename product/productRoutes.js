@@ -13,6 +13,7 @@ router.post(
   productControllers.createProduct
 );
 router.post("/product/read", productControllers.readById);
+router.post("/product/read_v2", productControllers.readById_v2);
 router.put(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,
@@ -64,5 +65,15 @@ router.put(
   productControllers.deleteVariant
 );
 router.get("/mockupImages/:productId", productControllers.readUrl);
+
+router.get(
+  "/product/read-categories",
+  productControllers.readAllCategories
+);
+
+router.get(
+  "/product/read-active-categories",
+  productControllers.readActiveCategories
+);
 
 module.exports = router;
