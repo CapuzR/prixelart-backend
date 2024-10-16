@@ -108,7 +108,7 @@ const readById = async (req, res) => {
 
 const readById_v2 = async (req, res) => {
   try {
-    const readedProduct = await productServices.readById_v2(req.query._id);
+    const readedProduct = await productServices.readById_v2(req.query._id, req.user);
     res.send(readedProduct);
   } catch (err) {
     res.status(500).send(err);

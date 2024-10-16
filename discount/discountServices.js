@@ -199,11 +199,9 @@ const applyDiscounts = async (values = [], productName = null, userId = null) =>
             discountedValue -= discount.value;
           }
         });
-        console.log("Math.max(0, discountedValue)", Math.max(0, discountedValue));
         return Math.max(0, discountedValue);
       });
 
-      console.log("discountedValues", discountedValues);
       return discountedValues;
     } else {
       return values;
