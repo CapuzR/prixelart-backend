@@ -305,6 +305,62 @@ const readAllArtsv2 = async () => {
   }
 }
 
+const readGallery = async (filters = {}) => {
+  try {
+    const query = { visible: true }
+    if (filters.text) {
+      query.$or = [
+        { title: { $regex: filters.text, $options: "i" } },
+        { description: { $regex: filters.text, $options: "i" } },
+        { artLocation: { $regex: filters.text, $options: "i" } },
+        { category: { $regex: filters.text, $options: "i" } },
+      ]
+    }
+    if (filters.category) {
+      query.category = filters.category
+    }
+    if (filters.username) {
+      query.prixerUsername = filters.username
+    }
+    const start = filters.initialPoint || 0
+    const quantity = filters.itemsPerPage || 30
+    const readedArts = await Art.find(query)
+      .sort({ points: -1 })
+      .select(" -__v -imageUrl -crops -status")
+      .skip(Number(start))
+      .limit(Number(quantity))
+      .exec()
+
+    readedArts.forEach((art) => {
+      const createdOn = mongoose.Types.ObjectId(art._id).getTimestamp()
+      art.createdOn = createdOn
+    })
+
+    const totalCount = await Art.countDocuments({ visible: true })
+
+    if (readedArts) {
+      const data = {
+        info: "Todos los artes visibles",
+        arts: readedArts,
+        length: totalCount,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay artes registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      info: "Transcurrió demasiado tiempo, inténtalo de nuevo",
+      arts: null,
+    }
+  }
+}
+
 const readLatest = async () => {
   try {
     const readedArts = await Art.find({ visible: true })
@@ -763,6 +819,7 @@ module.exports = {
   readByUserIdQueryAndCategory,
   readAllArts,
   readAllArtsv2,
+  readGallery,
   readLatest,
   readByQueryAndCategory,
   readByQuery,

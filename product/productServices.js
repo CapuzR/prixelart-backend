@@ -1,8 +1,8 @@
 const Product = require("./productModel")
 const Category = require("./categoryModel.js")
 const axios = require("axios")
-const { readDiscountByFilter } = require('../discount/discountServices.js')
-const Utils = require('./utils');
+const { readDiscountByFilter } = require("../discount/discountServices.js")
+const Utils = require("./utils")
 
 const createProduct = async (productData) => {
   try {
@@ -48,18 +48,24 @@ const readById = async (product) => {
 
 const readById_v2 = async (id) => {
   try {
-    const readedProduct = await Product
-    .find({ _id: id })
-    .select('name description priceRange sources variants')
-    const product = readedProduct[0];
-    const variants = readedProduct[0].variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
-    const attributes = Utils.getUniqueAttributesFromVariants(readedProduct[0].variants);
+    const readedProduct = await Product.find({ _id: id }).select(
+      "name description priceRange sources variants"
+    )
+    const product = readedProduct[0]
+    const variants = readedProduct[0].variants.map(
+      ({ _id, name, attributes }) => {
+        return { _id, name, attributes }
+      }
+    )
+    const attributes = Utils.getUniqueAttributesFromVariants(
+      readedProduct[0].variants
+    )
     if (attributes) {
       const data = {
         info: "Todos los productos disponibles",
         variants: variants,
         attributes: attributes,
-        product: product
+        product: product,
       }
       return data
     } else {
@@ -97,38 +103,74 @@ const readAllProducts = async () => {
   }
 }
 
-const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', initialPoint, productsPerPage) => {
+const readAllProducts_v2 = async (
+  user = null,
+  orderType = "",
+  sortBy = "",
+  initialPoint,
+  productsPerPage
+) => {
   try {
-    let data = {};
+    let data = {}
 
     // Query products and select required fields
-    const readedProducts = await Product
-      .find({ active: true })
-      .select('name description priceRange sources variants');
+    const readedProducts = await Product.find({ active: true }).select(
+      "name description priceRange sources variants"
+    )
 
     if (readedProducts) {
-      let [products, maxLength] = await Utils.productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
+      let [products, maxLength] = await Utils.productDataPrep(
+        readedProducts,
+        user,
+        orderType,
+        sortBy,
+        initialPoint,
+        productsPerPage
+      )
 
       data = {
         info: "Todos los productos disponibles",
         products: products,
-        maxLength: maxLength
-      };
+        maxLength: maxLength,
+      }
     } else {
       data = {
         info: "No hay productos registrados",
         products: null,
-      };
+      }
     }
 
-    return data;
+    return data
   } catch (error) {
-    console.log(error);
-    return error;
+    console.log(error)
+    return error
   }
-};
+}
 
-
+const readInter = async () => {
+  try {
+    const readedProducts = await Product.find({
+      active: true,
+      hasInternationalV: true,
+    })
+    if (readedProducts) {
+      const data = {
+        info: "Todos los productos disponibles",
+        products: readedProducts,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay productos registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
 
 const readAllProductsAdmin = async () => {
   try {
@@ -323,13 +365,55 @@ const deleteVariant = async (data) => {
   }
 }
 
+const createCategory = async (cat) => {
+  try {
+    const newCategory = await new Category(cat).save()
+    if (newCategory) {
+      return {
+        success: true,
+        categoryData: newCategory,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const updateCategory = async (id, cat) => {
+  try {
+    const updatedCategory = await Category.findByIdAndUpdate(id, cat, {
+      new: true,
+    })
+    if (updatedCategory) {
+      return {
+        success: true,
+        categoryData: updatedCategory,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 const readAllCategories = async () => {
   try {
     const readedCategories = await Category.find()
     if (readedCategories) {
       const data = {
         info: "Todas las categorías existentes",
-        products: readedCategories,
+        categories: readedCategories,
       }
       return data
     } else {
@@ -347,11 +431,11 @@ const readAllCategories = async () => {
 
 const readActiveCategories = async () => {
   try {
-    const readedCategories = await Category.find({active: true})
+    const readedCategories = await Category.find({ active: true })
     if (readedCategories) {
       const data = {
         info: "Todas las categorías existentes",
-        products: readedCategories,
+        categories: readedCategories,
       }
       return data
     } else {
@@ -367,11 +451,22 @@ const readActiveCategories = async () => {
   }
 }
 
+const deleteCategory = async (id) => {
+  try {
+    await Category.findByIdAndDelete({ _id: id })
+    return "Categoría eliminada exitosamente"
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 module.exports = {
   createProduct,
   readById,
   readAllProducts,
   readAllProducts_v2,
+  readInter,
   readAllProductsAdmin,
   updateProduct,
   masiveUpdate,
@@ -381,6 +476,9 @@ module.exports = {
   getBestSellers,
   deleteVariant,
   readById_v2,
+  createCategory,
+  updateCategory,
   readAllCategories,
-  readActiveCategories
+  readActiveCategories,
+  deleteCategory,
 }
