@@ -1,9 +1,10 @@
 const Product = require("./productModel")
+const Category = require("./categoryModel.js")
 const axios = require("axios")
 const { applyDiscounts } = require('../discount/discountServices.js')
 const Utils = require('./utils');
 const { readOneById } = require('../art/artServices');
-
+// const { readDiscountByFilter } = require("../discount/discountServices.js")   Dejé esto por si acaso, si no es necesario borrar
 const createProduct = async (productData) => {
   try {
     const newProduct = await new Product(productData).save()
@@ -150,14 +151,20 @@ const readAllProducts = async () => {
   }
 }
 
-const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', initialPoint, productsPerPage) => {
+const readAllProducts_v2 = async (
+  user = null,
+  orderType = "",
+  sortBy = "",
+  initialPoint,
+  productsPerPage
+) => {
   try {
-    let data = {};
+    let data = {}
 
     // Query products and select required fields
-    const readedProducts = await Product
-      .find({ active: true })
-      .select('name description priceRange sources variants');
+    const readedProducts = await Product.find({ active: true }).select(
+      "name description priceRange sources variants"
+    )
 
     if (readedProducts) {
       let [products, maxLength] = await productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
@@ -165,19 +172,19 @@ const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', init
       data = {
         info: "Todos los productos disponibles",
         products: products,
-        maxLength: maxLength
-      };
+        maxLength: maxLength,
+      }
     } else {
       data = {
         info: "No hay productos registrados",
         products: null,
-      };
+      }
     }
 
-    return data;
+    return data
   } catch (error) {
-    console.log(error);
-    return error;
+    console.log(error)
+    return error
   }
 };
 
@@ -436,11 +443,108 @@ const deleteVariant = async (data) => {
   }
 }
 
+const createCategory = async (cat) => {
+  try {
+    const newCategory = await new Category(cat).save()
+    if (newCategory) {
+      return {
+        success: true,
+        categoryData: newCategory,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const updateCategory = async (id, cat) => {
+  try {
+    const updatedCategory = await Category.findByIdAndUpdate(id, cat, {
+      new: true,
+    })
+    if (updatedCategory) {
+      return {
+        success: true,
+        categoryData: updatedCategory,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const readAllCategories = async () => {
+  try {
+    const readedCategories = await Category.find()
+    if (readedCategories) {
+      const data = {
+        info: "Todas las categorías existentes",
+        categories: readedCategories,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay categorías registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const readActiveCategories = async () => {
+  try {
+    const readedCategories = await Category.find({ active: true })
+    if (readedCategories) {
+      const data = {
+        info: "Todas las categorías existentes",
+        categories: readedCategories,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay categorías registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const deleteCategory = async (id) => {
+  try {
+    await Category.findByIdAndDelete({ _id: id })
+    return "Categoría eliminada exitosamente"
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 module.exports = {
   createProduct,
   readById,
   readAllProducts,
   readAllProducts_v2,
+  readInter,
   readAllProductsAdmin,
   updateProduct,
   masiveUpdate,
@@ -451,4 +555,9 @@ module.exports = {
   deleteVariant,
   readById_v2,
   getVariantPrice,
+  createCategory,
+  updateCategory,
+  readAllCategories,
+  readActiveCategories,
+  deleteCategory,
 }

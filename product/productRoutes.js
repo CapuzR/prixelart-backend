@@ -1,10 +1,10 @@
-"use strict";
+"use strict"
 
-const express = require("express");
-const router = express.Router();
-const adminAuthServices = require("../admin/adminServices/adminAuthServices");
-const productControllers = require("./productControllers");
-const userMdw = require("../user/userMiddlewares");
+const express = require("express")
+const router = express.Router()
+const adminAuthServices = require("../admin/adminServices/adminAuthServices")
+const productControllers = require("./productControllers")
+const userMdw = require("../user/userMiddlewares")
 
 router.post(
   "/product/create",
@@ -25,17 +25,19 @@ router.put(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteProduct
-);
+)
 router.post(
   "/product/read-allv1",
   adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
-);
-router.get("/product/read-all", productControllers.readAllProducts);
-router.get("/product/read-all-v2",
+)
+router.get("/product/read-all", productControllers.readAllProducts)
+router.get(
+  "/product/read-all-v2",
   userMdw.isAuth,
   productControllers.readAllProducts_v2
-);
+)
+router.get("/product/read-international", productControllers.readInter)
 
 router.put(
   "/product/update/:id",
@@ -45,32 +47,61 @@ router.put(
     { name: "variantImage", maxCount: 4 },
   ]),
   productControllers.updateProduct
-);
+)
 
 router.put(
   "/product/updateMockup/:id",
   adminAuthServices.ensureAuthenticated,
   productControllers.upload.single("newMockupImg"),
   productControllers.updateMockup
-);
+)
 
-router.get("/product/bestSellers", productControllers.readBestSellers);
+router.get("/product/bestSellers", productControllers.readBestSellers)
 router.put(
   "/product/updateMany",
   adminAuthServices.ensureAuthenticated,
   productControllers.updateMany
-);
+)
 router.put(
   "/product/updateVariants/:id",
   adminAuthServices.ensureAuthenticated,
   productControllers.upload.array("variantImage", 4),
   productControllers.updateVariants
-);
+)
 router.put(
   "/product/deleteVariant",
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteVariant
-);
-router.get("/mockupImages/:productId", productControllers.readUrl);
+)
+router.get("/mockupImages/:productId", productControllers.readUrl)
 
-module.exports = router;
+router.get(
+  "/product/read-categories",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.readAllCategories
+)
+
+router.get(
+  "/product/read-active-categories",
+  productControllers.readActiveCategories
+)
+
+router.post(
+  "/product/create-category",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.createCategory
+)
+
+router.put(
+  "/product/update-category/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.updateCategory
+)
+
+router.delete(
+  "/product/delete-category/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.deleteCategory
+)
+
+module.exports = router

@@ -22,6 +22,9 @@ router.post(
 )
 
 router.post("/order/readByPrixer", orderControllers.readOrder)
+router.get("/order/readById/:id", orderControllers.readOrderByShred)
+router.get("/order/getClients",  adminAuthServices.ensureAuthenticated,
+  orderControllers.readAllOrdersClients)
 router.post(
   "/order/read-all",
   adminAuthServices.ensureAuthenticated,

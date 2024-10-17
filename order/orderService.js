@@ -77,6 +77,25 @@ const readOrderById = async (Id) => {
   }
 }
 
+const readOrderByShred = async (Id) => {
+  try {
+    const orders = await Order.find({ orderId: { $regex: Id, $options: "i" } })
+    if (orders.length > 0) {
+      return { orders: orders, message: "Pedidos encontrados", success: true }
+    } else {
+      return {
+        orders: null,
+        message:
+          "No se encontraron pedidos con este criterio, inténtalo de nuevo",
+        success: false,
+      }
+    }
+  } catch (e) {
+    console.log(e)
+    res.status(500).send(e)
+  }
+}
+
 const readOrderByUsername = async (username) => {
   return await Order.findOne({ username: username }).exec()
 }
@@ -90,20 +109,13 @@ const readAllOrders = async () => {
     createdOn: { $gte: fiveMonthsAgo },
   })
     .select("-_id")
+    .sort({ createdOn: -1 })
     .exec()
-  let ordersv2 = readedOrder.sort(function (a, b) {
-    if (a.createdOn < b.createdOn) {
-      return 1
-    }
-    if (a.createdOn > b.createdOn) {
-      return -1
-    }
-    return 0
-  })
+
   if (readedOrder) {
     const data = {
       info: "Todas las órdenes disponibles",
-      orders: ordersv2,
+      orders: readedOrder,
     }
 
     return data
@@ -116,33 +128,79 @@ const readAllOrders = async () => {
   }
 }
 
-const readAllOrdersv2 = async (start, quantity) => {
+const readAllOrdersv2 = async (start, quantity, filters) => {
+  const filterExist = Object.values(filters).some(
+    (value) => value !== undefined
+  )
+
   const currentDate = new Date()
   const fiveMonthsAgo = new Date()
   fiveMonthsAgo.setMonth(currentDate.getMonth() - 5)
-  let readedOrder = await Order.find({
+
+  let query = {
+    status: { $ne: "Anulado" },
+    createdOn: { $gte: fiveMonthsAgo },
+  }
+
+  if (filters.creationDate) {
+    query.createdOn = { ...query.createdOn, $eq: filters.creationDate }
+  }
+  if (filters.shippingDate) {
+    query.shippingDate = filters.shippingDate
+  }
+  if (filters.client) {
+    const nameParts = filters.client.split(" ");
+    
+    if (nameParts.length >= 2) {
+      const firstName = nameParts[0];
+      const lastName = nameParts[1];
+  
+      query.$and = [
+        { "basicData.name": { $regex: new RegExp(firstName, "i") } },
+        { "basicData.lastname": { $regex: new RegExp(lastName, "i") } },
+      ];
+    } else {
+      query.$or = [
+        { "basicData.name": { $regex: new RegExp(nameParts[0], "i") } },
+        { "basicData.lastname": { $regex: new RegExp(nameParts[0], "i") } },
+      ];
+    }
+  }
+  if (filters.payStatus) {
+    if (filters.payStatus === "Pendiente") {
+      query.$or = [
+        { payStatus: filters.payStatus },
+        { payStatus: { $exists: false } },
+      ]
+    } else {
+      query.payStatus = filters.payStatus
+    }
+  }
+  if (filters.status) {
+    query.status = filters.status
+  }
+  if (filters.seller) {
+    query["createdBy.username"] = filters.seller
+  }
+
+  let readedOrder = await Order.find(query)
+    .select("-_id")
+    .sort({ createdOn: -1 })
+    .skip(Number(start))
+    .limit(Number(quantity))
+    .exec()
+
+  const totalCount = await Order.countDocuments({
     status: { $ne: "Anulado" },
     createdOn: { $gte: fiveMonthsAgo },
   })
-    .select("-_id")
-    .exec()
-  let ordersv2 = readedOrder.sort(function (a, b) {
-    if (a.createdOn < b.createdOn) {
-      return 1
-    }
-    if (a.createdOn > b.createdOn) {
-      return -1
-    }
-    return 0
-  })
 
-  const paginatedOrders = ordersv2.slice(start, Number(start) + Number(quantity));
-  // return [paginatedOrders, ordersv2.length];
   if (readedOrder) {
     const data = {
       info: "Todas las órdenes disponibles",
-      orders: paginatedOrders,
-      length: ordersv2.length
+      orders: readedOrder,
+      length: totalCount,
+      aboutFilters: filterExist,
     }
 
     return data
@@ -153,6 +211,49 @@ const readAllOrdersv2 = async (start, quantity) => {
     }
     return data
   }
+}
+
+const readAllOrdersClients = async () => {
+  const currentDate = new Date()
+  const fiveMonthsAgo = new Date()
+  fiveMonthsAgo.setMonth(currentDate.getMonth() - 5)
+  let readedOrder = await Order.find({
+    status: { $ne: "Anulado" },
+    createdOn: { $gte: fiveMonthsAgo },
+  })
+    .select("-_id")
+    .exec()
+
+  let c = []
+  readedOrder.map((order) => {
+    let fullname =
+      (order.basicData?.firstname || order.basicData?.name) +
+      " " +
+      order.basicData?.lastname
+
+    if (c.includes(fullname)) {
+      return
+    } else {
+      c.push(fullname)
+    }
+  })
+
+  c.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+  if (c.length > 0) {
+    const data = {
+      info: "Todos las clientes disponibles",
+      clients: c,
+    }
+
+    return data
+  } else {
+    const data = {
+      info: "No se encontraron clientes",
+      orders: null,
+    }
+    return data
+  }
+
 }
 
 const readOrdersByPrixer = async (prixer) => {
@@ -559,9 +660,11 @@ module.exports = {
   addVoucher,
   sendEmail,
   readOrderById,
+  readOrderByShred,
   readOrderByUsername,
   readAllOrders,
   readAllOrdersv2,
+  readAllOrdersClients,
   readOrdersByPrixer,
   readOrdersByEmail,
   updateOrder,
