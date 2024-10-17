@@ -51,15 +51,22 @@ const readById_v2 = async (id, user) => {
   try {
     const readedProduct = await Product
     .find({ _id: id })
-    .select('name description priceRange sources variants')
+    .select('name description priceRange sources variants');
     let product = readedProduct[0];
-    const variants = readedProduct[0].variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
-    const attributes = Utils.getUniqueAttributesFromVariants(readedProduct[0].variants);
-    const productPriceRange = await getPriceRange(readedProduct[0].variants, user, product.name);
+    const variants = product.variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
+    const attributes = Utils.getUniqueAttributesFromVariants(product.variants);
+    const productPriceRange = await getPriceRange(product.variants, user, product.name);
     if (attributes) {
       const data = {
         info: "Todos los productos disponibles",
-        product: { ...product.toObject(), priceRange: productPriceRange, attributes: attributes },
+        product: {
+          name: product.name,
+          description: product.description,
+          priceRange: productPriceRange,
+          sources: product.sources,
+          attributes: attributes,
+          variants: variants
+        },
       }
       return data
     } else {
@@ -544,7 +551,6 @@ module.exports = {
   readById,
   readAllProducts,
   readAllProducts_v2,
-  readInter,
   readAllProductsAdmin,
   updateProduct,
   masiveUpdate,

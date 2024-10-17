@@ -57,7 +57,10 @@ preferencesRoutes.post(
   adminAuthServices.ensureAuthenticated,
   updateDollarValue
 );
+//ESTO NO DEBERÍA ESTAR AQUÍ, SINO EN PRODUCTOS
 preferencesRoutes.get("/getBestSellers", getBestSellers);
+
+//Y ESTO EN ARTES
 preferencesRoutes.get("/getArtBestSellers", getArtBestSellers);
 preferencesRoutes.put(
   "/updateBestSellers",
