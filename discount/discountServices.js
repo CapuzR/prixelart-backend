@@ -184,6 +184,35 @@ const readDiscountByFilter = async (productName = null, userId = null) => {
   }
 };
 
+const applyDiscounts = async (values = [], productName = null, userId = null) => {
+  try {
+    const discountResponse = await readDiscountByFilter(productName, userId);
+
+    if (discountResponse.success && discountResponse.discounts.length > 0) {
+      const discountedValues = values.map((value) => {
+        let discountedValue = value;
+
+        discountResponse.discounts.forEach((discount) => {
+          if (discount.type === 'Porcentaje') {
+            discountedValue -= (discount.value / 100) * discountedValue;
+          } else if (discount.type === 'Monto') {
+            discountedValue -= discount.value;
+          }
+        });
+        return Math.max(0, discountedValue);
+      });
+
+      return discountedValues;
+    } else {
+      return values;
+    }
+  } catch (error) {
+    console.error("Error applying discounts:", error);
+    return values;
+  }
+};
+
+
 module.exports = {
   createDiscount,
   appliedProducts,
@@ -192,5 +221,6 @@ module.exports = {
   readAllDiscountsAdmin,
   updateDiscount,
   deleteDiscount,
-  readDiscountByFilter
+  readDiscountByFilter,
+  applyDiscounts
 };

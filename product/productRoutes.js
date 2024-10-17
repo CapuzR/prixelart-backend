@@ -11,9 +11,16 @@ router.post(
   adminAuthServices.ensureAuthenticated,
   productControllers.upload.array("productImages", 4),
   productControllers.createProduct
-)
-router.post("/product/read", productControllers.readById)
-router.post("/product/read_v2", productControllers.readById_v2)
+);
+router.post("/product/read", productControllers.readById);
+router.get("/product/read_v2", 
+  userMdw.isAuth,
+  productControllers.readById_v2
+);
+router.get("/product/getVariantPrice",
+  userMdw.isAuth,
+  productControllers.getVariantPrice
+);
 router.put(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,

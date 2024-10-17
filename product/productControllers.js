@@ -108,12 +108,35 @@ const readById = async (req, res) => {
 
 const readById_v2 = async (req, res) => {
   try {
-    const readedProduct = await productServices.readById_v2(req.body._id)
-    res.send(readedProduct)
+    const readedProduct = await productServices.readById_v2(req.query._id, req.user);
+    res.send(readedProduct);
   } catch (err) {
     res.status(500).send(err)
   }
-}
+};
+
+const getVariantPrice = async (req, res) => {
+  try {
+    const { variantId, artId } = req.query;
+    const user = req.user;
+
+    if (!variantId) {
+      return res.status(400).send({ error: "variantId is required" });
+    }
+
+    const variantPrice = await productServices.getVariantPrice(user, variantId, artId);
+    if (!variantPrice) {
+      return res.status(404).send({ error: "Variant not found" });
+    }
+    res.send({ 
+      info: "Variant price fetched successfully",
+      price: variantPrice 
+    });
+  } catch (err) {
+    console.error('Error fetching variant price:', err);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+};
 
 const readAllProducts = async (req, res) => {
   try {
@@ -563,6 +586,7 @@ module.exports = {
   updateVariants,
   deleteVariant,
   readById_v2,
+  getVariantPrice,
   createCategory,
   updateCategory,
   readAllCategories,
