@@ -4,7 +4,7 @@ const axios = require("axios")
 const { applyDiscounts } = require('../discount/discountServices.js')
 const Utils = require('./utils');
 const { readOneById } = require('../art/artServices');
-const { readDiscountByFilter } = require("../discount/discountServices.js")
+// const { readDiscountByFilter } = require("../discount/discountServices.js")   Dejé esto por si acaso, si no es necesario borrar
 const createProduct = async (productData) => {
   try {
     const newProduct = await new Product(productData).save()
