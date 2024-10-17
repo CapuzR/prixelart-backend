@@ -58,15 +58,13 @@ const readById_v2 = async (id, user) => {
     if (attributes) {
       const data = {
         info: "Todos los productos disponibles",
-        variants: variants,
-        attributes: attributes,
-        product: { ...product.toObject(), priceRange: productPriceRange },
+        product: { ...product.toObject(), priceRange: productPriceRange, attributes: attributes },
       }
       return data
     } else {
       const data = {
-        info: "No hay productos registrados",
-        products: null,
+        info: "Producto no encontrado",
+        product: null,
       }
       return data
     }
