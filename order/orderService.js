@@ -645,8 +645,6 @@ const updateShippingMethod = async (shippingMethodData) => {
 
 const deleteShippingMethod = async (shippingMethodId) => {
   try {
-    console.log(shippingMethodId)
-
     await ShippingMethod.findOneAndDelete({ _id: shippingMethodId })
     return "Método de envío eliminado exitosamente"
   } catch (error) {

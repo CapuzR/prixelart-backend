@@ -531,6 +531,31 @@ const readActiveCategories = async () => {
   }
 }
 
+const readInter = async () => {
+  try {
+    const readedProducts = await Product.find({
+      active: true,
+      hasInternationalV: true,
+    })
+    if (readedProducts) {
+      const data = {
+        info: "Todos los productos disponibles",
+        products: readedProducts,
+      }
+      return data
+    } else {
+      const data = {
+        info: "No hay productos registrados",
+        arts: null,
+      }
+      return data
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 const deleteCategory = async (id) => {
   try {
     await Category.findByIdAndDelete({ _id: id })

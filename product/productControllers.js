@@ -523,7 +523,6 @@ const createCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   try {
-    console.log(req.params.id)
     const cat = {
       active: Boolean(req.body.active),
       name: req.body.name,
