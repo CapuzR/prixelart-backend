@@ -1,8 +1,8 @@
 const Product = require("./productModel")
 const Category = require("./categoryModel.js")
 const axios = require("axios")
-const { readDiscountByFilter } = require('../discount/discountServices.js')
-const Utils = require('./utils');
+const { readDiscountByFilter } = require("../discount/discountServices.js")
+const Utils = require("./utils")
 
 const createProduct = async (productData) => {
   try {
@@ -48,18 +48,24 @@ const readById = async (product) => {
 
 const readById_v2 = async (id) => {
   try {
-    const readedProduct = await Product
-    .find({ _id: id })
-    .select('name description priceRange sources variants')
-    const product = readedProduct[0];
-    const variants = readedProduct[0].variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
-    const attributes = Utils.getUniqueAttributesFromVariants(readedProduct[0].variants);
+    const readedProduct = await Product.find({ _id: id }).select(
+      "name description priceRange sources variants"
+    )
+    const product = readedProduct[0]
+    const variants = readedProduct[0].variants.map(
+      ({ _id, name, attributes }) => {
+        return { _id, name, attributes }
+      }
+    )
+    const attributes = Utils.getUniqueAttributesFromVariants(
+      readedProduct[0].variants
+    )
     if (attributes) {
       const data = {
         info: "Todos los productos disponibles",
         variants: variants,
         attributes: attributes,
-        product: product
+        product: product,
       }
       return data
     } else {
@@ -97,38 +103,49 @@ const readAllProducts = async () => {
   }
 }
 
-const readAllProducts_v2 = async (user = null, orderType = '', sortBy = '', initialPoint, productsPerPage) => {
+const readAllProducts_v2 = async (
+  user = null,
+  orderType = "",
+  sortBy = "",
+  initialPoint,
+  productsPerPage
+) => {
   try {
-    let data = {};
+    let data = {}
 
     // Query products and select required fields
-    const readedProducts = await Product
-      .find({ active: true })
-      .select('name description priceRange sources variants');
+    const readedProducts = await Product.find({ active: true }).select(
+      "name description priceRange sources variants"
+    )
 
     if (readedProducts) {
-      let [products, maxLength] = await Utils.productDataPrep(readedProducts, user, orderType, sortBy, initialPoint, productsPerPage);
+      let [products, maxLength] = await Utils.productDataPrep(
+        readedProducts,
+        user,
+        orderType,
+        sortBy,
+        initialPoint,
+        productsPerPage
+      )
 
       data = {
         info: "Todos los productos disponibles",
         products: products,
-        maxLength: maxLength
-      };
+        maxLength: maxLength,
+      }
     } else {
       data = {
         info: "No hay productos registrados",
         products: null,
-      };
+      }
     }
 
-    return data;
+    return data
   } catch (error) {
-    console.log(error);
-    return error;
+    console.log(error)
+    return error
   }
-};
-
-
+}
 
 const readAllProductsAdmin = async () => {
   try {
@@ -179,6 +196,52 @@ const updateProduct = async (productData, productId) => {
       return {
         message: "Actualización realizada con éxito.",
         product: updateProduct,
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const updateAll = async () => {
+  try {
+    const updated = await Product.bulkWrite([
+      {
+        updateMany: {
+          filter: {}, // Actualizar todos los documentos
+          update: [
+            {
+              $set: {
+                available: { $eq: ["$active", true] },
+              },
+            },
+          ],
+        },
+      },
+    ])
+    return { message: "Productos actualizados", products: updated }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const changeVisibility = async (id, body) => {
+  try {
+    const data = {}
+    if (body.type === "active") {
+      data.active = body.value
+    } else {
+      data.available = body.value
+    }
+    const updated = await Product.findByIdAndUpdate(id, data, { new: true })
+    if (!updated) {
+      return console.log("Product update error: " + err)
+    } else {
+      return {
+        message: "Actualización realizada con éxito.",
+        product: updated,
       }
     }
   } catch (error) {
@@ -329,7 +392,7 @@ const readAllCategories = async () => {
     if (readedCategories) {
       const data = {
         info: "Todas las categorías existentes",
-        products: readedCategories,
+        categories: readedCategories,
       }
       return data
     } else {
@@ -347,7 +410,7 @@ const readAllCategories = async () => {
 
 const readActiveCategories = async () => {
   try {
-    const readedCategories = await Category.find({active: true})
+    const readedCategories = await Category.find({ active: true })
     if (readedCategories) {
       const data = {
         info: "Todas las categorías existentes",
@@ -374,7 +437,9 @@ module.exports = {
   readAllProducts_v2,
   readAllProductsAdmin,
   updateProduct,
+  changeVisibility,
   masiveUpdate,
+  updateAll,
   searchUrl,
   updateMockup,
   deleteProduct,
@@ -382,5 +447,5 @@ module.exports = {
   deleteVariant,
   readById_v2,
   readAllCategories,
-  readActiveCategories
+  readActiveCategories,
 }

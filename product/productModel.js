@@ -1,12 +1,13 @@
-"use strict";
+"use strict"
 
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose")
+const Schema = mongoose.Schema
 
 const ProductSchema = Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
+  categories: { type: Array, required: false },
   considerations: { type: String, required: true },
   productionTime: { type: String, required: false },
   thumbUrl: { type: String, required: false },
@@ -16,24 +17,25 @@ const ProductSchema = Schema({
     // typeFile: {type: String, required: true},
     images: { type: Array, required: true },
     video: { type: String, required: false },
-  }, //images from Products
+  },
   publicPrice: {
     from: { type: String, required: false },
     to: { type: String, required: false },
-  }, //price
+  },
   prixerPrice: {
     from: { type: String, required: false },
     to: { type: String, required: false },
-  }, //prixerPrice
+  },
   cost: { type: String, required: false },
-  attributes: { type: Array, required: false }, //activeAttributes
+  attributes: { type: Array, required: false },
   active: { type: Boolean, required: true },
+  available: { type: Boolean, required: true },
   variants: { type: Array, required: false },
   hasSpecialVar: { type: Boolean, required: true },
   autoCertified: { type: Boolean, required: false },
   discount: { type: String, required: false },
   bestSeller: { type: Boolean, required: false },
   mockUp: { type: Object, required: false },
-});
+})
 
-module.exports = mongoose.model("Product", ProductSchema, "products");
+module.exports = mongoose.model("Product", ProductSchema, "products")
