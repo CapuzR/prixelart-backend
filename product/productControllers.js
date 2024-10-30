@@ -151,6 +151,22 @@ const readAllProductsAdmin = async (req, res) => {
   }
 }
 
+const readInter = async (req, res) => {
+  try {
+    const readedProducts = await productServices.readInter(
+      req.user,
+      req.query.orderType,
+      req.query.sortBy,
+      req.query.initialPoint,
+      req.query.productsPerPage
+    )
+    res.send(readedProducts)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+}
+
 const updateProduct = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
@@ -360,7 +376,8 @@ const updateVariants = async (req, res) => {
       const newVariant = {
         _id: req.body.variant_id,
         variantImage: [],
-        active: req.body.variantActive === "true" ? true : false,
+        active: Boolean(req.body.variantActive),
+        inter: Boolean(req.body.inter),
         name: req.body.variantName,
         description: req.body.variantDescription,
         category: req.body.variantCategory,
@@ -458,6 +475,10 @@ const updateVariants = async (req, res) => {
       }
       productv2.variants.push(newVariant)
 
+      productv2.hasInternationalV = productv2.variants.some(
+        (item) => item.inter === true
+      )
+      
       const productResult = await productServices.updateProduct(
         productv2,
         req.params.id
@@ -514,6 +535,34 @@ async function deleteVariant(req, res) {
   }
 }
 
+const createCategory = async (req, res) => {
+  try {
+    const cat = {
+      active: Boolean(req.body.active),
+      name: req.body.name,
+      appliedProducts: req.body.appliedProducts,
+    }
+    res.send(await productServices.createCategory(cat))
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+}
+
+const updateCategory = async (req, res) => {
+  try {
+    const cat = {
+      active: Boolean(req.body.active),
+      name: req.body.name,
+      appliedProducts: req.body.appliedProducts,
+    }
+    res.send(await productServices.updateCategory(req.params.id, cat))
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+}
+
 const readAllCategories = async (req, res) => {
   try {
     const categories = await productServices.readAllCategories()
@@ -534,6 +583,20 @@ const readActiveCategories = async (req, res) => {
   }
 }
 
+const deleteCategory = async (req, res) => {
+  try {
+    const categoryDeleted = await productServices.deleteCategory(req.params.id)
+    data = {
+      categoryDeleted,
+      success: true,
+    }
+    return res.send(data)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+}
+
 module.exports = {
   upload,
   createProduct,
@@ -541,6 +604,7 @@ module.exports = {
   readAllProducts,
   readAllProducts_v2,
   readAllProductsAdmin,
+  readInter,
   updateProduct,
   updateMany,
   changeVisibility,
@@ -552,8 +616,11 @@ module.exports = {
   updateVariants,
   deleteVariant,
   readById_v2,
+  createCategory,
+  updateCategory,
   readAllCategories,
   readActiveCategories,
+  deleteCategory,
 }
 
 // //CRUD END

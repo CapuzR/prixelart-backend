@@ -1,5 +1,5 @@
 const Product = require("./productModel")
-const Category = require("./categoryModel.js")
+const Category = require("./categoryModel")
 const axios = require("axios")
 const { readDiscountByFilter } = require("../discount/discountServices.js")
 const Utils = require("./utils")
@@ -113,7 +113,6 @@ const readAllProducts_v2 = async (
   try {
     let data = {}
 
-    // Query products and select required fields
     const readedProducts = await Product.find({ active: true }).select(
       "name description priceRange sources variants"
     )
@@ -386,6 +385,70 @@ const deleteVariant = async (data) => {
   }
 }
 
+const createCategory = async (cat) => {
+  try {
+    const newCategory = await new Category(cat).save()
+    const data = { _id: id, name: cat.name }
+
+    const updateProducts = await Promise.all(
+      cat.appliedProducts.map(async (product) => {
+        await Product.updateOne(
+          { _id: product._id, "categories._id": { $ne: data._id } },
+          { $push: { categories: data } }
+        )
+      })
+    )
+    if (newCategory && updateProducts) {
+      return {
+        success: true,
+        categoryData: newCategory,
+        products: updateProducts,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const updateCategory = async (id, cat) => {
+  try {
+    const updatedCategory = await Category.findByIdAndUpdate(id, cat, {
+      new: true,
+    })
+    const newCategory = { _id: id, name: cat.name }
+    const updateProducts = await Promise.all(
+      cat.appliedProducts.map(async (product) => {
+        await Product.updateOne(
+          { _id: product._id, "categories._id": { $ne: newCategory._id } },
+          { $push: { categories: newCategory } }
+        )
+      })
+    )
+
+    if (updatedCategory && updateProducts) {
+      return {
+        success: true,
+        categoryData: updatedCategory,
+        products: updateProducts,
+      }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 const readAllCategories = async () => {
   try {
     const readedCategories = await Category.find()
@@ -430,6 +493,60 @@ const readActiveCategories = async () => {
   }
 }
 
+const readInter = async (
+  user = null,
+  orderType = "",
+  sortBy = "",
+  initialPoint,
+  productsPerPage
+) => {
+  try {
+    const readedProducts = await Product.find({
+      active: true,
+      hasInternationalV: true,
+    })
+
+    if (readedProducts) {
+      let [products, maxLength] = await Utils.productDataPrep(
+        readedProducts,
+        user,
+        orderType,
+        sortBy,
+        initialPoint,
+        productsPerPage
+      )
+
+      if (readedProducts) {
+        const data = {
+          info: "Todos los productos disponibles",
+          products: products,
+          maxLength: maxLength,
+        }
+        return data
+      } else {
+        const data = {
+          info: "No hay productos registrados",
+          arts: null,
+        }
+        return data
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
+const deleteCategory = async (id) => {
+  try {
+    await Category.findByIdAndDelete({ _id: id })
+    return "Categoría eliminada exitosamente"
+  } catch (error) {
+    console.log(error)
+    return error
+  }
+}
+
 module.exports = {
   createProduct,
   readById,
@@ -446,6 +563,10 @@ module.exports = {
   getBestSellers,
   deleteVariant,
   readById_v2,
+  createCategory,
+  updateCategory,
   readAllCategories,
   readActiveCategories,
+  readInter,
+  deleteCategory,
 }

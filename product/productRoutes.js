@@ -31,6 +31,8 @@ router.get(
   productControllers.readAllProducts_v2
 )
 
+router.get("/product/read-international", productControllers.readInter)
+
 router.put(
   "/product/update/:id",
   adminAuthServices.ensureAuthenticated,
@@ -74,7 +76,26 @@ router.get(
   productControllers.readActiveCategories
 )
 
+router.post(
+  "/product/create-category",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.createCategory
+)
+
+router.put(
+  "/product/update-category/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.updateCategory
+)
+
+router.delete(
+  "/product/delete-category/:id",
+  adminAuthServices.ensureAuthenticated,
+  productControllers.deleteCategory
+)
+
 router.put("/product/addProperty", productControllers.updateAll)
+
 router.put(
   "/product/changeVisibility/:id",
   adminAuthServices.ensureAuthenticated,
