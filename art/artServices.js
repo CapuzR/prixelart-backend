@@ -6,14 +6,14 @@ const axios = require("axios")
 
 //CRUD
 const createArt = async (artData) => {
-  const isArt = false
+  // const isArt = false
   try {
-    if (isArt) {
-      return {
-        success: false,
-        message: "Disculpa, este arte ya fue creado.",
-      }
-    } else {
+    // if (isArt) {
+    //   return {
+    //     success: false,
+    //     message: "Disculpa, este arte ya fue creado.",
+    //   }
+    // } else {
       const newArt = await new Art(organizeArtData(artData)).save()
       if (newArt) {
         return {
@@ -27,7 +27,7 @@ const createArt = async (artData) => {
             "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
         }
       }
-    }
+    // }
   } catch (e) {
     return {
       success: false,
@@ -41,7 +41,7 @@ const createArt = async (artData) => {
 const readOneById = async (artSystemId) => {
   try {
     const readedArt = await Art.findOne({ artId: artSystemId, visible: true })
-      // .select("-_id -__v -imageUrl")
+      // .select("-__v -imageUrl")
       // .sort({ points: -1, visible: -1 })
       .exec()
     const createdOn = mongoose.Types.ObjectId(readedArt._id)
@@ -98,7 +98,7 @@ const readByUserIdByQuery = async (user, query) => {
   try {
     const text = accents.remove(query).toLowerCase()
     const readedArts = await Art.find({ prixerUsername: user, visible: true })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     const specifyArt = await Art.findOne({ artId: query, visible: true })
     const filterArts = readedArts.filter((art, index) => {
@@ -159,7 +159,7 @@ const readByUserIdAndCategory = async (user, query) => {
       category: query,
       visible: true,
     })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     if (readedArts) {
       const data = {
@@ -189,7 +189,7 @@ const readByUserIdQueryAndCategory = async (user, query) => {
       category: category,
       visible: true,
     })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     const specifyArt = await Art.find({ artId: query.text, visible: true })
     const filterArts = readedArts.filter((art, index) => {
@@ -247,7 +247,7 @@ const readAllArts = async () => {
   try {
     const readedArts = await Art.find()
       .sort({ points: -1, visible: -1 })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     if (readedArts) {
       const data = {
@@ -275,7 +275,7 @@ const readAllArtsv2 = async () => {
   try {
     const readedArts = await Art.find({ visible: true })
       .sort({ points: -1, visible: -1 })
-      .select(" -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
 
     readedArts.forEach((art) => {
@@ -349,7 +349,7 @@ const readByQueryAndCategory = async (query) => {
     const text = accents.remove(query.text).toLowerCase()
     const category = query.category
     const readedArts = await Art.find({ category: category, visible: true })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     const specifyArt = await Art.find({ artId: query.text, visible: true })
 
@@ -408,7 +408,7 @@ const readByQuery = async (query) => {
   try {
     const text = accents.remove(query.text).toLowerCase()
     const readedArts = await Art.find({ visible: true })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     const specifyArt = await Art.findOne({ artId: query.text, visible: true })
     const filterArts = readedArts.filter((art, index) => {
@@ -466,7 +466,7 @@ const readByCategory = async (query) => {
   try {
     const category = query.category
     const readedArts = await Art.find({ category: category, visible: true })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     if (readedArts) {
       const data = {
@@ -490,7 +490,7 @@ const readByCategory = async (query) => {
 const readAllByUserId = async (userId) => {
   try {
     const readedArts = await Art.find({ userId: userId, visible: true })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     if (readedArts) {
       const data = {
@@ -518,7 +518,7 @@ const readAllByUserIdV2 = async (username) => {
       prixerUsername: username,
       visible: true,
     })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
     if (readedArts) {
       const data = {
@@ -544,7 +544,7 @@ const getOneById = async (artId) => {
   try {
     const readedArts = await Art.find({ artId: artId, visible: true })
       // .sort({ points: -1, visible: -1 })
-      .select("-_id -__v -imageUrl -crops -status")
+      .select("-__v -imageUrl -crops -status")
       .exec()
 
     if (readedArts) {
