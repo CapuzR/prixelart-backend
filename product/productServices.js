@@ -46,19 +46,23 @@ const readById = async (product) => {
   }
 }
 
-const readById_v2 = async (id) => {
+const readById_v2 = async (id, inter) => {
   try {
     const readedProduct = await Product.find({ _id: id }).select(
       "name description priceRange sources variants"
     )
+    let vars
+    if (inter) {
+      vars = readedProduct[0].variants.filter((v) => v.inter)
+    } else {
+      vars = readedProduct[0].variants
+    }
     const product = readedProduct[0]
-    const variants = readedProduct[0].variants.map(
-      ({ _id, name, attributes }) => {
-        return { _id, name, attributes }
-      }
-    )
+    const variants = vars.map(({ _id, name, attributes }) => {
+      return { _id, name, attributes }
+    })
     const attributes = Utils.getUniqueAttributesFromVariants(
-      readedProduct[0].variants
+     vars
     )
     if (attributes) {
       const data = {
@@ -124,7 +128,8 @@ const readAllProducts_v2 = async (
         orderType,
         sortBy,
         initialPoint,
-        productsPerPage
+        productsPerPage,
+        false
       )
 
       data = {
@@ -505,7 +510,6 @@ const readInter = async (
       active: true,
       hasInternationalV: true,
     })
-
     if (readedProducts) {
       let [products, maxLength] = await Utils.productDataPrep(
         readedProducts,
@@ -513,7 +517,8 @@ const readInter = async (
         orderType,
         sortBy,
         initialPoint,
-        productsPerPage
+        productsPerPage,
+        true
       )
 
       if (readedProducts) {
