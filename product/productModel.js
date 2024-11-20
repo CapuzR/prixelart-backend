@@ -13,6 +13,7 @@ const ProductSchema = Schema({
   thumbUrl: { type: String, required: false },
   mockupImg: { type: String, required: false },
   coordinates: { type: String, required: false },
+  hasInternationalV: { type: Boolean, required: false},
   sources: {
     // typeFile: {type: String, required: true},
     images: { type: Array, required: true },

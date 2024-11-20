@@ -108,7 +108,7 @@ const readById = async (req, res) => {
 
 const readById_v2 = async (req, res) => {
   try {
-    const readedProduct = await productServices.readById_v2(req.body._id)
+    const readedProduct = await productServices.readById_v2(req.body._id, req.body.inter)
     res.send(readedProduct)
   } catch (err) {
     res.status(500).send(err)
@@ -420,10 +420,11 @@ const updateVariants = async (req, res) => {
         },
       }
       const previousImg = req.body.images.split(" ")
+
       if (
         previousImg &&
         typeof previousImg === "string" &&
-        previousImg.includes("variantImage")
+        previousImg.includes("digitalocean")
       ) {
         newVariant.variantImage.push({
           type: "images",
@@ -431,7 +432,7 @@ const updateVariants = async (req, res) => {
         })
       } else if (previousImg && previousImg.length > 1) {
         previousImg.map((img) => {
-          img.includes("variantImage") &&
+          img.includes("digitalocean") &&
             newVariant.variantImage.push({
               type: "images",
               url: img.trim().replace(/[,]/gi, ""),
@@ -474,11 +475,10 @@ const updateVariants = async (req, res) => {
         productv2.variants = []
       }
       productv2.variants.push(newVariant)
-
       productv2.hasInternationalV = productv2.variants.some(
         (item) => item.inter === true
       )
-      
+
       const productResult = await productServices.updateProduct(
         productv2,
         req.params.id

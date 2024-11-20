@@ -38,21 +38,46 @@ const getPriceRange = async (
   user,
   productName,
   publicPrice,
-  prixerPrice
+  prixerPrice,
+  interV
 ) => {
   let minPrice = Infinity
   let maxPrice = -Infinity
 
   const parseAndFormatNumber = (value) => {
-    if (typeof value !== "string") return null
-    const parsedNumber = parseFloat(value.replace(",", "."))
-    if (!isNaN(parsedNumber)) {
-      return parsedNumber
+    if (typeof value === "number") {
+      return value
     }
+
+    if (typeof value === "string") {
+      const parsedNumber = parseFloat(value.replace(",", "."))
+      if (!isNaN(parsedNumber)) {
+        return parsedNumber
+      }
+    }
+
     return null
   }
-  
-  if (variants.length > 0) {
+
+  if (interV === true) {
+    variants
+      ?.filter((variant) => variant.inter)
+      .forEach((variant) => {
+        let equation = null
+
+        if (user && variant.prixerPrice) {
+          equation = variant.prixerPrice.equation
+        } else if (!user && variant.publicPrice) {
+          equation = variant.publicPrice.equation
+        }
+
+        const price = parseAndFormatNumber(equation)
+        if (price !== null) {
+          minPrice = Math.min(minPrice, price)
+          maxPrice = Math.max(maxPrice, price)
+        }
+      })
+  } else if (variants.length > 0) {
     variants?.forEach((variant) => {
       let equation = null
 
@@ -85,9 +110,14 @@ const getPriceRange = async (
       maxPrice = Math.max(maxPrice, price)
     }
   }
+  const formatPrice = (price) => price.toFixed(2).replace(".", ",")
 
-  if (minPrice !== Infinity && maxPrice !== -Infinity) {
-    const formatPrice = (price) => price.toFixed(2).replace(".", ",")
+  if (interV === true) {
+    return {
+      from: formatPrice(minPrice),
+      to: formatPrice(maxPrice),
+    }
+  } else if (minPrice !== Infinity && maxPrice !== -Infinity) {
     let postPrixerFeeMinPrice = minPrice / (1 - 0.1)
     let postPrixerFeeMaxPrice = maxPrice / (1 - 0.1)
     const [finalMinPrice, finalMaxPrice] = await applyDiscounts(
@@ -95,7 +125,10 @@ const getPriceRange = async (
       productName,
       user?.id
     )
-    return { from: formatPrice(finalMinPrice), to: formatPrice(finalMaxPrice) }
+    return {
+      from: formatPrice(finalMinPrice),
+      to: formatPrice(finalMaxPrice),
+    }
   } else {
     return null
   }
@@ -135,7 +168,8 @@ const productDataPrep = async (
   orderType,
   sortBy,
   initialPoint,
-  productsPerPage
+  productsPerPage,
+  interV
 ) => {
   let productsRes = []
 
@@ -146,7 +180,8 @@ const productDataPrep = async (
         user,
         product.name,
         product.publicPrice,
-        product.prixerPrice
+        product.prixerPrice,
+        interV
       )
 
       if (
