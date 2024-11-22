@@ -520,6 +520,12 @@ const readAllByUserIdV2 = async (username) => {
     })
       .select("-__v -imageUrl -crops -status")
       .exec()
+
+      readedArts.forEach((art) => {
+        const createdOn = mongoose.Types.ObjectId(art?._id).getTimestamp()
+        art.createdOn = createdOn
+      })
+
     if (readedArts) {
       const data = {
         info: "El Prixer sí tiene artes registrados",
