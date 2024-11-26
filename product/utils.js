@@ -89,7 +89,6 @@ const getPriceRange = async (
       }
 
       const price = parseAndFormatNumber(equation)
-
       if (price !== null) {
         minPrice = Math.min(minPrice, price)
         maxPrice = Math.max(maxPrice, price)
@@ -188,10 +187,8 @@ const productDataPrep = async (
       if (product?.discount !== undefined) {
         let id = product.discount
         searchDiscount = await readWithId(id)
-        console.log(searchDiscount)
         product.discount = searchDiscount
       }
-
       if (
         (priceRange && priceRange !== undefined) ||
         (product.priceRange && product.priceRange !== undefined)

@@ -9,7 +9,6 @@ const createArt = async (req, res) => {
     if (req.body.tags) {
       req.body.tags = req.body.tags.split(",")
     }
-    console.log(req.body)
     const createdArt = await artServices.createArt(req.body)
     res.send(createdArt)
   } catch (e) {
