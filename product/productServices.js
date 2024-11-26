@@ -61,9 +61,7 @@ const readById_v2 = async (id, inter) => {
     const variants = vars.map(({ _id, name, attributes }) => {
       return { _id, name, attributes }
     })
-    const attributes = Utils.getUniqueAttributesFromVariants(
-     vars
-    )
+    const attributes = Utils.getUniqueAttributesFromVariants(vars)
     if (attributes) {
       const data = {
         info: "Todos los productos disponibles",
@@ -118,9 +116,8 @@ const readAllProducts_v2 = async (
     let data = {}
 
     const readedProducts = await Product.find({ active: true }).select(
-      "name description priceRange sources variants"
+      "name description priceRange sources variants discount publicPrice prixerPrice"
     )
-
     if (readedProducts) {
       let [products, maxLength] = await Utils.productDataPrep(
         readedProducts,
