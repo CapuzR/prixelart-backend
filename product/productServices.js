@@ -118,7 +118,7 @@ const readAllProducts_v2 = async (
     let data = {}
 
     const readedProducts = await Product.find({ active: true }).select(
-      "name description priceRange sources variants"
+      "name description priceRange sources variants discount"
     )
 
     if (readedProducts) {

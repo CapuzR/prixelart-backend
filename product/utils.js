@@ -1,4 +1,5 @@
 const { readDiscountByFilter } = require("../discount/discountServices.js")
+const { readWithId } = require("../discount/utils.js")
 
 //Esto me lo debería llevar a los utils de discount en tal caso.
 const applyDiscounts = async (
@@ -183,6 +184,13 @@ const productDataPrep = async (
         product.prixerPrice,
         interV
       )
+      let searchDiscount = undefined
+      if (product?.discount !== undefined) {
+        let id = product.discount
+        searchDiscount = await readWithId(id)
+        console.log(searchDiscount)
+        product.discount = searchDiscount
+      }
 
       if (
         (priceRange && priceRange !== undefined) ||
@@ -192,6 +200,7 @@ const productDataPrep = async (
           id: product._id,
           name: product.name,
           description: product.description,
+          discount: searchDiscount,
           sources: product.sources,
           priceRange: priceRange ? priceRange : product.priceRange,
         })
