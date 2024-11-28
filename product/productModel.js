@@ -30,7 +30,7 @@ const ProductSchema = Schema({
   cost: { type: String, required: false },
   attributes: { type: Array, required: false },
   active: { type: Boolean, required: true },
-  available: { type: Boolean, required: true },
+  available: { type: Boolean, required: false },
   variants: { type: Array, required: false },
   hasSpecialVar: { type: Boolean, required: true },
   autoCertified: { type: Boolean, required: false },
