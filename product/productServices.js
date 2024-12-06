@@ -110,13 +110,24 @@ const readAllProducts_v2 = async (
   orderType = "",
   sortBy = "",
   initialPoint,
-  productsPerPage
+  productsPerPage,
+  query
 ) => {
   try {
     let data = {}
 
-    const readedProducts = await Product.find({ active: true }).select(
-      "name description priceRange sources variants discount publicPrice prixerPrice"
+    const filters = { active: true };
+
+    if (query) {
+      filters.$or = [
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } }
+      ];
+    }
+    
+    const readedProducts = await Product.find(filters).select(
+      "name description priceRange sources variants discount publicPrice prixerPrice productionTime"
     )
     if (readedProducts) {
       let [products, maxLength] = await Utils.productDataPrep(
@@ -126,6 +137,7 @@ const readAllProducts_v2 = async (
         sortBy,
         initialPoint,
         productsPerPage,
+        query,
         false
       )
 

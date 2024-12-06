@@ -132,7 +132,8 @@ const readAllProducts_v2 = async (req, res) => {
       req.query.orderType,
       req.query.sortBy,
       req.query.initialPoint,
-      req.query.productsPerPage
+      req.query.productsPerPage,
+      req.query.query
     )
     res.send(readedProducts)
   } catch (err) {

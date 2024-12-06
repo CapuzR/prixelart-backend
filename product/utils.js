@@ -200,6 +200,9 @@ const productDataPrep = async (
           discount: searchDiscount,
           sources: product.sources,
           priceRange: priceRange ? priceRange : product.priceRange,
+          productionTime: product.productionTime,
+          publicPrice: product.publicPrice,
+          prixerPrice: product.prixerPrice
         })
       }
     })
