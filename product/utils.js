@@ -89,6 +89,7 @@ const getPriceRange = async (
       }
 
       const price = parseAndFormatNumber(equation)
+
       if (price !== null) {
         minPrice = Math.min(minPrice, price)
         maxPrice = Math.max(maxPrice, price)
@@ -104,7 +105,6 @@ const getPriceRange = async (
     }
 
     const price = parseAndFormatNumber(equation)
-
     if (price !== null) {
       minPrice = Math.min(minPrice, price)
       maxPrice = Math.max(maxPrice, price)
@@ -118,10 +118,10 @@ const getPriceRange = async (
       to: formatPrice(maxPrice),
     }
   } else if (minPrice !== Infinity && maxPrice !== -Infinity) {
-    let postPrixerFeeMinPrice = minPrice / (1 - 0.1)
-    let postPrixerFeeMaxPrice = maxPrice / (1 - 0.1)
+    // let postPrixerFeeMinPrice = minPrice / (1 - 0.1)
+    // let postPrixerFeeMaxPrice = maxPrice / (1 - 0.1)
     const [finalMinPrice, finalMaxPrice] = await applyDiscounts(
-      [postPrixerFeeMinPrice, postPrixerFeeMaxPrice],
+      [minPrice, maxPrice],
       productName,
       user?.id
     )
@@ -202,7 +202,7 @@ const productDataPrep = async (
           priceRange: priceRange ? priceRange : product.priceRange,
           productionTime: product.productionTime,
           publicPrice: product.publicPrice,
-          prixerPrice: product.prixerPrice
+          prixerPrice: product.prixerPrice,
         })
       }
     })
