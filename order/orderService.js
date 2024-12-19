@@ -135,7 +135,7 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
 
   const currentDate = new Date();
   const fiveMonthsAgo = new Date();
-  fiveMonthsAgo.setMonth(currentDate.getMonth() - 5);
+  fiveMonthsAgo.setMonth(currentDate.getMonth() - 12);
 
   let query = {
     status: { $ne: "Anulado" },
@@ -154,11 +154,10 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
     const [firstName, ...rest] = nameParts;
 
     const lastName = rest.join(" ");
-    query.$or = [
-      { "basicData.name": { $regex: new RegExp(firstName, "i") } },
-      { "basicData.lastname": { $regex: new RegExp(lastName, "i") } },
+    query.$and = [
+      { "basicData.name": { $regex: new RegExp(`^${firstName}`, "i") } },
+      { "basicData.lastname": { $regex: new RegExp(`^${lastName}`, "i") } }
     ];
-    // }
   }
   if (filters.payStatus) {
     if (filters.payStatus === "Pendiente") {
@@ -210,7 +209,7 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
 const readAllOrdersClients = async () => {
   const currentDate = new Date();
   const fiveMonthsAgo = new Date();
-  fiveMonthsAgo.setMonth(currentDate.getMonth() - 5);
+  fiveMonthsAgo.setMonth(currentDate.getMonth() - 12);
   let readedOrder = await Order.find({
     status: { $ne: "Anulado" },
     createdOn: { $gte: fiveMonthsAgo },
