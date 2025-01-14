@@ -1,0 +1,147 @@
+Total MUI component imports: 122
+Unique MUI components: 31
+
+List of files and imported MUI components (sorted by number of components):
+src/components/Dialog/Warning.jsx -> CardActionArea, Typography, IconButton, Tooltip, Dialog, DialogTitle, DialogContentText, DialogContent, DialogActions, Button, TextField, Grid
+src/flow/views/Landscape.tsx -> Typography, Accordion, AccordionSummary, AccordionDetails, MenuItem, FormControl, Select, InputLabel
+src/flow/views/Portrait.tsx -> Typography, Accordion, AccordionSummary, AccordionDetails, MenuItem, FormControl, Select, InputLabel
+src/products/details/views/Landscape.tsx -> Typography, Accordion, AccordionSummary, AccordionDetails, MenuItem, FormControl, Select, InputLabel
+src/products/details/views/Portrait.tsx -> Typography, Accordion, AccordionSummary, AccordionDetails, MenuItem, FormControl, Select, InputLabel
+src/admin/adminMain/orders/readOrders.jsx -> TableCell, TableHead, TableRow, TableBody, Backdrop
+src/art/components/ArtThumbnail.tsx -> CardActionArea, Typography, IconButton, Tooltip
+src/map/components/iconsForm/iconsForm.jsx -> Grid, Paper, Button, Typography
+src/admin/adminMain/movements/movementForOrder.jsx -> Typography, Backdrop, Button
+src/admin/adminMain/preferences/preferencesCarousel.jsx -> Button, Typography, FormControl
+src/map/views/mobile.jsx -> Grid, Button, Typography
+src/admin/adminCrud/createAdmin.jsx -> Switch, Typography
+src/admin/adminCrud/createAdminRole.jsx -> Switch, Typography
+src/admin/adminCrud/updateAdmin.jsx -> Switch, Typography
+src/admin/adminCrud/updateAdminRole.jsx -> Switch, Typography
+src/admin/adminMain/movements/readMovements.jsx -> Backdrop, Button
+src/admin/adminMain/preferences/preferenceArtBestSellers.jsx -> Typography, Checkbox
+src/admin/adminMain/preferences/preferenceBestSellers.jsx -> Typography, Checkbox
+src/admin/consumerCrud/readConsumers.jsx -> Typography, Snackbar
+src/cart/shoppingPage.jsx -> Typography, Backdrop
+src/components/Pagination/PaginationBar.jsx -> Box, Button
+src/components/prixerGrid/orgGrid.jsx -> Container, CssBaseline
+src/map/views/desktop.jsx -> Grid, Typography
+src/orgLanding/ShoppingCartCb.jsx -> TextField, Backdrop
+src/admin/TestimonialsCrud/Testimonials.jsx -> Backdrop
+src/admin/adminCrud/readAdmins.jsx -> Snackbar
+src/admin/adminMain/orders/consumerData.jsx -> Typography
+src/admin/adminMain/orders/createOrder.jsx -> Typography
+src/admin/adminMain/orders/orderDetails.jsx -> Typography
+src/admin/adminMain/orders/orders.jsx -> Backdrop
+src/admin/adminMain/orders/payComission.jsx -> Typography
+src/admin/adminMain/orders/shoppingCart.jsx -> Typography
+src/admin/adminMain/products/createCategory.jsx -> Typography
+src/admin/adminMain/products/createDiscount.jsx -> Typography
+src/admin/adminMain/products/createSurcharge.jsx -> Typography
+src/admin/adminMain/products/updateCategory.jsx -> Typography
+src/admin/adminMain/products/updateDiscount.jsx -> Typography
+src/admin/adminMain/products/updateSurcharge.jsx -> Typography
+src/admin/adminMain/shippingMethodCrud/readShippingMethod.jsx -> Backdrop
+src/admin/paymentMethodCrud/readPaymentMethods.jsx -> Backdrop
+src/admin/productCrud/readProducts.jsx -> Backdrop
+src/admin/productCrud/updateMockUp.jsx -> Typography
+src/cart/cartReview.jsx -> Typography
+src/cart/consumerForm.jsx -> Snackbar
+src/cart/orderForm.jsx -> Typography
+src/components/artUploader/aspectRatioSelector.jsx -> Typography
+src/orgLanding/cartComponents/OrderFormCb.jsx -> Typography
+src/orgLanding/footer.jsx -> Typography
+src/orgLanding/productDetail.jsx -> Typography
+src/prixerProfile/fullscreenPhoto/fullscreenService.jsx -> TextField
+src/prixerProfile/grid/serviceGrid.jsx -> TextField
+src/prixerProfile/movDetails.jsx -> Typography
+src/prixerProfile/prixerStats.jsx -> Button
+src/products/catalog/Catalog.jsx -> IconButton
+
+List of files and the total MUI components they import (sorted by component count):
+src/components/Dialog/Warning.jsx: 12 components
+src/flow/views/Landscape.tsx: 8 components
+src/flow/views/Portrait.tsx: 8 components
+src/products/details/views/Landscape.tsx: 8 components
+src/products/details/views/Portrait.tsx: 8 components
+src/admin/adminMain/orders/readOrders.jsx: 5 components
+src/art/components/ArtThumbnail.tsx: 4 components
+src/map/components/iconsForm/iconsForm.jsx: 4 components
+src/admin/adminMain/movements/movementForOrder.jsx: 3 components
+src/admin/adminMain/preferences/preferencesCarousel.jsx: 3 components
+src/map/views/mobile.jsx: 3 components
+src/admin/adminCrud/createAdmin.jsx: 2 components
+src/admin/adminCrud/createAdminRole.jsx: 2 components
+src/admin/adminCrud/updateAdmin.jsx: 2 components
+src/admin/adminCrud/updateAdminRole.jsx: 2 components
+src/admin/adminMain/movements/readMovements.jsx: 2 components
+src/admin/adminMain/preferences/preferenceArtBestSellers.jsx: 2 components
+src/admin/adminMain/preferences/preferenceBestSellers.jsx: 2 components
+src/admin/consumerCrud/readConsumers.jsx: 2 components
+src/cart/shoppingPage.jsx: 2 components
+src/components/Pagination/PaginationBar.jsx: 2 components
+src/components/prixerGrid/orgGrid.jsx: 2 components
+src/map/views/desktop.jsx: 2 components
+src/orgLanding/ShoppingCartCb.jsx: 2 components
+src/admin/TestimonialsCrud/Testimonials.jsx: 1 components
+src/admin/adminCrud/readAdmins.jsx: 1 components
+src/admin/adminMain/orders/consumerData.jsx: 1 components
+src/admin/adminMain/orders/createOrder.jsx: 1 components
+src/admin/adminMain/orders/orderDetails.jsx: 1 components
+src/admin/adminMain/orders/orders.jsx: 1 components
+src/admin/adminMain/orders/payComission.jsx: 1 components
+src/admin/adminMain/orders/shoppingCart.jsx: 1 components
+src/admin/adminMain/products/createCategory.jsx: 1 components
+src/admin/adminMain/products/createDiscount.jsx: 1 components
+src/admin/adminMain/products/createSurcharge.jsx: 1 components
+src/admin/adminMain/products/updateCategory.jsx: 1 components
+src/admin/adminMain/products/updateDiscount.jsx: 1 components
+src/admin/adminMain/products/updateSurcharge.jsx: 1 components
+src/admin/adminMain/shippingMethodCrud/readShippingMethod.jsx: 1 components
+src/admin/paymentMethodCrud/readPaymentMethods.jsx: 1 components
+src/admin/productCrud/readProducts.jsx: 1 components
+src/admin/productCrud/updateMockUp.jsx: 1 components
+src/cart/cartReview.jsx: 1 components
+src/cart/consumerForm.jsx: 1 components
+src/cart/orderForm.jsx: 1 components
+src/components/artUploader/aspectRatioSelector.jsx: 1 components
+src/orgLanding/cartComponents/OrderFormCb.jsx: 1 components
+src/orgLanding/footer.jsx: 1 components
+src/orgLanding/productDetail.jsx: 1 components
+src/prixerProfile/fullscreenPhoto/fullscreenService.jsx: 1 components
+src/prixerProfile/grid/serviceGrid.jsx: 1 components
+src/prixerProfile/movDetails.jsx: 1 components
+src/prixerProfile/prixerStats.jsx: 1 components
+src/products/catalog/Catalog.jsx: 1 components
+
+List of unique MUI components and their count (sorted by count):
+Typography: 38 occurrences
+Backdrop: 10 occurrences
+Button: 8 occurrences
+FormControl: 5 occurrences
+Switch: 4 occurrences
+TextField: 4 occurrences
+Grid: 4 occurrences
+Accordion: 4 occurrences
+AccordionSummary: 4 occurrences
+AccordionDetails: 4 occurrences
+MenuItem: 4 occurrences
+Select: 4 occurrences
+InputLabel: 4 occurrences
+Snackbar: 3 occurrences
+IconButton: 3 occurrences
+Checkbox: 2 occurrences
+CardActionArea: 2 occurrences
+Tooltip: 2 occurrences
+TableCell: 1 occurrences
+TableHead: 1 occurrences
+TableRow: 1 occurrences
+TableBody: 1 occurrences
+Dialog: 1 occurrences
+DialogTitle: 1 occurrences
+DialogContentText: 1 occurrences
+DialogContent: 1 occurrences
+DialogActions: 1 occurrences
+Box: 1 occurrences
+Container: 1 occurrences
+CssBaseline: 1 occurrences
+Paper: 1 occurrences

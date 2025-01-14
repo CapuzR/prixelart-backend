@@ -13,12 +13,14 @@ const authenticate = async (userData) => {
   const user = await userServices.readUserByEmail({
     email: userData.email,
   });
+  console.log("user", user);
   let org, prixer;
-  if (user?.role === "Organization") {
-     org = await orgServices.readOrgbyId({ _id: user._id });
-  } else
-{   prixer = await prixerServices.readPrixerbyId({ _id: user._id });
-}  if (user) {
+  if (user) {
+    if (user?.role === "Organization") {
+      org = await orgServices.readOrgbyId({ _id: user._id });
+    } else {   
+      prixer = await prixerServices.readPrixerbyId({ _id: user._id });
+    } 
     if (!bcrypt.compareSync(userData.password, user.password)) {
       return {
         success: false,

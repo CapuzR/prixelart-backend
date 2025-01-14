@@ -279,7 +279,7 @@ const readAllArtsv2 = async () => {
       .exec()
 
     readedArts.forEach((art) => {
-      const createdOn = mongoose.Types.ObjectId(art._id).getTimestamp()
+      const createdOn = new mongoose.Types.ObjectId(art._id).getTimestamp()
       art.createdOn = createdOn
     })
 
@@ -332,7 +332,7 @@ const readGallery = async (filters = {}) => {
       .exec()
 
     readedArts.forEach((art) => {
-      const createdOn = mongoose.Types.ObjectId(art._id).getTimestamp()
+      const createdOn = new mongoose.Types.ObjectId(art._id).getTimestamp()
       art.createdOn = createdOn
     })
 
@@ -370,7 +370,7 @@ const readLatest = async () => {
 
     const v2 = []
     readedArts.map((art) => {
-      const createdAt = mongoose.Types.ObjectId(art._id)
+      const createdAt = new mongoose.Types.ObjectId(art._id)
       const date = createdAt.getTimestamp()
       art.createAt = date
       delete art._id

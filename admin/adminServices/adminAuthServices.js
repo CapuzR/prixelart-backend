@@ -127,6 +127,8 @@ const generateToken = (admin) => {
 
 const ensureAuthenticated = (req, res, next) => {
   try {
+    console.log("req.cookies", req.cookies);
+    console.log("req.body", req.body);
     const adminToken =
       req.cookies.adminToken || req.body.adminToken || undefined
     if (!adminToken) {
@@ -148,7 +150,7 @@ const ensureAuthenticated = (req, res, next) => {
   } catch (e) {
     res.send({
       success: false,
-      error_info: "auth error",
+      error_info: "error",
       error_message:
         "No has iniciado sesión. Por favor inicia sesión para continuar.",
     })

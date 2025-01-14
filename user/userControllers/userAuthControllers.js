@@ -24,7 +24,16 @@ const login = async (req, res) => {
     }
 
     if (auth.token) {
-      res.cookie("token", auth.token, { httpOnly: true }).send(auth);
+      const isProduction = process.env.NODE_ENV === "prod";
+      var expiryDate = new Date(Date.now() + 2400 * 60 * 1000); // 1 hour
+      res.cookie("token", auth.token, {
+        secure: true,
+        httpOnly: true,
+        sameSite: "None",
+        domain: isProduction ? ".prixelart.com" : "localhost",
+        path: "/",
+        maxAge: expiryDate,
+      }).send(auth);
     } else {
       console.log(
         "Falló, error inesperado. Inténtalo de nuevo o contáctanos: rcapuz@prixelart.com"

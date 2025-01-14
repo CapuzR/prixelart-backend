@@ -5,10 +5,7 @@ dotenv.config();
 module.exports = async()=> {
     if(process.env.NODE_ENV == 'test') {
       await mongoose.connect(process.env.MONGO_URI, {
-        keepAlive: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: false,
-        useFindAndModify: false,
+        socketTimeoutMS: 60000,
       })
       .then(x => {
           console.log(
@@ -20,10 +17,7 @@ module.exports = async()=> {
       });
     } else {
       await mongoose.connect(process.env.MONGO_URI, {
-        keepAlive: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
+        socketTimeoutMS : 60000,
       })
       .then(x => {
           console.log(

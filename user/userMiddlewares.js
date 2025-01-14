@@ -6,6 +6,7 @@ dotenv.config();
 const ensureAuthenticated = (req, res, next) => {
   try {
     const token = req.cookies.token;
+    console.log("isAUTH - token", token);
     if (!token) {
       return res.send({
         success: false,

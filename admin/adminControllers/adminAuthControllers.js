@@ -10,9 +10,18 @@ const createAdmin = async (req, res) => {
       if (result.res.success) {
         const adminToken = adminAuthServices.generateToken(result.newAdmin);
         if (adminToken) {
+          const isProduction = process.env.NODE_ENV === "prod";
+          var expiryDate = new Date(Date.now() + 2400 * 60 * 1000);
           result.adminToken = adminToken;
           res
-            .cookie("adminToken", adminToken, { httpOnly: true })
+            .cookie("adminToken", adminToken, {
+              secure: true,
+              httpOnly: true,
+              sameSite: "None",
+              domain: isProduction ? ".prixelart.com" : "localhost",
+              path: "/",
+              maxAge: expiryDate,
+            })
             .send({ success: true });
         }
       } else {
@@ -37,7 +46,16 @@ const adminLogin = async (req, res) => {
     }
 
     if (auth.adminToken) {
-      res.cookie("adminToken", auth.adminToken, { httpOnly: true }).send(auth);
+      const isProduction = process.env.NODE_ENV === "prod";
+      var expiryDate = new Date(Date.now() + 2400 * 60 * 1000);
+      res.cookie("adminToken", auth.adminToken, {
+        secure: true,
+        httpOnly: true,
+        sameSite: "None",
+        domain: isProduction ? ".prixelart.com" : "localhost",
+        path: "/",
+        maxAge: expiryDate,
+      }).send(auth);
     } else {
       console.log(
         "Falló, error inesperado. Inténtalo de nuevo o contáctanos: rcapuz@prixelart.com"

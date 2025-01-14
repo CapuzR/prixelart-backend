@@ -8,9 +8,15 @@ var helmet = require("helmet");
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === "prod";
+
 var allowedOrigins = [
   "http://" + process.env.FRONT_END_URL,
   "https://" + process.env.FRONT_END_URL,
+  "http://admin." + process.env.FRONT_END_URL,
+  "https://admin." + process.env.FRONT_END_URL,
+  "http://prixer." + process.env.FRONT_END_URL,
+  "https://prixer." + process.env.FRONT_END_URL,
   "https://www." + process.env.FRONT_END_URL,
   "www." + process.env.FRONT_END_URL,
 ];
@@ -22,8 +28,8 @@ app.use(
     cookie: {
       secure: true,
       httpOnly: true,
-      sameSite: true,
-      domain: "prixelart.com",
+      sameSite: "None",
+      domain: isProduction ? ".prixelart.com" : "localhost",
       path: "/",
       maxAge: expiryDate,
       overwrite: true,
