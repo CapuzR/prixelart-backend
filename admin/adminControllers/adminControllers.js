@@ -34,7 +34,7 @@ const readAllAdmins = async (req, res) => {
 const updateAdmin = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.modifyAdmins) {
       const adminData = {
@@ -66,7 +66,7 @@ const updateAdmin = async (req, res) => {
 const deleteAdmin = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.modifyAdmins) {
       const deletedAdmin = await adminServices.deleteAdmin(req.params.username);
@@ -86,7 +86,7 @@ const deleteAdmin = async (req, res) => {
 const createAdminRole = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.modifyAdmins) {
       const createdAdminRole = await adminServices.createAdminRole(req.body);
@@ -114,7 +114,7 @@ const readAdminRoles = async (req, res) => {
 const updateAdminRole = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.modifyAdmins) {
       const idToUpdate = req.params.id;
@@ -167,7 +167,7 @@ const updateAdminRole = async (req, res) => {
 const deleteAdminRole = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.modifyAdmins) {
       const deletedAdminRole = await adminServices.deleteAdminRole(

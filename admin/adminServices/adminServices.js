@@ -115,6 +115,7 @@ const updateAdminRole = async (id, role) => {
     return error;
   }
 };
+
 const deleteAdminRole = async (id) => {
   try {
     const toDeleteAdminRole = await adminRole.findOneAndDelete({ _id: id });
@@ -126,6 +127,7 @@ const deleteAdminRole = async (id) => {
     };
   }
 };
+
 module.exports = {
   readAdminById,
   readAllAdmins,
