@@ -151,12 +151,13 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
   if (filters.client) {
     const nameParts = filters.client.split(" ");
 
-    const [firstName, ...rest] = nameParts;
+    // const [firstName, ...rest] = nameParts;
 
-    const lastName = rest.join(" ");
-    query.$and = [
-      { "basicData.name": { $regex: new RegExp(`^${firstName}`, "i") } },
-      { "basicData.lastname": { $regex: new RegExp(`^${lastName}`, "i") } }
+    // const lastName = rest.join(" ");
+    query.$or = [
+      { "basicData.name": { $regex: new RegExp(filters.client, "i") } },
+      { "basicData.lastname": { $regex: new RegExp(filters.client, "i") } },
+      { $expr: { $regexMatch: { input: { $concat: ["$basicData.name", " ", "$basicData.lastname"] }, regex: filters.client, options: "i" } } }
     ];
   }
   if (filters.payStatus) {
