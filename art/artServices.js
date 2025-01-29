@@ -44,7 +44,7 @@ const readOneById = async (artSystemId) => {
       // .select("-_id -__v -imageUrl")
       // .sort({ points: -1, visible: -1 })
       .exec()
-    const createdOn = mongoose.Types.ObjectId(readedArt._id)
+    const createdOn = new mongoose.Types.ObjectId(readedArt._id);
     const date = createdOn.getTimestamp()
     readedArt.createdOn = date
     if (readedArt) {
