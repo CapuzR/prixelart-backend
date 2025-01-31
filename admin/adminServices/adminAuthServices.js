@@ -188,12 +188,9 @@ const checkPermissions = async (req, res) => {
       }
     } else {
       token = req;
-      console.log(token)
       const decoded = await verifyToken(token);
-      console.log("descifrado", decoded);
       if (decoded && decoded !== undefined) {
         let readedRole = await adminRoleModel.findOne({ area: decoded.area });
-        console.log("rol", readedRole);
         return { admin: decoded, role: readedRole };
       } else {
         return {

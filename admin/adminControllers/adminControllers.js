@@ -51,7 +51,11 @@ const updateAdmin = async (req, res) => {
         req.params.id,
         adminData
       );
-      return res.send(updatedAdmin);
+      return res.send({
+        admin: updatedAdmin,
+        success: true,
+        message: "Información de administrador actualizada.",
+      });
     } else {
       return res.send({
         success: false,

@@ -44,9 +44,7 @@ const readAdminByUsername = async (username) => {
 
 const updateAdmin = async (id, adminData) => {
   try {
-    const toUpdateAdmin = await Admin.findByIdAndUpdate(id, adminData);
-    // toUpdateAdmin.set(adminData);
-    // const updatedAdmin = await toUpdateAdmin.save();
+    const toUpdateAdmin = await Admin.findByIdAndUpdate(id, adminData, { new: true });
     if (!toUpdateAdmin) {
       return console.log("Admin update error: " + err);
     }
