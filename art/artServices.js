@@ -69,15 +69,15 @@ const readOneById = async (artSystemId) => {
 
 const randomArts = async () => {
   try {
-    const readedArts = await Art.find({ visible: true })
+    const readedArt = await Art.aggregate([
+      { $match: { visible: true } }, 
+      { $sample: { size: 1 } }
+    ]);
 
-    const docCount = await Art.estimatedDocumentCount()
-    var random = Math.floor(Math.random() * docCount)
-    const readedArt = readedArts[random]
-    if (readedArts) {
+    if (readedArt) {
       const data = {
         info: "Sorpresa...",
-        arts: readedArt,
+        art: readedArt[0],
       }
 
       return data
