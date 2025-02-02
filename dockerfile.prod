@@ -1,24 +1,30 @@
+FROM node:18.19-buster
 
-FROM node:18.19-buster as build 
+# Create app directory and set proper permissions
 RUN mkdir -p /home/node/backend/node_modules && chown -R node:node /home/node/backend
 
 WORKDIR /home/node/backend
+
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
-# RUN npm cache verify
+
+# Set environment variables if needed
 ENV HOME='.'
+
+# Remove and re-install specific packages
 RUN npm uninstall bcrypt
 RUN npm install bcrypt
 RUN npm install --build-from-source=sharp
-# RUN apk --no-cache add --virtual builds-deps build-base python
-# RUN npm config set python /usr/bin/python
-# RUN apk --no-cache add --virtual builds-deps build-base python && npm install && apk del builds-deps
-COPY . ./
-EXPOSE 8000
-CMD ["npm", "start"]
-# RUN npm run start
 
-# FROM nginx:1.17-alpine
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
-# EXPOSE 8080
-# CMD ["nginx", "-g", "daemon off;"]
+# Copy application source code
+COPY . ./
+
+# Install PM2 globally
+RUN npm install -g pm2
+
+# Expose your application port
+EXPOSE 8000
+
+# Start the application with PM2 runtime so that it auto-restarts on crashes
+CMD ["pm2-runtime", "start", "start.js"]
