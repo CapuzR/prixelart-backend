@@ -15,7 +15,7 @@ router.post(
   userMdw.ensureAuthenticated,
   userAuthControllers.changePassword
 )
-
+router.post( "/testing-emails", userControllers.testEmails)
 router.post("/forgot-password", userAuthControllers.forgotPassword)
 router.post("/reset-password", userAuthControllers.resetPassword) //token, newPassword
 router.post("/pw-token-check", userAuthControllers.checkPasswordToken) //token
