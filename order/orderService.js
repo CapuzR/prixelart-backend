@@ -527,18 +527,8 @@ const readAllPaymentMethods = async (active) => {
 
 const updatePaymentMethod = async (paymentMethodData) => {
   try {
-    // const readedPaymentMethodByName = await readPaymentMethodByName(
-    //   paymentMethodData.name
-    // );
-    // if (readedPaymentMethodByName) {
-    //   return {
-    //     success: false,
-    //     info: "error_email",
-    //     message: "Disculpa, el nombre en la forma de pago ya está registrado.",
-    //   };
-    // }
     const toUpdatePaymentMethod = await readPaymentMethodById(
-      paymentMethodData.id
+      paymentMethodData._id
     )
     await toUpdatePaymentMethod.set(paymentMethodData)
     const updatedPaymentMethod = await toUpdatePaymentMethod.save()

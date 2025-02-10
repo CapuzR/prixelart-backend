@@ -105,7 +105,7 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   orderControllers.updatePaymentMethod
 )
-router.put(
+router.delete(
   "/payment-method/delete/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.deletePaymentMethod
