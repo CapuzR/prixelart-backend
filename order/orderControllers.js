@@ -22,7 +22,7 @@ const s3 = new aws.S3({
 const createOrder = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createOrder) {
       const orderData = {
@@ -257,7 +257,7 @@ const readOrdersByEmail = async (req, res) => {
 const updateOrder = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.orderStatus) {
       const updatedOrder = await orderServices.updateOrder(
@@ -279,7 +279,7 @@ const updateOrder = async (req, res) => {
 const updateOrderPayStatus = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.detailPay) {
       const updatedOrder = await orderServices.updateOrderPayStatus(
@@ -301,7 +301,7 @@ const updateOrderPayStatus = async (req, res) => {
 const updateSeller = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.area === "Master") {
       const updatedOrder = await orderServices.updateSeller(
@@ -323,7 +323,7 @@ const updateSeller = async (req, res) => {
 const updateItemStatus = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.orderStatus) {
       const updatedOrder = await orderServices.updateItemStatus(
@@ -346,7 +346,7 @@ const updateItemStatus = async (req, res) => {
 const addComissions = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.detailPay) {
       const updatedOrder = await orderServices.addComissions(
@@ -369,7 +369,7 @@ const addComissions = async (req, res) => {
 const deleteOrder = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.area === "Master") {
       const orderForDelete = await orderServices.deleteOrder(req.params.id)
@@ -394,7 +394,7 @@ const deleteOrder = async (req, res) => {
 const createPaymentMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createPaymentMethod) {
       const result = await orderServices.createPaymentMethod(req.body)
@@ -445,7 +445,7 @@ const readAllPaymentMethodsV2 = async (req, res) => {
 const updatePaymentMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createPaymentMethod) {
       const updatedPaymentMethod = await orderServices.updatePaymentMethod(
@@ -466,7 +466,7 @@ const updatePaymentMethod = async (req, res) => {
 const deletePaymentMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.deletePaymentMethod) {
       const paymentMethodForDelete = await orderServices.deletePaymentMethod(
@@ -493,7 +493,7 @@ const deletePaymentMethod = async (req, res) => {
 const createShippingMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createShippingMethod) {
       const result = await orderServices.createShippingMethod(req.body)
@@ -532,7 +532,7 @@ const readAllShippingMethodV2 = async (req, res) => {
 const updateShippingMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createShippingMethod) {
       const updateShippingMethod = await orderServices.updateShippingMethod(
@@ -553,7 +553,7 @@ const updateShippingMethod = async (req, res) => {
 const deleteShippingMethod = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.deleteShippingMethod) {
       const shippingMethodForDelete = await orderServices.deleteShippingMethod(

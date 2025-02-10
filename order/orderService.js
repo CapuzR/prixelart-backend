@@ -149,21 +149,21 @@ const readAllOrdersv2 = async (start, quantity, filters) => {
     query.shippingDate = filters.shippingDate
   }
   if (filters.client) {
-    const nameParts = filters.client.split(" ");
-    
+    const nameParts = filters.client.split(" ")
+
     if (nameParts.length >= 2) {
-      const firstName = nameParts[0];
-      const lastName = nameParts[1];
-  
+      const firstName = nameParts[0]
+      const lastName = nameParts[1]
+
       query.$and = [
         { "basicData.name": { $regex: new RegExp(firstName, "i") } },
         { "basicData.lastname": { $regex: new RegExp(lastName, "i") } },
-      ];
+      ]
     } else {
       query.$or = [
         { "basicData.name": { $regex: new RegExp(nameParts[0], "i") } },
         { "basicData.lastname": { $regex: new RegExp(nameParts[0], "i") } },
-      ];
+      ]
     }
   }
   if (filters.payStatus) {
@@ -253,7 +253,6 @@ const readAllOrdersClients = async () => {
     }
     return data
   }
-
 }
 
 const readOrdersByPrixer = async (prixer) => {
@@ -571,22 +570,9 @@ const deletePaymentMethod = async (paymentMethodId) => {
 
 const createShippingMethod = async (shippingMethodData) => {
   try {
-    // const readedShippingMethodById = await readShippingById(
-    //   shippingMethodData.id
-    // );
-    // const readedShippingMethodByName = await readShippingByName(
-    //   shippingMethodData.name
-    // );
-    // if (readedShippingMethodById || readedShippingMethodByName) {
-    //   return {
-    //     success: false,
-    //     info: "error_email",
-    //     message: "Disculpa, esta forma de envío ya está registrada.",
-    //   };
-    // }
     let newShippingMethod = await new ShippingMethod(shippingMethodData).save()
     return {
-      res: { success: true, shippingMethodId: newShippingMethod._id },
+      success: true,
       newShippingMethod: newShippingMethod,
     }
   } catch (e) {
@@ -626,7 +612,7 @@ const readAllShippingMethod = async (active) => {
 const updateShippingMethod = async (shippingMethodData) => {
   try {
     const toUpdateShippingMethod = await readShippingMethodById(
-      shippingMethodData.id
+      shippingMethodData._id
     )
     await toUpdateShippingMethod.set(shippingMethodData)
     const updatedShippingMethod = await toUpdateShippingMethod.save()
@@ -645,8 +631,6 @@ const updateShippingMethod = async (shippingMethodData) => {
 
 const deleteShippingMethod = async (shippingMethodId) => {
   try {
-    console.log(shippingMethodId)
-
     await ShippingMethod.findOneAndDelete({ _id: shippingMethodId })
     return "Método de envío eliminado exitosamente"
   } catch (error) {

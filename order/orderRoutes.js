@@ -134,7 +134,7 @@ router.put(
   orderControllers.updateShippingMethod
 )
 
-router.put(
+router.delete(
   "/shipping-method/delete/:id",
   adminAuthServices.ensureAuthenticated,
   orderControllers.deleteShippingMethod
