@@ -22,7 +22,7 @@ const s3 = new aws.S3({
 const createOrder = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createOrder) {
       const orderData = {
@@ -45,7 +45,7 @@ const createOrder = async (req, res) => {
 
       const order = await orderServices.createOrder(orderData)
       if (
-        order.res.success &&
+        order.success &&
         req.body.billingData?.orderPaymentMethod === "Balance Prixer"
       ) {
         const mov = {

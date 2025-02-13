@@ -121,7 +121,7 @@ const forgotPassword = async (email) => {
         recoveryUrl: process.env.FRONT_END_URL + "/recuperar/" + token,
       },
     }
-
+    console.log(message.dynamic_template_data.recoveryUrl)
     user.token = token
 
     const result = await userServices.simpleUserUpdate(user)
