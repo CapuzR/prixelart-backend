@@ -72,7 +72,7 @@ const readByOrderId = async (req, res) => {
 
 const deleteMovement = async (req, res) => {
   try {
-    const deleteMov = await movementServices.deleteMovement(req.body);
+    const deleteMov = await movementServices.deleteMovement(req.params.id);
     res.send(deleteMov);
   } catch (error) {
     console.log(err);

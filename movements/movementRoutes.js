@@ -25,8 +25,8 @@ router.post(
   movementControllers.readByAccount
 );
 
-router.post(
-  "/movement/readAllMovements",
+router.get(
+  "/movement/read-all-movements",
   adminAuthServices.ensureAuthenticated,
   movementControllers.readAllMovements
 );
@@ -37,7 +37,7 @@ router.post(
   movementControllers.readByOrderId
 );
 
-router.put(
+router.delete(
   "/movement/delete/:id",
   adminAuthServices.ensureAuthenticated,
   movementControllers.deleteMovement

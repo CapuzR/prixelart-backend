@@ -21,7 +21,7 @@ router.put(
 //   discountControllers.readById
 // );
 
-router.post(
+router.get(
   "/discount/read-allv1",
   adminAuthServices.ensureAuthenticated,
   discountControllers.readAllDiscountsAdmin

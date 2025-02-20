@@ -27,7 +27,7 @@ router.post(
   consumerControllers.readConsumerById
 );
 
-router.post(
+router.get(
   "/consumer/read-all",
   adminAuthServices.ensureAuthenticated,
   consumerControllers.readAllConsumers
