@@ -79,11 +79,11 @@ const updateConsumer = async (req, res) => {
 const deleteConsumer = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.deleteConsumer) {
       const deleteConsumer = await consumerServices.deleteConsumer(
-        req.body.consumer
+        req.params.id
       );
       return res.send(deleteConsumer);
     } else {

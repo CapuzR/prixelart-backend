@@ -130,11 +130,11 @@ const updateConsumer = async (consumerData) => {
 
 const deleteConsumer = async (consumer) => {
   try {
-    if (consumer._id && consumer._id.length < 9) {
-      await Consumer.findOneAndDelete({ _id: consumer._id });
-    } else {
-      await Consumer.deleteOne({ phone: consumer.phone });
-    }
+    // if (consumer._id && consumer._id.length < 9) {
+      await Consumer.findOneAndDelete({ _id: consumer });
+    // } else {
+    //   await Consumer.deleteOne({ phone: consumer.phone });
+    // }
     return "Cliente eliminado exitosamente";
   } catch (error) {
     console.log(error);

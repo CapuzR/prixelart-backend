@@ -44,7 +44,7 @@ router.post(
   consumerControllers.updateConsumer
 );
 
-router.put(
+router.delete(
   "/consumer/delete/:id",
   adminAuthServices.ensureAuthenticated,
   consumerControllers.deleteConsumer
