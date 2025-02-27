@@ -25,7 +25,7 @@ router.post(
   accountControllers.checkBalance
 );
 
-router.post(
+router.get(
   "/account/readAll",
   adminAuthServices.ensureAuthenticated,
   accountControllers.readAll

@@ -9,7 +9,7 @@ const userMdw = require("../user/userMiddlewares");
 const orgControllers = require("./organizationControllers");
 
 router.post(
-  "/turn-to-association",
+  "/turn-to-organization",
   adminAuthServices.ensureAuthenticated,
   orgControllers.turnToOrg
 );

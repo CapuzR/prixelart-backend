@@ -170,7 +170,7 @@ const updatePrixer = async (req, res) => {
 const updateVisibility = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.prixerBan) {
       const prixerData = {

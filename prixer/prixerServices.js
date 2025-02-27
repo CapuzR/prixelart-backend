@@ -282,7 +282,7 @@ const updateVisibility = async (prixerData) => {
     // const updatedPrixer = await toUpdatePrixer.save();
     // } else {
     const updatedPrixer = await toUpdatePrixer.save()
-    return { updatedPrixer, unableArts, unableServices }
+    return { updatedPrixer, unableArts, unableServices, success: true }
     // }
   } catch (e) {
     console.log(e)
@@ -377,7 +377,7 @@ const destroyPrixer = async (prixerId, username) => {
       prixer: destroyPrixer,
       arts: destroyArts,
       services: destroyServices,
-      consumer: destroyConsumer
+      consumer: destroyConsumer,
     }
   } else {
     return {
@@ -386,7 +386,7 @@ const destroyPrixer = async (prixerId, username) => {
       prixer: destroyPrixer,
       arts: destroyArts,
       services: destroyServices,
-      consumer: destroyConsumer
+      consumer: destroyConsumer,
     }
   }
 }

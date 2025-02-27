@@ -26,7 +26,7 @@ router.put(
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteProduct
 )
-router.post(
+router.get(
   "/product/read-allv1",
   adminAuthServices.ensureAuthenticated,
   productControllers.readAllProductsAdmin
@@ -99,7 +99,7 @@ router.put(
 )
 
 router.delete(
-  "/product/delete-category/:id",
+  "/product/delete/category/:id",
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteCategory
 )

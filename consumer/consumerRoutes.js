@@ -33,7 +33,7 @@ router.get(
   consumerControllers.readAllConsumers
 );
 
-router.post(
+router.get(
   "/consumer/read-prixers",
   adminAuthServices.ensureAuthenticated,
   consumerControllers.readConsumersPrixers
