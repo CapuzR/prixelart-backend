@@ -273,11 +273,11 @@ const disablePrixer = async (req, res) => {
 const destroyPrixer = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.prixerBan) {
       const destroyPrixer = await prixerServices.destroyPrixer(
-        req.body.prixerId,
+        req.body.id,
         req.body.username
       )
       return res.send(destroyPrixer)

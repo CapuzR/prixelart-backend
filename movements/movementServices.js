@@ -2,6 +2,8 @@ const Movement = require("./movementModel")
 const jwt = require("jsonwebtoken")
 const Account = require("../account/accountModel")
 const User = require("../user/userModel")
+const moment = require("moment")
+require("moment/locale/es")
 
 const createMovement = async (movementData) => {
   try {
@@ -40,13 +42,35 @@ const updateBalance = async (movement) => {
 const readByAccount = async (account) => {
   try {
     if (typeof account === "string" && account.length === 24) {
-      const readedMovements = await Movement.find({ destinatary: account })
-        .select("-createdBy")
-        .exec()
+      const readedMovements = await Movement.find({
+        destinatary: account,
+      }).exec()
       if (readedMovements) {
+        const formattedMovements = readedMovements.reverse().map((mov) => {
+          return {
+            ...mov.toObject(),
+            date: mov.date ? moment(mov.date).format("DD/MM/YYYY") : "",
+            createdOn: mov.createdOn
+              ? moment(mov.createdOn).format("DD/MM/YYYY")
+              : "",
+            value:
+              mov.type === "Retiro"
+                ? `-${mov.value.toLocaleString("de-DE", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}$`
+                : `${mov.value
+                    .toLocaleString("de-DE", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                    .replace("-", "")}$`,
+          }
+        })
+
         const data = {
           info: "Todos los movimientos disponibles",
-          movements: readedMovements,
+          movements: formattedMovements,
         }
         return data
       } else {

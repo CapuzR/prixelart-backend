@@ -59,7 +59,7 @@ router.post(
   adminControllers.createAdminRole
 );
 
-router.post(
+router.get(
   "/admin/read-roles",
   adminAuthServices.ensureAuthenticated,
   adminControllers.readAdminRoles

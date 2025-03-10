@@ -19,8 +19,8 @@ router.post(
   movementControllers.readByAccount
 );
 
-router.post(
-  "/movement/readByPrixer",
+router.get(
+  "/movement/readByPrixer/:id",
   adminAuthServices.ensureAuthenticated,
   movementControllers.readByAccount
 );

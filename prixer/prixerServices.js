@@ -366,15 +366,18 @@ const removePrixers = async () => {
 const destroyPrixer = async (prixerId, username) => {
   const destroyUser = await User.findOneAndDelete({ username: username })
   const destroyPrixer = await Prixer.findOneAndDelete({ _id: prixerId })
+  const destroyOrg = await Organizations.findOneAndDelete({ _id: prixerId })
+
   const destroyArts = await Art.deleteMany({ prixerUsername: username })
   const destroyServices = await Service.deleteMany({ prixerUsername: username })
   const destroyConsumer = await Consumer.deleteMany({ prixerId: prixerId })
-
+  // Esta mierda borró casi todos los clientes
   if (destroyPrixer && destroyUser) {
     return {
       message: `Prixer eliminado. Usuario eliminado. ${destroyArts.deletedCount} Artes eliminados. ${destroyServices.deletedCount} Servicios eliminados. Clientes con el prixerID eliminado`,
       user: destroyUser,
       prixer: destroyPrixer,
+      org: destroyOrg,
       arts: destroyArts,
       services: destroyServices,
       consumer: destroyConsumer,

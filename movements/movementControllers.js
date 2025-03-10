@@ -43,7 +43,7 @@ const createMovement = async (req, res) => {
 
 const readByAccount = async (req, res) => {
   try {
-    const readedMovements = await movementServices.readByAccount(req.body._id);
+    const readedMovements = await movementServices.readByAccount(req.params.id);
     res.send(readedMovements);
   } catch (err) {
     res.status(500).send(err);
