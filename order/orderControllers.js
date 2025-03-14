@@ -86,12 +86,14 @@ const createOrder = async (req, res) => {
 }
 
 const createOrder4Client = async (req, res) => {
+
+  console.log("recibido", req.body);
   try {
     // Crear u obtener cliente
     const createClient = await createConsumer(req.body.consumerData)
 
     // Crear Pedido
-    const createOrder = await orderServices.createOrder(req.body.input)
+    const createOrder = await orderServices.createOrder(req.body)
 
     const response = {
       consumer: createClient,
@@ -99,7 +101,7 @@ const createOrder4Client = async (req, res) => {
     }
     if (
       createOrder.res.success &&
-      req.body.input.billingData?.orderPaymentMethod === "Balance Prixer"
+      req.body.billingData?.orderPaymentMethod === "Balance Prixer"
     ) {
       // Cobro de Prixer Balance (leer Prixer, crear movimiento, actualizar Balance)
 
@@ -108,10 +110,10 @@ const createOrder4Client = async (req, res) => {
         createdOn: new Date(),
         createdBy: "Prixelart Page",
         date: new Date(),
-        destinatary: req.body.input.billingData.destinatary,
-        description: `Pago de la orden #${req.body.input.orderId}`,
+        destinatary: req.body.billingData.destinatary,
+        description: `Pago de la orden #${req.body.orderId}`,
         type: "Retiro",
-        value: req.body.input.total,
+        value: req.body.total,
       }
       const payment = await movementServices.createMovement(mov)
       response.payment = payment
@@ -121,7 +123,7 @@ const createOrder4Client = async (req, res) => {
 
       if (payment.success === true && adjust.success === true) {
         const updatedOrder = await orderServices.updateOrderPayStatus(
-          orderData.orderId,
+          req.body.orderId,
           "Pagado"
         )
         response.update = updatedOrder
