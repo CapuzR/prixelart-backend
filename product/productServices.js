@@ -3,7 +3,6 @@ const Category = require("./categoryModel.js")
 const axios = require("axios")
 const { applyDiscounts } = require('../discount/discountServices.js')
 const Utils = require('./utils');
-const { readOneById } = require('../art/artServices');
 // const { readDiscountByFilter } = require("../discount/discountServices.js")   Dejé esto por si acaso, si no es necesario borrar
 const createProduct = async (productData) => {
   try {
@@ -50,10 +49,10 @@ const readById = async (product) => {
 const readById_v2 = async (id, user) => {
   try {
     const readedProduct = await Product
-    .find({ _id: id })
-    .select('name description priceRange sources variants');
+      .find({ _id: id })
+      .select('name description priceRange sources variants');
     let product = readedProduct[0];
-    const variants = product.variants.map(({_id, name, attributes})=>{ return {_id, name, attributes} });
+    const variants = product.variants.map(({ _id, name, attributes }) => { return { _id, name, attributes } });
     const attributes = Utils.getUniqueAttributesFromVariants(product.variants);
     const productPriceRange = await getPriceRange(product.variants, user, product.name);
     if (attributes) {
@@ -84,11 +83,16 @@ const readById_v2 = async (id, user) => {
 
 const getVariantPrice = async (user = null, variantId, artId = null) => {
   try {
-    const product = await Product.findOne({ "variants._id": variantId  });
+    const product = await Product.findOne({ "variants._id": variantId });
+
     if (!product || !product.variants || product.variants.length === 0) {
       return null;
     }
-    const variant = product.variants[0];
+
+    const variant = product.variants.find(v => v._id === variantId);
+    if (!variant) {
+      return null;
+    }
 
     let equation = null;
 
@@ -97,12 +101,12 @@ const getVariantPrice = async (user = null, variantId, artId = null) => {
     } else if (!user && variant.publicPrice) {
       equation = variant.publicPrice.equation;
     }
-
     const price = Utils.parseAndFormatNumber(equation);
-
-    if (price !== null) {
+    if (price !== 0) {
       const finalPrice = await applyFeesAndDiscounts(price, product.name, user?.id, artId);
       return Utils.formatPrice(finalPrice);
+    } else {
+      return Utils.formatPrice(price)
     }
   } catch (error) {
     console.error('Error in productService.getVariantPrice:', error);
@@ -111,7 +115,7 @@ const getVariantPrice = async (user = null, variantId, artId = null) => {
 };
 
 const applyFeesAndDiscounts = async (price, productName, userId, artId) => {
-  
+
   const postArtFeePrice = artId ? price / (1 - (await getPrixerFee(artId))) : price / (1 - 0.1);
   //surcharges here
   const [finalPrice] = await applyDiscounts([userId ? price : postArtFeePrice], productName, userId);
@@ -121,20 +125,20 @@ const applyFeesAndDiscounts = async (price, productName, userId, artId) => {
 
 const getPrixerFee = async (artId) => {
   try {
-    const artData = await readOneById(artId);
-
+    const artData = await readById_v2(artId);
     const commission = artData?.arts?.comission;
 
     if (commission) {
       return commission / 100;
     } else {
-      throw new Error('Commission data not found for the given artId');
+      return 0.1;
     }
   } catch (error) {
     console.error(`Error retrieving Prixer fee for artId ${artId}:`, error);
     throw error;
   }
 };
+
 
 const readAllProducts = async () => {
   try {
@@ -235,8 +239,8 @@ const getPriceRange = async (variants, user, productName) => {
       user && variant.prixerPrice
         ? variant.prixerPrice.equation
         : !user && variant.publicPrice
-        ? variant.publicPrice.equation
-        : null
+          ? variant.publicPrice.equation
+          : null
     );
 
     if (price !== null) {
@@ -387,25 +391,26 @@ const getBestSellers = async (orders) => {
     const allProducts = await Product.find({})
     let products = []
 
-    allProducts.map((prod) => {
-      products.push({ name: prod.name, quantity: 0 })
-    })
+    allProducts.forEach((prod) => {
+      products.push({ name: prod.name, quantity: 0 });
+    });
 
-    await orders.orders.map(async (order) => {
-      await order.requests.map(async (item) => {
-        await products.find((element) => {
-          if (element.name === item.product.name) {
-            element.quantity = element.quantity + 1
+    for (const order of orders.orders) {
+      for (const item of order.requests) {
+        if (item.product && item.product.name) {
+          const foundProduct = products.find(
+            (element) => element.name === item.product.name
+          );
+          if (foundProduct) {
+            foundProduct.quantity += 1;
           }
-        })
-      })
-    })
+        }
+      }
+    }
 
     const prodv2 = products
-      .sort(function (a, b) {
-        return b.quantity - a.quantity
-      })
-      .slice(0, 10)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 10);
 
     const prodv3 = allProducts.filter((prod) =>
       prodv2.some((ref) => ref.name === prod.name)

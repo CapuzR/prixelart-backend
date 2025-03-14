@@ -119,18 +119,18 @@ const getVariantPrice = async (req, res) => {
   try {
     const { variantId, artId } = req.query;
     const user = req.user;
-
     if (!variantId) {
       return res.status(400).send({ error: "variantId is required" });
     }
 
     const variantPrice = await productServices.getVariantPrice(user, variantId, artId);
+    
     if (!variantPrice) {
       return res.status(404).send({ error: "Variant not found" });
     }
-    res.send({ 
+    res.send({
       info: "Variant price fetched successfully",
-      price: variantPrice 
+      price: variantPrice
     });
   } catch (err) {
     console.error('Error fetching variant price:', err);
@@ -361,25 +361,25 @@ const updateVariants = async (req, res) => {
         considerations: req.body.variantConsiderations,
         attributes:
           typeof req.body.attributesName0 === "string" &&
-          typeof req.body.attributesName1 === "string"
+            typeof req.body.attributesName1 === "string"
             ? [
-                {
-                  name: req.body.attributesName0,
-                  value: req.body.attributesValue0,
-                },
-                {
-                  name: req.body.attributesName1,
-                  value: req.body.attributesValue1,
-                },
-              ]
+              {
+                name: req.body.attributesName0,
+                value: req.body.attributesValue0,
+              },
+              {
+                name: req.body.attributesName1,
+                value: req.body.attributesValue1,
+              },
+            ]
             : typeof req.body.attributesName0 === "string"
-            ? [
+              ? [
                 {
                   name: req.body.attributesName0,
                   value: req.body.attributesValue0,
                 },
               ]
-            : [],
+              : [],
         cost: Number(req.body.variantPrice.replace(/[,]/gi, ".")),
         publicPrice: {
           from: Number(req.body.variantPublicPriceFrom?.replace(/[,]/gi, ".")),

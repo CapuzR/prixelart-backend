@@ -40,32 +40,29 @@ const createArt = async (artData) => {
 
 const readOneById = async (artSystemId) => {
   try {
-    const readedArt = await Art.findOne({ artId: artSystemId, visible: true })
-      // .select("-_id -__v -imageUrl")
-      // .sort({ points: -1, visible: -1 })
-      .exec()
-    const createdOn = new mongoose.Types.ObjectId(readedArt._id);
-    const date = createdOn.getTimestamp()
-    readedArt.createdOn = date
-    if (readedArt) {
-      const data = {
-        info: "Yei. Enjoy",
-        arts: readedArt,
-      }
+    const readedArt = await Art.findOne({ _id: artSystemId, visible: true }).exec();
 
-      return data
-    } else {
-      const data = {
+    if (!readedArt) {
+      return {
         info: "Interesante, este arte no existe. Por favor inténtalo de nuevo.",
         arts: null,
-      }
-      return data
+      };
     }
+
+    const createdOn = new mongoose.Types.ObjectId(readedArt._id);
+    const date = createdOn.getTimestamp();
+    readedArt.createdOn = date;
+
+    return {
+      info: "Yei. Enjoy",
+      arts: readedArt,
+    };
   } catch (e) {
-    console.log(e)
-    return e
+    console.log(e);
+    return e;
   }
-}
+};
+
 
 const randomArts = async () => {
   try {
@@ -336,7 +333,7 @@ const readGallery = async (filters = {}) => {
       art.createdOn = createdOn
     })
 
-    const totalCount = await Art.countDocuments({ visible: true })
+    const totalCount = await Art.countDocuments(query)
 
     if (readedArts) {
       const data = {
@@ -733,15 +730,16 @@ const getBestSellers = async (orders) => {
       arts.push({ name: art.title, quantity: 0 })
     })
 
-    await orders.orders.map(async (order) => {
-      await order.requests.map(async (item) => {
-        await arts.find((element) => {
-          if (element.name === item.art.title) {
-            element.quantity = element.quantity + 1
+    for (const order of orders.orders) {
+      for (const item of order.requests) {
+        if (item.art && item.art.title) {
+          const foundArt = arts.find((element) => element.name === item.art.title);
+          if (foundArt) {
+            foundArt.quantity += 1;
           }
-        })
-      })
-    })
+        }
+      }
+    }
 
     const artv2 = arts
       .sort(function (a, b) {
