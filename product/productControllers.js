@@ -41,7 +41,7 @@ const upload = multer({
 const createProduct = async (req, res, next) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createProduct) {
       const imagesResult = []
@@ -69,20 +69,20 @@ const createProduct = async (req, res, next) => {
           images: imagesResult,
           // video: req.body.video
         },
-        cost: req.body.cost,
+        cost: Number(req.body.cost),
         publicPrice: {
-          from: req.body.publicPriceFrom,
-          to: req.body.publicPriceTo,
+          from: Number(req.body.publicPriceFrom),
+          to: Number(req.body.publicPriceTo),
         },
         prixerPrice: {
-          from: req.body.prixerPriceFrom,
-          to: req.body.prixerPriceTo,
+          from: Number(req.body.prixerPriceFrom),
+          to: Number(req.body.prixerPriceTo),
         },
         attributes: req.body.attributes ? req.body.attributes : [],
-        active: req.body.active,
+        active: req.body.active === "true" ? true : false,
         variants: req.body.variants ? req.body.variants : [],
-        hasSpecialVar: req.body.hasSpecialVar,
-        autoCertified: req.body.autoCertified,
+        hasSpecialVar: req.body.hasSpecialVar === "true" ? true : false,
+        autoCertified: req.body.autoCertified === "true" ? true : false,
       }
       res.send(await productServices.createProduct(parseObject))
     } else {
@@ -108,35 +108,42 @@ const readById = async (req, res) => {
 
 const readById_v2 = async (req, res) => {
   try {
-    const readedProduct = await productServices.readById_v2(req.query._id, req.user);
-    res.send(readedProduct);
+    const readedProduct = await productServices.readById_v2(
+      req.query._id,
+      req.user
+    )
+    res.send(readedProduct)
   } catch (err) {
     res.status(500).send(err)
   }
-};
+}
 
 const getVariantPrice = async (req, res) => {
   try {
-    const { variantId, artId } = req.query;
-    const user = req.user;
+    const { variantId, artId } = req.query
+    const user = req.user
 
     if (!variantId) {
-      return res.status(400).send({ error: "variantId is required" });
+      return res.status(400).send({ error: "variantId is required" })
     }
 
-    const variantPrice = await productServices.getVariantPrice(user, variantId, artId);
+    const variantPrice = await productServices.getVariantPrice(
+      user,
+      variantId,
+      artId
+    )
     if (!variantPrice) {
-      return res.status(404).send({ error: "Variant not found" });
+      return res.status(404).send({ error: "Variant not found" })
     }
-    res.send({ 
+    res.send({
       info: "Variant price fetched successfully",
-      price: variantPrice 
-    });
+      price: variantPrice,
+    })
   } catch (err) {
-    console.error('Error fetching variant price:', err);
-    res.status(500).send({ error: 'Internal Server Error' });
+    console.error("Error fetching variant price:", err)
+    res.status(500).send({ error: "Internal Server Error" })
   }
-};
+}
 
 const readAllProducts = async (req, res) => {
   try {
@@ -185,7 +192,7 @@ const readAllProductsAdmin = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createProduct) {
       const productsVariants = JSON.parse(req.body.variants)
@@ -269,7 +276,7 @@ const updateProduct = async (req, res) => {
 const updateMany = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createProduct) {
       const masiveUpdate = await productServices.masiveUpdate(req.body.products)
@@ -289,7 +296,7 @@ const updateMany = async (req, res) => {
 const updateMockup = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createProduct) {
       const mockUp = req?.body
@@ -344,7 +351,7 @@ const readBestSellers = async (req, res) => {
 const updateVariants = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.createProduct) {
       const product = { _id: req.params.id }
@@ -475,7 +482,7 @@ const updateVariants = async (req, res) => {
 
 async function deleteProduct(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
-    req.body.adminToken
+    req.cookies.adminToken
   )
   if (checkPermissions.role.createProduct) {
     const productResult = await productServices.deleteProduct(req)
@@ -494,7 +501,7 @@ async function deleteProduct(req, res) {
 
 async function deleteVariant(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
-    req.body.adminToken
+    req.cookies.adminToken
   )
   if (checkPermissions.role.createProduct) {
     const variantToDelete = await productServices.deleteVariant(req.body)

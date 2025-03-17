@@ -214,7 +214,7 @@ const updateMyService = async (req, res) => {
 const disableService = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.artBan) {
       const serviceResult = await serviceServices.disableService(

@@ -6,7 +6,8 @@ const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const createMovement = async (req, res) => {
   try {
     // let checkPermissions = await adminAuthServices.checkPermissions(
-    //   req.body.adminToken
+    //         req.cookies.adminToken
+
     // );
     // if (checkPermissions.role.setPrixerBalance) {
     const movement = {

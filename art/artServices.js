@@ -736,7 +736,7 @@ const getBestSellers = async (orders) => {
     await orders.orders.map(async (order) => {
       await order.requests.map(async (item) => {
         await arts.find((element) => {
-          if (element.name === item.art.title) {
+          if (element.name === item.art?.title) {
             element.quantity = element.quantity + 1
           }
         })

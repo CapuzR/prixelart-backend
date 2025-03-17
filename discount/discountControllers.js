@@ -6,11 +6,10 @@ const adminAuthServices = require("../admin/adminServices/adminAuthServices");
 const createDiscount = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.createDiscount) {
       const newDiscount = {
-        _id: req.body._id,
         name: req.body.name,
         active: req.body.active,
         description: req.body.description,
@@ -33,7 +32,7 @@ const createDiscount = async (req, res) => {
 const updateDiscount = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     );
     if (checkPermissions.role.createDiscount) {
       const updatedDiscount = await discountServices.updateDiscount(
@@ -83,7 +82,7 @@ const readAllDiscountsAdmin = async (req, res) => {
 
 async function deleteDiscount(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
-    req.body.adminToken
+    req.cookies.adminToken
   );
   if (checkPermissions.role.deleteDiscount) {
     const discountResult = await discountServices.deleteDiscount(req);

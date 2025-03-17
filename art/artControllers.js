@@ -245,7 +245,7 @@ async function deleteArt(req, res) {
 const disableArt = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.artBan) {
       const artResult = await artServices.disableArt(req.params.id, req.body)

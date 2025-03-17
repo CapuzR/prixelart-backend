@@ -17,14 +17,14 @@ const ProductSchema = Schema({
     video: { type: String, required: false },
   },
   publicPrice: {
-    from: { type: String, required: false },
-    to: { type: String, required: false },
+    from: { type: Number, required: false },
+    to: { type: Number, required: false },
   },
   prixerPrice: {
-    from: { type: String, required: false },
-    to: { type: String, required: false },
+    from: { type: Number, required: false },
+    to: { type: Number, required: false },
   },
-  cost: { type: String, required: false },
+  cost: { type: Number, required: false },
   attributes: { type: Array, required: false },
   active: { type: Boolean, required: true },
   variants: { type: Array, required: false },
@@ -37,3 +37,4 @@ const ProductSchema = Schema({
 })
 
 module.exports = mongoose.model("Product", ProductSchema, "products")
+// Need a script for transform 'cost', publicPrice.to, publicPrice.from, prixerPrice.to and prixerPrice.from to Number type

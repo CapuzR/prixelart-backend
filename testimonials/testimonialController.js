@@ -1,28 +1,28 @@
-const multer = require("multer");
-const multerS3 = require("multer-s3-transform");
-const dotenv = require("dotenv");
-const sharp = require("sharp");
-const aws = require("aws-sdk");
-const { nanoid } = require("nanoid");
+const multer = require("multer")
+const multerS3 = require("multer-s3-transform")
+const dotenv = require("dotenv")
+const sharp = require("sharp")
+const aws = require("aws-sdk")
+const { nanoid } = require("nanoid")
 
-const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL);
+const spacesEndpoint = new aws.Endpoint(process.env.PRIVATE_BUCKET_URL)
 const s3 = new aws.S3({
   endpoint: spacesEndpoint,
   accessKeyId: process.env.DO_ACCESS_KEY,
   secretAccessKey: process.env.DO_ACCESS_SECRET,
-});
-const testimonialServices = require("./testimonialServices");
-const adminAuthServices = require("../admin/adminServices/adminAuthServices");
+})
+const testimonialServices = require("./testimonialServices")
+const adminAuthServices = require("../admin/adminServices/adminAuthServices")
 
 //CRUD
 
 const createTestimonial = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
-    );
+      req.cookies.adminToken
+    )
     if (checkPermissions.role.createTestimonial) {
-      const imageAvatar = req.file.transforms[0].location;
+      const imageAvatar = req.file.transforms[0].location
       const testimonialData = {
         type: req.body.type,
         name: req.body.name,
@@ -30,39 +30,39 @@ const createTestimonial = async (req, res) => {
         avatar: imageAvatar,
         footer: req.body.footer,
         status: req.body.status,
-      };
+      }
 
-      res.send(await testimonialServices.createTestimonial(testimonialData));
+      res.send(await testimonialServices.createTestimonial(testimonialData))
     } else {
       return res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
-      });
+      })
     }
   } catch (e) {
-    console.log(e);
-    res.status(500).send(e);
+    console.log(e)
+    res.status(500).send(e)
   }
-};
+}
 
 const readAllTestimonials = async (req, res) => {
   try {
-    const readedTestimonials = await testimonialServices.readAllTestimonials();
-    res.send(readedTestimonials);
+    const readedTestimonials = await testimonialServices.readAllTestimonials()
+    res.send(readedTestimonials)
   } catch (err) {
-    res.status(500).send(err);
+    res.status(500).send(err)
   }
-};
+}
 const readById = async (req, res) => {
-  const readedTestimonials = await testimonialServices.readById(req.params.id);
-  res.send(readedTestimonials);
-};
+  const readedTestimonials = await testimonialServices.readById(req.params.id)
+  res.send(readedTestimonials)
+}
 
 const updateTestimonial = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
-    );
+      req.cookies.adminToken
+    )
     if (checkPermissions.role.createTestimonial) {
       const testimonialData = {
         type: req.body.type,
@@ -71,84 +71,84 @@ const updateTestimonial = async (req, res) => {
         avatar: req.body.avatar || req.file.transforms[0].location,
         footer: req.body.footer,
         status: req.body.status,
-      };
+      }
       const updates = await testimonialServices.updateTestimonial(
         req.params.id,
         testimonialData
-      );
-      return res.send(updates);
+      )
+      return res.send(updates)
     } else {
       return res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
-      });
+      })
     }
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send(err)
   }
-};
+}
 
 const updateVisibility = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
-    );
+      req.cookies.adminToken
+    )
     if (checkPermissions.role.createTestimonial) {
       const testimonialData = {
         status: req.body.status,
-      };
+      }
       const updates = await testimonialServices.updateVisibility(
         req.params.id,
         testimonialData
-      );
-      return res.send(updates);
+      )
+      return res.send(updates)
     } else {
       return res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
-      });
+      })
     }
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send(err)
   }
-};
+}
 
 const updatePosition = async (req, res) => {
   try {
     const testimonialData = {
       position: req.body.position,
-    };
+    }
     const updates = await testimonialServices.updatePosition(
       req.params.id,
       testimonialData
-    );
-    return res.send(updates);
+    )
+    return res.send(updates)
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send(err)
   }
-};
+}
 
 async function deleteTestimonial(req, res) {
   let checkPermissions = await adminAuthServices.checkPermissions(
-    req.body.adminToken
-  );
+    req.cookies.adminToken
+  )
   if (checkPermissions.role.deleteTestimonial) {
     const testimonialResult = await testimonialServices.deleteTestimonial(
       req.params.id
-    );
+    )
     data = {
       testimonialResult,
       success: true,
-    };
-    return res.send(data);
+    }
+    return res.send(data)
   } else {
     return res.send({
       success: false,
       message: "No tienes autorización para realizar esta acción.",
-    });
+    })
   }
 }
 
@@ -158,22 +158,22 @@ const upload = multer({
     bucket: process.env.PUBLIC_BUCKET_NAME,
     acl: "public-read",
     shouldTransform: function (req, file, cb) {
-      req.body.Id = nanoid(7); //=> "5-JDFkc"
-      cb(null, /^image/i.test(file.mimetype));
+      req.body.Id = nanoid(7) //=> "5-JDFkc"
+      cb(null, /^image/i.test(file.mimetype))
     },
     transforms: [
       {
         id: "largeThumb",
         key: function (req, file, cb) {
-          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp");
+          cb(null, file.fieldname + "-" + req.body.Id + "-large.webp")
         },
         transform: function (req, file, cb) {
-          cb(null, sharp().resize(320, 320).webp({ quality: 80 }));
+          cb(null, sharp().resize(320, 320).webp({ quality: 80 }))
         },
       },
     ],
   }),
-});
+})
 
 module.exports = {
   createTestimonial,
@@ -184,6 +184,6 @@ module.exports = {
   deleteTestimonial,
   readById,
   upload,
-};
+}
 
 //CRUD END

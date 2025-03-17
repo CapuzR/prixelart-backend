@@ -13,7 +13,7 @@ const authenticate = async (userData) => {
   const user = await userServices.readUserByEmail({
     email: userData.email,
   });
-  console.log("user", user);
+  // console.log("user", user);
   let org, prixer;
   if (user) {
     if (user?.role === "Organization") {

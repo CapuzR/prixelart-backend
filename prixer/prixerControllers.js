@@ -34,8 +34,8 @@ const createPrixer = async (req, res) => {
       userId: req.user.id,
       avatar: imageAvatar,
       username: req.user.username,
-      status: req.body.status,
-      termsAgree: req.body.termsAgree,
+      status: req.body.status  === "true" ? true : false,
+      termsAgree: req.body.termsAgree  === "true" ? true : false,
     }
 
     res.send(await prixerServices.createPrixer(prixerData))
@@ -225,7 +225,7 @@ const updateBio = async (req, res) => {
 const updateTermsAgreeGeneral = async (req, res) => {
   try {
     let checkPermissions = await adminAuthServices.checkPermissions(
-      req.body.adminToken
+      req.cookies.adminToken
     )
     if (checkPermissions.role.modifyTermsAndCo) {
       // const prixerData = {
