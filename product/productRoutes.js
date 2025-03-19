@@ -21,7 +21,7 @@ router.get("/product/getVariantPrice",
   userMdw.isAuth,
   productControllers.getVariantPrice
 );
-router.put(
+router.delete(
   "/product/delete/:id",
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteProduct
@@ -68,7 +68,7 @@ router.put(
   productControllers.upload.array("variantImage", 4),
   productControllers.updateVariants
 )
-router.put(
+router.delete(
   "/product/deleteVariant",
   adminAuthServices.ensureAuthenticated,
   productControllers.deleteVariant
