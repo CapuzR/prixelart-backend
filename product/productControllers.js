@@ -197,31 +197,55 @@ const updateProduct = async (req, res) => {
     if (checkPermissions.role.createProduct) {
       const productsVariants = JSON.parse(req.body.variants)
       let newResult = []
-      const previousImg = req.body.images.split(" ")
-      if (
-        previousImg[0] !== null &&
-        previousImg !== " "
-        // && previousImg.includes("newProductImages")
-      ) {
-        newResult.push({ type: "images", url: previousImg })
-      } else if (previousImg && previousImg.length > 1) {
-        previousImg.map((img, i) => {
-          // img.includes("newProductImages") &&
-          newResult.push({
-            type: "images",
-            url: img.replace(/[,]/gi, "").trim(),
-          })
+
+      let previousImages = []
+      try {
+        previousImages = JSON.parse(req.body.images) || []
+      } catch (error) {
+        console.error("Error parsing images:", error)
+      }
+
+      if (Array.isArray(previousImages) && previousImages.length > 0) {
+        previousImages.forEach((img) => {
+          newResult.push({ type: "images", url: img })
         })
       }
 
-      if (req.files["newProductImages"] !== undefined) {
-        req.files["newProductImages"].map((img, i) => {
+      if (req.files?.newProductImages) {
+        req.files.newProductImages.forEach((img) => {
           newResult.push({
             type: "images",
             url: img.transforms[0].location,
           })
         })
       }
+      
+      // let newResult = []
+      // const previousImg = req.body.images.split(" ")
+      // if (
+      //   previousImg[0] !== null &&
+      //   previousImg !== " "
+      //   // && previousImg.includes("newProductImages")
+      // ) {
+      //   newResult.push({ type: "images", url: previousImg })
+      // } else if (previousImg && previousImg.length > 1) {
+      //   previousImg.map((img, i) => {
+      //     // img.includes("newProductImages") &&
+      //     newResult.push({
+      //       type: "images",
+      //       url: img.replace(/[,]/gi, "").trim(),
+      //     })
+      //   })
+      // }
+
+      // if (req.files["newProductImages"] !== undefined) {
+      //   req.files["newProductImages"].map((img, i) => {
+      //     newResult.push({
+      //       type: "images",
+      //       url: img.transforms[0].location,
+      //     })
+      //   })
+      // }
       if (req.body.video) {
         newResult.push({
           type: "video",
