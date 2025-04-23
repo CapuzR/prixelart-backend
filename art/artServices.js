@@ -14,19 +14,18 @@ const createArt = async (artData) => {
     //     message: "Disculpa, este arte ya fue creado.",
     //   }
     // } else {
-      const newArt = await new Art(organizeArtData(artData)).save()
-      if (newArt) {
-        return {
-          success: true,
-          artData: newArt,
-        }
-      } else {
-        return {
-          success: false,
-          message:
-            "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
-        }
+    const newArt = await new Art(organizeArtData(artData)).save()
+    if (newArt) {
+      return {
+        success: true,
+        artData: newArt,
       }
+    } else {
+      return {
+        success: false,
+        message: "Disculpa, ocurrió un error desconocido, inténtalo de nuevo.",
+      }
+    }
     // }
   } catch (e) {
     return {
@@ -313,10 +312,10 @@ const readLatest = async () => {
       .exec()
 
     const v2 = []
-    readedArts.map((art) => {
-      const createdAt = mongoose.Types.ObjectId(art._id)
-      const date = createdAt.getTimestamp()
-      art.createAt = date
+    readedArts?.map((art) => {
+      const createdAt = art._id.getTimestamp()
+      // const date = createdAt.getTimestamp()
+      art.createAt = createdAt
       delete art._id
       v2.push(art)
     })
@@ -521,10 +520,10 @@ const readAllByUserIdV2 = async (username) => {
       .select("-__v -imageUrl -crops -status")
       .exec()
 
-      readedArts.forEach((art) => {
-        const createdOn = mongoose.Types.ObjectId(art?._id).getTimestamp()
-        art.createdOn = createdOn
-      })
+    readedArts.forEach((art) => {
+      const createdOn = (art?._id).getTimestamp()
+      art.createdOn = createdOn
+    })
 
     if (readedArts) {
       const data = {
@@ -684,9 +683,9 @@ const getBestSellers = async (orders) => {
     })
 
     await orders.orders.map(async (order) => {
-      await order.requests.map(async (item) => {
+      await order?.requests?.map(async (item) => {
         await arts.find((element) => {
-          if (element.name === item.art.title) {
+          if (element.name === item?.art?.title) {
             element.quantity = element.quantity + 1
           }
         })
