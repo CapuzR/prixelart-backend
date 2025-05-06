@@ -312,10 +312,11 @@ const readLatest = async () => {
       .exec()
 
     const v2 = []
-    readedArts?.map((art) => {
-      const createdAt = art._id.getTimestamp()
-      // const date = createdAt.getTimestamp()
-      art.createAt = createdAt
+    readedArts.map((art) => {
+      const createdAt = mongoose.Types.ObjectId(art._id)
+      const date = createdAt.getTimestamp()
+      art.createAt = date
+      // art.createAt = createdAt
       delete art._id
       v2.push(art)
     })
@@ -521,7 +522,7 @@ const readAllByUserIdV2 = async (username) => {
       .exec()
 
     readedArts.forEach((art) => {
-      const createdOn = (art?._id).getTimestamp()
+      const createdOn = mongoose.Types.ObjectId(art?._id).getTimestamp()
       art.createdOn = createdOn
     })
 
