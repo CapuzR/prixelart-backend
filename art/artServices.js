@@ -278,7 +278,7 @@ const readAllArtsv2 = async () => {
       .exec()
 
     readedArts.forEach((art) => {
-      const createdOn = mongoose.Types.ObjectId(art._id).getTimestamp()
+      const createdOn = new mongoose.Types.ObjectId(art._id).getTimestamp()
       art.createdOn = createdOn
     })
 
