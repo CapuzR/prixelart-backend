@@ -277,10 +277,10 @@ const readAllArtsv2 = async () => {
       .select("-__v -imageUrl -crops -status")
       .exec()
 
-    readedArts.forEach((art) => {
-      const createdOn = new mongoose.Types.ObjectId(art._id).getTimestamp()
-      art.createdOn = createdOn
-    })
+    // readedArts.forEach((art) => {
+    //   const createdOn = new mongoose.Types.ObjectId(art._id).getTimestamp()
+    //   art.createdOn = createdOn
+    // })
 
     if (readedArts) {
       const data = {
