@@ -1,2 +1,0 @@
-List of files and buyState attributes found:
-../prixelart-frontend/src/cart/orderForm.jsx: subTotal, IVA, total
