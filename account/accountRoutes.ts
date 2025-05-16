@@ -1,7 +1,7 @@
 import { Router } from "express";
-import * as accountControllers from "./accountControllers";
-import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers";
-import * as userAuthControllers from "../user/userControllers/userAuthControllers";
+import * as accountControllers from "./accountControllers.ts";
+import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers.ts";
+import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts";
 
 const router: Router = Router();
 

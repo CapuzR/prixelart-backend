@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import * as testimonialServices from "./testimonialServices";
-import { Testimonial } from "./testimonialModel";
+import * as testimonialServices from "./testimonialServices.ts";
+import { Testimonial } from "./testimonialModel.ts";
 
 export const createTestimonial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

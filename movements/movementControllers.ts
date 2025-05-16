@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as movementServices from "./movementServices";
-import { Movement } from "./movementModel";
+import * as movementServices from "./movementServices.ts";
+import { Movement } from "./movementModel.ts";
 
 export const createMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

@@ -1,7 +1,7 @@
-import { Art } from "./artModel";
+import { Art } from "./artModel.ts";
 import { Collection, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
 
 function artCollection(): Collection<Art> {
   return getDb().collection<Art>("arts");

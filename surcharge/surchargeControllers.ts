@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import * as surchargeServices from "./surchargeServices";
-import { ApplicableEntity, Surcharge } from "./surchargeModel";
+import * as surchargeServices from "./surchargeServices.ts";
+import { ApplicableEntity, Surcharge } from "./surchargeModel.ts";
 
 export const createSurcharge = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

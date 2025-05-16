@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as userAuthControllers from "../user/userControllers/userAuthControllers";
-import * as manufacturerControllers from "./manufacturerControllers";
+import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts";
+import * as manufacturerControllers from "./manufacturerControllers.ts";
 
 const router: Router = Router();
 

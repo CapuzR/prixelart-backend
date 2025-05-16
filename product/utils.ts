@@ -1,9 +1,9 @@
-import { AdjustmentMethod, Discount } from "../discount/discountModel";
-import { readAllDiscounts } from "../discount/discountServices";
-import { Surcharge } from "../surcharge/surchargeModel";
-import { readActiveSurcharge } from "../surcharge/surchargeServices";
-import { User } from "../user/userModel";
-import { Product } from "./productModel";
+import { AdjustmentMethod, Discount } from "../discount/discountModel.ts";
+import { readAllDiscounts } from "../discount/discountServices.ts";
+import { Surcharge } from "../surcharge/surchargeModel.ts";
+import { readActiveSurcharge } from "../surcharge/surchargeServices.ts";
+import { User } from "../user/userModel.ts";
+import { Product } from "./productModel.ts";
 
 export const isDateActive = (dateRange?: { start: Date; end: Date }): boolean => {
     if (!dateRange) return true;

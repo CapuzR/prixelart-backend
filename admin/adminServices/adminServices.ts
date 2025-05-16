@@ -1,8 +1,8 @@
-import { Admin } from "../adminModel";
-import { Permissions } from "../permissionsModel";
+import { Admin } from "../adminModel.ts";
+import { Permissions } from "../permissionsModel.ts";
 import bcrypt from "bcrypt";
-import { PrixResponse } from "../../types/responseModel";
-import { getDb } from "../../mongo";
+import { PrixResponse } from "../../types/responseModel.ts";
+import { getDb } from "../../mongo.ts";
 import { Collection, ObjectId } from "mongodb";
 
 function adminCollection(): Collection<Admin> {

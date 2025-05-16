@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as orderArchiveServices from "./orderArchiveServices";
-import { OrderArchive, PayStatus, Status } from "./orderArchiveModel";
+import * as orderArchiveServices from "./orderArchiveServices.ts";
+import { OrderArchive, PayStatus, Status } from "./orderArchiveModel.ts";
 
 export const readOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 

@@ -1,6 +1,6 @@
 import express from "express";
-import * as orderArchiveControllers from "./orderArchiveControllers";
-import * as adminControllers from "../admin/adminControllers/adminAuthControllers";
+import * as orderArchiveControllers from "./orderArchiveControllers.ts";
+import * as adminControllers from "../admin/adminControllers/adminAuthControllers.ts";
 
 const router = express.Router();
 

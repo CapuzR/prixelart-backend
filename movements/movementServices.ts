@@ -1,8 +1,8 @@
 import { Collection, Filter, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { Movement } from "./movementModel";
-import { Account } from "../account/accountModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { Movement } from "./movementModel.ts";
+import { Account } from "../account/accountModel.ts";
+import { getDb } from "../mongo.ts";
 
 function movementCollection(): Collection<Movement> {
   return getDb().collection<Movement>("movements");

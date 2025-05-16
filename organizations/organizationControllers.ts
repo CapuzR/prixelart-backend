@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as orgSvc from "./organizationServices";
+import * as orgSvc from "./organizationServices.ts";
 
 export const readAllOrgFull = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

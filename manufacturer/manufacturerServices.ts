@@ -1,8 +1,8 @@
 import { Collection, ObjectId } from "mongodb";
-import { getDb } from "../mongo";
-import { PrixResponse } from "../types/responseModel";
-import { Manufacturer } from "./manufacturerModel";
-import { User } from "../user/userModel";
+import { getDb } from "../mongo.ts";
+import { PrixResponse } from "../types/responseModel.ts";
+import { Manufacturer } from "./manufacturerModel.ts";
+import { User } from "../user/userModel.ts";
 
 function manufacturerCollection(): Collection<Manufacturer> {
   return getDb().collection<Manufacturer>("manufacturer");

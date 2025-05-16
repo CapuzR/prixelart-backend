@@ -2,8 +2,12 @@
   "compilerOptions": {
     "allowJs": true,
     "noEmit": true,
-    "target": "ES2020",
-    "module": "commonjs",
+    "allowImportingTsExtensions": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
@@ -14,8 +18,13 @@
       "./types"
     ]
   },
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true // A menudo se usa para desarrollo más rápido
+    // "preferTsExts": true // Puede ayudar, pero las extensiones explícitas (.ts) en los imports son más seguras
+  },
   "include": [
-    "**/*.ts"
+    "./**/*.ts"
   ],
   "exclude": [
     "node_modules"

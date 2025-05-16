@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import * as manufacturerServices from "./manufacturerServices";
-import * as userService from "../user/userServices/userServices";
-import { Manufacturer } from "./manufacturerModel";
-import { User } from "../user/userModel";
+import * as manufacturerServices from "./manufacturerServices.ts";
+import * as userService from "../user/userServices/userServices.ts";
+import { Manufacturer } from "./manufacturerModel.ts";
+import { User } from "../user/userModel.ts";
 
 // Esta todo sin hacer, solo se cambió la palabra prixer por manufacturer
 export const createManufacturer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

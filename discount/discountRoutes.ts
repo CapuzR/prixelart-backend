@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers";
-import * as discountControllers from "./discountControllers";
+import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers.ts";
+import * as discountControllers from "./discountControllers.ts";
 
 const router: Router = Router();
 

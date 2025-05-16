@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import * as accountServices from "./accountServices";
+import * as accountServices from "./accountServices.ts";
 
 export const checkBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

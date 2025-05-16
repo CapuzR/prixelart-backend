@@ -1,12 +1,12 @@
-import { Order, OrderLine, OrderStatus, PaymentMethod, ShippingMethod } from "./orderModel";
-import { sendEmail as sendEmailUtil } from "../utils/emailSender";
+import { Order, OrderLine, OrderStatus, PaymentMethod, ShippingMethod } from "./orderModel.ts";
+import { sendEmail as sendEmailUtil } from "../utils/emailSender.ts";
 import sgMail from "@sendgrid/mail";
 import { Collection, FindOneAndUpdateOptions, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
-import { User } from "../user/userModel";
-import { readByUsername } from "../prixer/prixerServices";
-import { getVariantPrice } from "../product/productServices";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
+import { User } from "../user/userModel.ts";
+import { readByUsername } from "../prixer/prixerServices.ts";
+import { getVariantPrice } from "../product/productServices.ts";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 

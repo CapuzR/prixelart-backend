@@ -1,6 +1,6 @@
 import express from "express";
-import * as adminControllers from "../admin/adminControllers/adminAuthControllers";
-import { createTestimonial, readAllTestimonials, readById, updateTestimonial, deleteTestimonial, updateTestimonialOrderController } from "./testimonialController";
+import * as adminControllers from "../admin/adminControllers/adminAuthControllers.ts";
+import { createTestimonial, readAllTestimonials, readById, updateTestimonial, deleteTestimonial, updateTestimonialOrderController } from "./testimonialController.ts";
 
 const testimonialRoutes = express.Router();
 

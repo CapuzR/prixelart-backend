@@ -1,8 +1,8 @@
 import { Collection, FindOptions, ObjectId } from "mongodb";
-import { PrixResponse } from "../../types/responseModel";
-import { User } from "../userModel";
+import { PrixResponse } from "../../types/responseModel.ts";
+import { User } from "../userModel.ts";
 import bcrypt from "bcrypt";
-import { getDb } from "../../mongo";
+import { getDb } from "../../mongo.ts";
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>("users");

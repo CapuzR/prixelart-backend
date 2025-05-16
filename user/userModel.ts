@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { Prixer } from "../prixer/prixerModel";
+import { Prixer } from "../prixer/prixerModel.ts";
 
 export interface User {
   _id?: ObjectId;

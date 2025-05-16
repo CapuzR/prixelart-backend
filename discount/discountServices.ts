@@ -1,7 +1,7 @@
 import { Collection, ObjectId } from "mongodb";
-import { Discount } from "./discountModel";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
+import { Discount } from "./discountModel.ts";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
 
 function discountCollection(): Collection<Discount> {
   return getDb().collection<Discount>("discounts");

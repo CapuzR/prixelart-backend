@@ -2,10 +2,11 @@
   "name": "back-end",
   "version": "1.0.0",
   "description": "App that allows Prixers and Prixelart to manage arts and services, being able to showcasing, promote and sale.",
-  "main": "start.js",
+  "main": "start.ts",
+  "type": "module",
   "scripts": {
-    "start": "ts-node start.ts",
-    "dev": "nodemon start.js",
+    "start": "ts-node --loader start.ts",
+    "dev": "nodemon start.ts",
     "test": "jest --runInBand"
   },
   "jest": {
@@ -32,12 +33,12 @@
   },
   "homepage": "https://github.com/CapuzR/prixelart-be#readme",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.777.0",
+    "@aws-sdk/client-s3": "^3.808.0",
     "@aws-sdk/s3-request-presigner": "^3.804.0",
     "@sendgrid/mail": "^7.4.4",
-    "@tus/file-store": "^2.0.0",
-    "@tus/s3-store": "^2.0.0",
-    "@tus/server": "^2.2.0",
+    "@tus/file-store": "2.0.0",
+    "@tus/s3-store": "2.0.0",
+    "@tus/server": "2.0.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.0",

@@ -1,12 +1,12 @@
-import { Login, Admin } from "../adminModel";
+import { Login, Admin } from "../adminModel.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import * as adminServices from "./adminServices";
-import { Permissions } from "../permissionsModel";
+import * as adminServices from "./adminServices.ts";
+import { Permissions } from "../permissionsModel.ts";
 import ms from "ms";
-import { PrixResponse } from "../../types/responseModel";
+import { PrixResponse } from "../../types/responseModel.ts";
 import { Collection } from "mongodb";
-import { getDb } from "../../mongo";
+import { getDb } from "../../mongo.ts";
 
 function permissionsCollection(): Collection<Permissions> {
   return getDb().collection<Permissions>("permissions");

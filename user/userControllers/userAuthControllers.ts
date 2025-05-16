@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import * as userServices from "../userServices/userServices";
-import * as authServices from "../userServices/userAuthServices";
-import { User } from "../userModel";
-import { isProduction } from "../../server";
+import * as userServices from "../userServices/userServices.ts";
+import * as authServices from "../userServices/userAuthServices.ts";
+import { User } from "../userModel.ts";
+import { isProduction } from "../../server.ts";
 import jwt, { VerifyErrors } from "jsonwebtoken";
-import { Login } from "../../admin/adminModel";
+import { Login } from "../../admin/adminModel.ts";
 
 declare global {
   namespace Express {

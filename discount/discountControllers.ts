@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as discountServices from "./discountServices";
-import { Discount } from "./discountModel";
+import * as discountServices from "./discountServices.ts";
+import { Discount } from "./discountModel.ts";
 
 // CRUD
 

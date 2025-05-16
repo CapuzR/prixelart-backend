@@ -1,8 +1,8 @@
-import { CarouselItem, TermsAndConditions } from "./preferencesModel";
+import { CarouselItem, TermsAndConditions } from "./preferencesModel.ts";
 import { BulkWriteResult, Collection, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { Prixer } from "../prixer/prixerModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { Prixer } from "../prixer/prixerModel.ts";
+import { getDb } from "../mongo.ts";
 
 function carouselCollection(): Collection<CarouselItem> {
   return getDb().collection<CarouselItem>("carousel");

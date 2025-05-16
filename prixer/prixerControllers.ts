@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as prixerServices from "./prixerServices";
-import { Prixer } from "./prixerModel";
+import * as prixerServices from "./prixerServices.ts";
+import { Prixer } from "./prixerModel.ts";
 import { ObjectId } from "mongodb";
 
 

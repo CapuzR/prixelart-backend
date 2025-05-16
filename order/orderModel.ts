@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
-import { Art } from "../art/artModel";
-import { Product, VariantAttribute } from "../product/productModel";
+import { Art } from "../art/artModel.ts";
+import { Product, VariantAttribute } from "../product/productModel.ts";
 
 // Main Order interface
 export interface Order {

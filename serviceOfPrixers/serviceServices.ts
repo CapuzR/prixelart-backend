@@ -1,8 +1,8 @@
 import { Collection, ObjectId } from "mongodb";
-import * as userService from "../user/userServices/userServices";
-import { Service } from "./serviceModel";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
+import * as userService from "../user/userServices/userServices.ts";
+import { Service } from "./serviceModel.ts";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
 
 function serviceCollection(): Collection<Service> {
   return getDb().collection<Service>("services");

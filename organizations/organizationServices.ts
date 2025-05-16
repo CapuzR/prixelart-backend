@@ -1,9 +1,9 @@
 import { Organization } from "./organizationModel";
 
-import * as userSvc from "../user/userServices/userServices";
+import * as userSvc from "../user/userServices/userServices.ts";
 import { Collection, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
 
 function organizationCollection(): Collection<Organization> {
   return getDb().collection<Organization>("organizations");

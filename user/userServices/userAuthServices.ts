@@ -1,13 +1,13 @@
-import { Admin, Login } from "../../admin/adminModel";
+import { Admin, Login } from "../../admin/adminModel.ts";
 import bcrypt from "bcrypt";
 import ms from "ms";
 import jwt from "jsonwebtoken";
-import * as userServices from "./userServices";
-import * as emailSender from "../../utils/emailSender";
-import { User } from "../userModel";
-import { PrixResponse } from "../../types/responseModel";
+import * as userServices from "./userServices.ts";
+import * as emailSender from "../../utils/emailSender.ts";
+import { User } from "../userModel.ts";
+import { PrixResponse } from "../../types/responseModel.ts";
 import { Collection, ObjectId } from "mongodb";
-import { getDb } from "../../mongo";
+import { getDb } from "../../mongo.ts";
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>("users");

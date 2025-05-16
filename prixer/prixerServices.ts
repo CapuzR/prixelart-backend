@@ -1,8 +1,8 @@
-import { Prixer } from "./prixerModel";
-import { PrixResponse } from "../types/responseModel";
+import { Prixer } from "./prixerModel.ts";
+import { PrixResponse } from "../types/responseModel.ts";
 import { Collection, Filter, FindOptions, ObjectId, UpdateFilter } from "mongodb";
-import { getDb } from "../mongo";
-import { User } from "../user/userModel";
+import { getDb } from "../mongo.ts";
+import { User } from "../user/userModel.ts";
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>("users");

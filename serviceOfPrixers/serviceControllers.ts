@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import * as serviceServices from "./serviceServices";
-import { Service } from "./serviceModel";
+import * as serviceServices from "./serviceServices.ts";
+import { Service } from "./serviceModel.ts";
 
 export const createService = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 

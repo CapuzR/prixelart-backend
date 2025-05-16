@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import * as preferenceService from "./preferencesService";
+import * as preferenceService from "./preferencesService.ts";
 
 export const readAllImagesCarousel = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -41,7 +41,7 @@ export const createCarouselItem = async (
     if (!fileId) {
       return
     }
-    const spacesUrl = `https://${process.env.PUBLIC_BUCKET_URL}/${fileId}`;
+    const spacesUrl = `${process.env.PUBLIC_BUCKET_URL}/${fileId}`;
 
     // Now hand off to your service using the public‑facing URL:
     const result = await preferenceService.createCarouselItem({

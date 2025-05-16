@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import * as userService from "../userServices/userServices";
-import { PrixResponse } from "../../types/responseModel";
+import * as userService from "../userServices/userServices.ts";
+import { PrixResponse } from "../../types/responseModel.ts";
 
 // CRUD Controllers
 

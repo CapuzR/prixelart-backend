@@ -1,5 +1,5 @@
-import app from "./server";
-import { connectMongo } from "./mongo";
+import app from "./server.ts";
+import { connectMongo } from "./mongo.ts";
 
 (async (): Promise<void> => {
   try {

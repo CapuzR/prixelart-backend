@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import * as adminAuthServices from "../adminServices/adminAuthServices";
-import * as adminServices from "../adminServices/adminServices";
-import { Admin, Login } from "../adminModel";
+import * as adminAuthServices from "../adminServices/adminAuthServices.ts";
+import * as adminServices from "../adminServices/adminServices.ts";
+import { Admin, Login } from "../adminModel.ts";
 import jwt from "jsonwebtoken";
-import { isProduction } from "../../server";
+import { isProduction } from "../../server.ts";
 
 declare global {
   namespace Express {

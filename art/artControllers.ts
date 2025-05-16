@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import * as artSvc from "./artServices";
-import { Art } from "./artModel";
-import { PrixResponse } from "../types/responseModel";
+import * as artSvc from "./artServices.ts";
+import { Art } from "./artModel.ts";
+import { PrixResponse } from "../types/responseModel.ts";
 
 function sendResult(res: Response, result: PrixResponse) {
   res.status(result.success ? 200 : 400).send(result);

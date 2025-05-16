@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as adminServices from "../adminServices/adminServices";
-import { PrixResponse } from "../../types/responseModel";
+import * as adminServices from "../adminServices/adminServices.ts";
+import { PrixResponse } from "../../types/responseModel.ts";
 
 // Admin CRUD
 

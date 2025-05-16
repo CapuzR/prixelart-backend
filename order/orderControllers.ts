@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import * as orderServices from "./orderService";
-import { Order, PaymentMethod, ShippingMethod } from "./orderModel";
+import * as orderServices from "./orderService.ts";
+import { Order, PaymentMethod, ShippingMethod } from "./orderModel.ts";
 
 
 // Order

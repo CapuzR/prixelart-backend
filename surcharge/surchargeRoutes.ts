@@ -1,6 +1,6 @@
 import express from "express";
-import * as adminControllers from "../admin/adminControllers/adminAuthControllers";
-import * as surchargeControllers from "./surchargeControllers";
+import * as adminControllers from "../admin/adminControllers/adminAuthControllers.ts";
+import * as surchargeControllers from "./surchargeControllers.ts";
 
 const router = express.Router();
 

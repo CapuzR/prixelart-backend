@@ -1,7 +1,7 @@
 import { Collection, ObjectId, UpdateResult, WithId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { Testimonial } from "./testimonialModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { Testimonial } from "./testimonialModel.ts";
+import { getDb } from "../mongo.ts";
 
 function testimonialCollection(): Collection<Testimonial> {
   return getDb().collection<Testimonial>('testimonial');

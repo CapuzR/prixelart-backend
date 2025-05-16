@@ -1,8 +1,8 @@
 import { Collection, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { Account } from "./accountModel";
-import { User } from "../user/userModel";
-import { getDb } from "../mongo";
+import { PrixResponse } from "../types/responseModel.ts";
+import { Account } from "./accountModel.ts";
+import { User } from "../user/userModel.ts";
+import { getDb } from "../mongo.ts";
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>("users");

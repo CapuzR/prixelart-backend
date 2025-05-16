@@ -1,6 +1,6 @@
 import express from "express";
-import { readAllOrgFull, updateBio } from "./organizationControllers";
-import * as userAuthControllers from "../user/userControllers/userAuthControllers";
+import { readAllOrgFull, updateBio } from "./organizationControllers.ts";
+import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts";
 
 const router = express.Router();
 

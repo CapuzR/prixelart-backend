@@ -1,7 +1,7 @@
 import { Collection, ObjectId } from "mongodb";
-import { Surcharge } from "./surchargeModel";
-import { PrixResponse } from "../types/responseModel";
-import { getDb } from "../mongo";
+import { Surcharge } from "./surchargeModel.ts";
+import { PrixResponse } from "../types/responseModel.ts";
+import { getDb } from "../mongo.ts";
 
 function surchargeCollection(): Collection<Surcharge> {
   return getDb().collection<Surcharge>("surcharges");

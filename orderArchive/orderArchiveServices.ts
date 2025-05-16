@@ -1,11 +1,11 @@
 import { Collection, Filter, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel";
-import { OrderArchive, PayStatus, Status } from "./orderArchiveModel";
-import { getDb } from "../mongo";
-import { Movement } from "../movements/movementModel";
-import { createMovement, updateBalance } from "../movements/movementServices";
-import { readUserByUsername } from "../user/userServices/userServices";
-import { User } from "../user/userModel";
+import { PrixResponse } from "../types/responseModel.ts";
+import { OrderArchive, PayStatus, Status } from "./orderArchiveModel.ts";
+import { getDb } from "../mongo.ts";
+import { Movement } from "../movements/movementModel.ts";
+import { createMovement, updateBalance } from "../movements/movementServices.ts";
+import { readUserByUsername } from "../user/userServices/userServices.ts";
+import { User } from "../user/userModel.ts";
 import { create } from "domain";
 
 function orderArchiveCollection(): Collection<OrderArchive> {

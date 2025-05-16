@@ -1,7 +1,7 @@
 import express from "express";
-import * as orderControllers from "./orderControllers";
-import * as adminControllers from "../admin/adminControllers/adminAuthControllers";
-import * as userAuthControllers from "../user/userControllers/userAuthControllers";
+import * as orderControllers from "./orderControllers.ts";
+import * as adminControllers from "../admin/adminControllers/adminAuthControllers.ts";
+import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts";
 
 const router = express.Router();
 
@@ -18,7 +18,6 @@ router.get('/top-items', adminControllers.ensureAuthenticated, orderControllers.
 
 router.put("/order/addVoucher/:id", orderControllers.addVoucher);
 router.put("/order/update/:id", adminControllers.ensureAuthenticated, orderControllers.updateOrder);
-
 router.delete("/order/delete/:id", adminControllers.ensureAuthenticated, orderControllers.deleteOrder);
 
 // Payment Method Routes
