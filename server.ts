@@ -1,5 +1,3 @@
-// server.ts CON S3Store, ID plano en onUploadCreate, y corrección CORS
-
 import express, {
   Request as ExpressRequest,
   Response,
@@ -31,8 +29,8 @@ app.use(
   session({
     name: "session",
     keys: [
-      "tu_clave_secreta_1_super_segura_y_unica_final_v7",
-      "tu_clave_secreta_2_super_segura_y_unica_final_v7",
+      "tu_clave_secreta_1_super_segura_y_unica_final_v8",
+      "tu_clave_secreta_2_super_segura_y_unica_final_v8",
     ],
     secure: isProduction ? true : false,
     httpOnly: true,
@@ -138,9 +136,15 @@ const s3ClientConfig: S3ClientConfig & { bucket: string } = {
 
 const s3StoreOptions: S3StoreOptions = {
   s3ClientConfig: s3ClientConfig,
-  uploadParams: (req: any, upload: any) => {
+  uploadParams: (req, upload) => {
+    const metadata = upload.metadata || {}
+    const filetype = (metadata.filetype as string) || "application/octet-stream"
+    console.log(
+      `[s3StoreOptions.uploadParams] Para ID: ${upload.id}, Setting ACL: 'public-read', ContentType: '${filetype}'`
+    )
     return {
       ACL: "public-read",
+      ContentType: filetype,
     }
   },
 }
@@ -155,7 +159,6 @@ const tusServer = new Server({
     if (originalFilename && typeof originalFilename === "string") {
       extension = pathNode.extname(originalFilename)
     }
-    // Usar un ID plano (UUID + extensión) para la clave S3
     upload.id = `${upload.id}${extension}`
 
     console.log(
@@ -170,7 +173,7 @@ const tusServer = new Server({
     console.log(
       `[onUploadFinish] Subida finalizada para ID (S3 Key): ${upload.id}`
     )
-    const objectKey = upload.id // Ahora es el ID plano + extensión
+    const objectKey = upload.id
     if (!objectKey) {
       console.error(
         `[onUploadFinish] Error: No se pudo determinar objectKey para upload ID: ${upload.id}`
@@ -184,7 +187,7 @@ const tusServer = new Server({
     const cleanObjectKey = objectKey.startsWith("/")
       ? objectKey.substring(1)
       : objectKey
-    const finalUrl = `https://${doSpacesBucket}.${doSpacesEndpoint}/${cleanObjectKey}` // URL directa al objeto en S3
+    const finalUrl = `https://${doSpacesBucket}.${doSpacesEndpoint}/${cleanObjectKey}`
 
     console.log(
       `[onUploadFinish] Devolviendo encabezados: x-final-url y Access-Control-Expose-Headers`
@@ -219,7 +222,6 @@ tusServer.on(
       `[TUS SERVER (S3Store) - ${EVENTS.POST_CREATE}] Evento recibido.`
     )
     console.log(`  ---> ID en POST_CREATE: ${upload.id}`)
-    // ... otros logs ...
   }
 )
 
