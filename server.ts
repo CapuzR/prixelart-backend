@@ -10,7 +10,11 @@ import dotenv from "dotenv"
 import helmet from "helmet"
 import { Server, EVENTS, Upload, ServerOptions } from "@tus/server"
 import { S3Store, S3StoreOptions } from "@tus/s3-store"
-import { S3ClientConfig } from "@aws-sdk/client-s3"
+import {
+  S3Client,
+  S3ClientConfig,
+  PutObjectAclCommand,
+} from "@aws-sdk/client-s3"
 
 import path from "path"
 import { fileURLToPath } from "node:url"
@@ -143,7 +147,7 @@ const s3StoreOptions: S3StoreOptions = {
       `[s3StoreOptions.uploadParams] Para ID: ${upload.id}, Setting ACL: 'public-read', ContentType: '${filetype}'`
     )
     return {
-      ACL: "public-read",
+      acl: "public-read",
       ContentType: filetype,
     }
   },
@@ -173,6 +177,7 @@ const tusServer = new Server({
     console.log(
       `[onUploadFinish] Subida finalizada para ID (S3 Key): ${upload.id}`
     )
+
     const objectKey = upload.id
     if (!objectKey) {
       console.error(
@@ -188,6 +193,16 @@ const tusServer = new Server({
       ? objectKey.substring(1)
       : objectKey
     const finalUrl = `https://${doSpacesBucket}.${doSpacesEndpoint}/${cleanObjectKey}`
+
+    const s3Client = new S3Client(s3ClientConfig)
+
+    await s3Client.send(
+      new PutObjectAclCommand({
+        Bucket: s3ClientConfig.bucket,
+        Key: cleanObjectKey,
+        ACL: "public-read",
+      })
+    )
 
     console.log(
       `[onUploadFinish] Devolviendo encabezados: x-final-url y Access-Control-Expose-Headers`
