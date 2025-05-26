@@ -131,9 +131,15 @@ export interface PaymentMethod {
   amount?: string;
 }
 
+interface Payment {
+  id: string;
+  description: string;
+  img: string;
+}
 interface PaymentDetails {
   total: number;
   method: PaymentMethod[];
+  vouchers?: Payment[];
 }
 
 interface ShippingDetails {

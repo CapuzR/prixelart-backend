@@ -373,7 +373,9 @@ export const readAllProducts = async (): Promise<PrixResponse> => {
   }
 }
 
-export const readAllActiveProducts = async (): Promise<PrixResponse> => {
+export const readAllActiveProducts = async (
+  sortBy: string | undefined
+): Promise<PrixResponse> => {
   try {
     const products = productCollection()
     const list = await products.find({ active: true }).toArray()
@@ -451,6 +453,29 @@ export const readAllActiveProducts = async (): Promise<PrixResponse> => {
       }
       return product
     })
+
+    switch (sortBy) {
+      case "A-Z":
+        listWithUpdatedPrices.sort((a, b) => a.name.localeCompare(b.name))
+        break
+      case "Z-A":
+        listWithUpdatedPrices.sort((a, b) => b.name.localeCompare(a.name))
+        break
+      case "lowerPrice":
+        listWithUpdatedPrices.sort((a, b) => {
+          const priceA = getMinVariantPublicPrice(a)
+          const priceB = getMinVariantPublicPrice(b)
+          return priceA - priceB
+        })
+        break
+      case "maxPrice":
+        listWithUpdatedPrices.sort((a, b) => {
+          const priceA = getMaxVariantPublicPrice(a)
+          const priceB = getMaxVariantPublicPrice(b)
+          return priceB - priceA
+        })
+        break
+    }
 
     return {
       success: true,
@@ -585,4 +610,26 @@ export const deleteVariant = async (data: {
   } catch (e: unknown) {
     return { success: false, message: `Error: ${(e as Error).message}` }
   }
+}
+
+function getMinVariantPublicPrice(product: Product): number {
+  if (!product.variants || product.variants.length === 0) {
+    return Infinity // Para productos sin variantes, se consideran "más caros"
+  }
+  const prices = product.variants
+    .map((variant) => parseFloat(variant.publicPrice))
+    .filter((price) => !isNaN(price)) // Filtrar NaN si alguna conversión falla
+
+  return prices.length > 0 ? Math.min(...prices) : Infinity
+}
+
+function getMaxVariantPublicPrice(product: Product): number {
+  if (!product.variants || product.variants.length === 0) {
+    return -Infinity // Para productos sin variantes, se consideran "más baratos"
+  }
+  const prices = product.variants
+    .map((variant) => parseFloat(variant.publicPrice))
+    .filter((price) => !isNaN(price)) // Filtrar NaN
+
+  return prices.length > 0 ? Math.max(...prices) : -Infinity
 }

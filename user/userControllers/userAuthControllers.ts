@@ -79,8 +79,8 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
         const validUser = user.result as User;
         req.userId = validUser._id?.toString()
         if (validUser.prixer) {
-          req.isPrixer = true;
-          req.prixerUsername = validUser.username;
+          // req.isPrixer = true; //TODO: add to every prixer and org
+          req.body.prixerUsername = validUser.username;
         }
       }
     }

@@ -18,26 +18,26 @@ export const createProduct = async (
       return
     }
 
-    const uploads =
-      (req.session &&
-        (req.session.uploadResults?.files as Array<{
-          name: string
-          url: string
-        }>)) ||
-      []
+    // const uploads =
+    //   (req.session &&
+    //     (req.session.uploadResults?.files as Array<{
+    //       name: string
+    //       url: string
+    //     }>)) ||
+    //   []
 
-    const imageEntries = uploads.filter((u) => u.name === "productImage")
-    const videoEntry = uploads.find((u) => u.name === "productVideo")
+    // const imageEntries = uploads.filter((u) => u.name === "productImage")
+    // const videoEntry = uploads.find((u) => u.name === "productVideo")
 
-    if (imageEntries.length === 0) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Debe subir al menos una imagen de producto.",
-        })
-      return
-    }
+    // if (imageEntries.length === 0) {
+    //   res
+    //     .status(400)
+    //     .send({
+    //       success: false,
+    //       message: "Debe subir al menos una imagen de producto.",
+    //     })
+    //   return
+    // }
 
     const {
       name,
@@ -56,7 +56,9 @@ export const createProduct = async (
       autoCertified,
       discount,
       bestSeller,
+      sources,
       mockUp,
+      variants,
     } = req.body
 
     if (!name || !description || !category) {
@@ -74,15 +76,15 @@ export const createProduct = async (
       productionTime,
       cost,
       sources: {
-        images: imageEntries.map((e) => ({ url: e.url })),
-        video: videoEntry?.url,
+        images: sources.images,
+        video: sources.video,
       },
       active: Boolean(active),
-      variants: [],
       hasSpecialVar: Boolean(hasSpecialVar),
       autoCertified: Boolean(autoCertified),
       bestSeller: Boolean(bestSeller),
       mockUp: mockUp || "",
+      variants: variants,
     }
 
     const result = await productServices.createProduct(productData)
@@ -135,12 +137,10 @@ export const getVariantPrice = async (
   try {
     const { variantId, productId } = req.query
     if (!variantId || !productId) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "variantId y productId son requeridos.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "variantId y productId son requeridos.",
+      })
       return
     }
     let validUser = null
@@ -189,7 +189,25 @@ export const readAllActiveProducts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const resp = await productServices.readAllActiveProducts()
+    const sortBy = req.query.sort as string | undefined
+    type ProductSortOption = "A-Z" | "Z-A" | "lowerPrice" | "maxPrice"
+
+    const ALLOWED_PRODUCT_SORT_OPTIONS: Exclude<
+      ProductSortOption,
+      "default_sort"
+    >[] = ["A-Z", "Z-A", "lowerPrice", "maxPrice"]
+    let validatedSortBy: ProductSortOption = "A-Z"
+
+    if (sortBy) {
+      if (ALLOWED_PRODUCT_SORT_OPTIONS.includes(sortBy as any)) {
+        validatedSortBy = sortBy as ProductSortOption
+      } else {
+        console.warn(
+          `Parámetro de ordenamiento inválido: ${sortBy}. Usando orden por defecto.`
+        )
+      }
+    }
+    const resp = await productServices.readAllActiveProducts(validatedSortBy)
     res.send(resp)
   } catch (err) {
     next(err)
@@ -210,17 +228,17 @@ export const updateProduct = async (
       return
     }
 
-    const uploads =
-      (req.session &&
-        (req.session.uploadResults?.files as Array<{
-          name: string
-          url: string
-        }>)) ||
-      []
-    const newImages = uploads
-      .filter((u) => u.name === "productImage")
-      .map((u) => u.url)
-    const newVideo = uploads.find((u) => u.name === "productVideo")?.url
+    // const uploads =
+    //   (req.session &&
+    //     (req.session.uploadResults?.files as Array<{
+    //       name: string
+    //       url: string
+    //     }>)) ||
+    //   []
+    // const newImages = uploads
+    //   .filter((u) => u.name === "productImage")
+    //   .map((u) => u.url)
+    // const newVideo = uploads.find((u) => u.name === "productVideo")?.url
 
     const updateData: Partial<Product> = {}
     ;[
@@ -231,6 +249,7 @@ export const updateProduct = async (
       "cost",
       "discount",
       "mockUp",
+      "variants",
     ].forEach((f) => {
       if (req.body[f] !== undefined)
         updateData[f as keyof Product] = req.body[f]
@@ -243,21 +262,23 @@ export const updateProduct = async (
       updateData.autoCertified = Boolean(req.body.autoCertified)
     if (req.body.bestSeller !== undefined)
       updateData.bestSeller = Boolean(req.body.bestSeller)
-    if (newImages.length) {
-      updateData.sources = updateData.sources || {
-        images: [],
-        video: undefined,
-      }
-      updateData.sources.images = newImages.map((url) => ({ url }))
-    }
+    // if (newImages.length) {
+    //   updateData.sources = updateData.sources || {
+    //     images: [],
+    //     video: undefined,
+    //   }
+    //   updateData.sources.images = newImages.map((url) => ({ url }))
+    // }
 
-    if (newVideo) {
-      updateData.sources = updateData.sources || {
-        images: [],
-        video: undefined,
-      }
-      updateData.sources.video = newVideo
-    }
+    // if (newVideo) {
+    //   updateData.sources = updateData.sources || {
+    //     images: [],
+    //     video: undefined,
+    //   }
+    //   updateData.sources.video = newVideo
+    // }
+    updateData.sources = req.body.sources
+    updateData.variants = req.body.variants
 
     const resp = await productServices.updateProduct(req.params.id, updateData)
     res.send(resp)

@@ -7,7 +7,6 @@ function artCollection(): Collection<Art> {
   return getDb().collection<Art>("arts");
 }
 
-// Create a new art
 export const createArt = async (art: Art): Promise<PrixResponse> => {
   try {
     const arts = artCollection();
@@ -29,7 +28,6 @@ export const createArt = async (art: Art): Promise<PrixResponse> => {
   }
 };
 
-// Read one art by its system ID
 export const readOneById = async (artId: string): Promise<PrixResponse> => {
   try {
     const arts = artCollection();

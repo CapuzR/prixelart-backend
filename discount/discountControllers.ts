@@ -68,7 +68,7 @@ export const createDiscount = async (req: Request, res: Response, next: NextFunc
 
 export const updateDiscount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.updateDiscount) {
+    if (!req.permissions?.createDiscount) {
       res.send({ success: false, message: "No tienes permiso para actualizar descuentos." });
       return;
     }

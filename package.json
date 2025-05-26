@@ -1,6 +1,6 @@
 {
   "name": "back-end",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "App that allows Prixers and Prixelart to manage arts and services, being able to showcasing, promote and sale.",
   "main": "start.ts",
   "type": "module",
