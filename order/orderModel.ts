@@ -125,21 +125,24 @@ export interface PaymentMethod {
   createdOn: Date;
   name: string;
   instructions?: string;
-  lastFourDigits?: string; // Optional, last four digits of a card
-  voucher?: File; // Optional, voucher for bank transfer or task payment
-  metadata?: string;
-  amount?: string;
+  // lastFourDigits?: string; // Optional, last four digits of a card
+  // voucher?: Payment; // Optional, voucher for bank transfer or task payment
+  // metadata?: string;
+  // amount?: string;
 }
 
 interface Payment {
   id: string;
   description: string;
-  img: string;
+  voucher?: string;
+  metadata?: string;
+  amount?: string;
+  lastFourDigits?: string; // Optional, last four digits of a card
+  method: PaymentMethod;
 }
 interface PaymentDetails {
   total: number;
-  method: PaymentMethod[];
-  vouchers?: Payment[];
+  installments: Payment[];
 }
 
 interface ShippingDetails {

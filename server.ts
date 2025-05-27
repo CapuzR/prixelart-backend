@@ -140,7 +140,7 @@ const s3ClientConfig: S3ClientConfig & { bucket: string } = {
 
 const s3StoreOptions: S3StoreOptions = {
   s3ClientConfig: s3ClientConfig,
-  uploadParams: (req, upload) => {
+  uploadParams: (req: any, upload: any) => {
     const metadata = upload.metadata || {}
     const filetype = (metadata.filetype as string) || "application/octet-stream"
     console.log(
