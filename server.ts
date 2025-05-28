@@ -14,11 +14,16 @@ import {
   S3Client,
   S3ClientConfig,
   PutObjectAclCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  ObjectCannedACL,
 } from "@aws-sdk/client-s3"
 
 import path from "path"
 import { fileURLToPath } from "node:url"
 import pathNode from "node:path"
+import sharp from "sharp"
+import { Readable } from "stream"
 
 dotenv.config()
 
@@ -41,7 +46,7 @@ app.use(
     sameSite: "none",
     domain: isProduction ? ".prixelart.com" : "localhost",
     path: "/",
-    maxAge: 4 * 60 * 60 * 1000,
+    maxAge: 12 * 60 * 60 * 1000,
     overwrite: true,
   })
 )
@@ -110,14 +115,16 @@ const tusFilesPath: string = "/files"
 
 const doSpacesEndpoint: string | undefined = process.env.PRIVATE_BUCKET_URL
 const doSpacesRegion: string = process.env.DO_SPACES_REGION || "nyc3"
-const doSpacesBucket: string | undefined = process.env.PUBLIC_BUCKET_NAME
+const publicBucketName: string | undefined = process.env.PUBLIC_BUCKET_NAME
+const privateBucketName: string | undefined = process.env.PRIVATE_BUCKET_NAME
 const doSpacesAccessKey: string | undefined = process.env.DO_ACCESS_KEY
 const doSpacesSecretKey: string | undefined = process.env.DO_ACCESS_SECRET
 
 if (
   !doSpacesEndpoint ||
   !doSpacesRegion ||
-  !doSpacesBucket ||
+  !publicBucketName ||
+  !privateBucketName ||
   !doSpacesAccessKey ||
   !doSpacesSecretKey
 ) {
@@ -127,8 +134,8 @@ if (
   process.exit(1)
 }
 
-const s3ClientConfig: S3ClientConfig & { bucket: string } = {
-  bucket: doSpacesBucket,
+const s3ClientConfigForStore: S3ClientConfig & { bucket: string } = {
+  bucket: privateBucketName,
   region: doSpacesRegion,
   endpoint: `https://${doSpacesEndpoint}`,
   credentials: {
@@ -139,77 +146,192 @@ const s3ClientConfig: S3ClientConfig & { bucket: string } = {
 }
 
 const s3StoreOptions: S3StoreOptions = {
-  s3ClientConfig: s3ClientConfig,
+  s3ClientConfig: s3ClientConfigForStore,
   uploadParams: (req: any, upload: any) => {
     const metadata = upload.metadata || {}
     const filetype = (metadata.filetype as string) || "application/octet-stream"
-    console.log(
-      `[s3StoreOptions.uploadParams] Para ID: ${upload.id}, Setting ACL: 'public-read', ContentType: '${filetype}'`
-    )
+
+    // console.log(
+    //   `[s3StoreOptions.uploadParams] Para ID: ${upload.id}, Contexto: ${metadata.context}. ` +
+    //     `Subida inicial a bucket PRIVADO ('${privateBucketName}') con ACL 'private', ContentType: '${filetype}'`
+    // )
     return {
-      acl: "public-read",
+      ACL: "private" as ObjectCannedACL,
       ContentType: filetype,
     }
   },
 }
+
+const genericS3Client = new S3Client({
+  region: doSpacesRegion,
+  endpoint: `https://${doSpacesEndpoint}`,
+  credentials: {
+    accessKeyId: doSpacesAccessKey,
+    secretAccessKey: doSpacesSecretKey,
+  },
+  forcePathStyle: true,
+})
 
 const tusServer = new Server({
   path: tusFilesPath,
   datastore: new S3Store(s3StoreOptions),
 
   async onUploadCreate(req: any, upload: Upload) {
-    const originalFilename = upload.metadata?.filename || upload.metadata?.name
+    const originalFilename =
+      upload.metadata?.filename || upload.metadata?.name || `file-${Date.now()}`
     let extension = ""
     if (originalFilename && typeof originalFilename === "string") {
       extension = pathNode.extname(originalFilename)
     }
     upload.id = `${upload.id}${extension}`
 
-    console.log(
-      `[TUS SERVER (S3Store) - onUploadCreate] Hook. ID modificado a S3 Key (plano): ${
-        upload.id
-      }, Size: ${upload.size}, Meta: ${JSON.stringify(upload.metadata)}`
-    )
+    // console.log(
+    //   `[TUS SERVER - onUploadCreate] S3 Key en bucket privado será: ${
+    //     upload.id
+    //   }, Size: ${upload.size}, Meta: ${JSON.stringify(upload.metadata)}`
+    // )
     return upload
   },
 
   onUploadFinish: async (req: any, upload: Upload): Promise<any> => {
-    console.log(
-      `[onUploadFinish] Subida finalizada para ID (S3 Key): ${upload.id}`
-    )
+    const metadata = upload.metadata || {}
+    // console.log(
+    //   `[onUploadFinish] Hook para ID (Key en bucket PRIVADO): ${
+    //     upload.id
+    //   }, Metadata: ${JSON.stringify(metadata)}`
+    // )
 
-    const objectKey = upload.id
-    if (!objectKey) {
+    const objectKeyInPrivateBucket = upload.id
+    if (!objectKeyInPrivateBucket) {
       console.error(
-        `[onUploadFinish] Error: No se pudo determinar objectKey para upload ID: ${upload.id}`
+        `[onUploadFinish] Error: No objectKey para upload ID: ${upload.id}`
       )
+      return { status_code: 500, body: "Error Interno: No object key." }
+    }
+    const cleanKeyInPrivateBucket = objectKeyInPrivateBucket.startsWith("/")
+      ? objectKeyInPrivateBucket.substring(1)
+      : objectKeyInPrivateBucket
+
+    const isArtUpload = metadata.context === "artPieceImage"
+    let finalUrlToClient: string
+
+    try {
+      if (isArtUpload) {
+        // console.log(
+        //   `[onUploadFinish] Procesando "Arte" upload: ${cleanKeyInPrivateBucket}`
+        // )
+        const getObjectParams = {
+          Bucket: privateBucketName,
+          Key: cleanKeyInPrivateBucket,
+        }
+        // console.log(
+        //   `[onUploadFinish] Obteniendo objeto original de: s3://${privateBucketName}/${cleanKeyInPrivateBucket}`
+        // )
+        const getObjectResult = await genericS3Client.send(
+          new GetObjectCommand(getObjectParams)
+        )
+
+        if (
+          !getObjectResult.Body ||
+          !(getObjectResult.Body instanceof Readable)
+        ) {
+          throw new Error(
+            "El cuerpo del objeto original no es un stream legible."
+          )
+        }
+
+        const streamToBuffer = (stream: Readable): Promise<Buffer> =>
+          new Promise((resolve, reject) => {
+            const chunks: Buffer[] = []
+            stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)))
+            stream.on("error", reject)
+            stream.on("end", () => resolve(Buffer.concat(chunks)))
+          })
+
+        const originalImageBuffer = await streamToBuffer(getObjectResult.Body)
+        // console.log(
+        //   `[onUploadFinish] Procesando imagen de arte con Sharp (calidad 60%)...`
+        // )
+        const processedImageBuffer = await sharp(originalImageBuffer)
+          .webp({ quality: 50 })
+          .toBuffer()
+        const originalFileNameNoExt = pathNode.basename(
+          cleanKeyInPrivateBucket,
+          pathNode.extname(cleanKeyInPrivateBucket)
+        )
+        const publicArtObjectKey = `arte_procesado/${originalFileNameNoExt}_q50_${Date.now()}.webp`
+        const putPublicArtParams = {
+          Bucket: publicBucketName,
+          Key: publicArtObjectKey,
+          Body: processedImageBuffer,
+          ACL: "public-read" as ObjectCannedACL,
+          ContentType: "image/webp",
+        }
+        // console.log(
+        //   `[onUploadFinish] Subiendo imagen de arte pública procesada a: s3://${publicBucketName}/${publicArtObjectKey}`
+        // )
+        await genericS3Client.send(new PutObjectCommand(putPublicArtParams))
+
+        finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint.replace(
+          "https://",
+          ""
+        )}/${publicArtObjectKey}`
+        // console.log(
+        //   `[onUploadFinish] URL pública (Arte procesado) para el cliente: ${finalUrlToClient}`
+        // )
+      } else {
+        // console.log(
+        //   `[onUploadFinish] Procesando subida no-Arte: ${cleanKeyInPrivateBucket}`
+        // )
+        const getObjectParams = {
+          Bucket: privateBucketName,
+          Key: cleanKeyInPrivateBucket,
+        }
+        // console.log(
+        //   `[onUploadFinish] Obteniendo objeto original (no-arte) de: s3://${privateBucketName}/${cleanKeyInPrivateBucket}`
+        // )
+        const getObjectResult = await genericS3Client.send(
+          new GetObjectCommand(getObjectParams)
+        )
+        if (!getObjectResult.Body) {
+          throw new Error("Cuerpo del objeto original (no-arte) no encontrado.")
+        }
+        const publicNonArtObjectKey = `otros_archivos_publicos/${cleanKeyInPrivateBucket}` // O simplemente cleanKeyInPrivateBucket
+        const putPublicNonArtParams = {
+          Bucket: publicBucketName,
+          Key: publicNonArtObjectKey,
+          Body: getObjectResult.Body,
+          ACL: "public-read" as ObjectCannedACL,
+          ContentType:
+            (metadata.filetype as string) || "application/octet-stream",
+        }
+        // console.log(
+        //   `[onUploadFinish] Subiendo copia pública (no-arte) a: s3://${publicBucketName}/${publicNonArtObjectKey}`
+        // )
+        await genericS3Client.send(new PutObjectCommand(putPublicNonArtParams))
+
+        finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint.replace(
+          "https://",
+          ""
+        )}/${publicNonArtObjectKey}`
+        // console.log(
+        //   `[onUploadFinish] URL pública (no-Arte) para el cliente: ${finalUrlToClient}`
+        // )
+      }
+    } catch (error: any) {
+      console.error(`[onUploadFinish] Error general en el hook: `, error)
       return {
         status_code: 500,
-        body: "Error Interno del Servidor: No object key.",
+        body: `Error en servidor durante finalización de subida: ${error.message}`,
       }
     }
 
-    const cleanObjectKey = objectKey.startsWith("/")
-      ? objectKey.substring(1)
-      : objectKey
-    const finalUrl = `https://${doSpacesBucket}.${doSpacesEndpoint}/${cleanObjectKey}`
-
-    const s3Client = new S3Client(s3ClientConfig)
-
-    await s3Client.send(
-      new PutObjectAclCommand({
-        Bucket: s3ClientConfig.bucket,
-        Key: cleanObjectKey,
-        ACL: "public-read",
-      })
-    )
-
-    console.log(
-      `[onUploadFinish] Devolviendo encabezados: x-final-url y Access-Control-Expose-Headers`
-    )
+    // console.log(
+    //   `[onUploadFinish] Devolviendo encabezado x-final-url: ${finalUrlToClient}`
+    // )
     return {
       headers: {
-        "x-final-url": finalUrl,
+        "x-final-url": finalUrlToClient,
         "Access-Control-Expose-Headers": TUS_EXPOSED_HEADERS_STRING,
       },
     }
@@ -236,16 +358,16 @@ tusServer.on(
     console.log(
       `[TUS SERVER (S3Store) - ${EVENTS.POST_CREATE}] Evento recibido.`
     )
-    console.log(`  ---> ID en POST_CREATE: ${upload.id}`)
+    // console.log(`  ---> ID en POST_CREATE: ${upload.id}`)
   }
 )
 
 tusServer.on(
   EVENTS.POST_FINISH,
   (req: ExpressRequest, res: Response, upload: Upload) => {
-    console.log(
-      `[TUS SERVER (S3Store) - ${EVENTS.POST_FINISH}] Listener: Subida finalizada para ID: ${upload.id}.`
-    )
+    // console.log(
+    //   `[TUS SERVER (S3Store) - ${EVENTS.POST_FINISH}] Listener: Subida finalizada para ID: ${upload.id}.`
+    // )
   }
 )
 
