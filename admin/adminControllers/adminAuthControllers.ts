@@ -25,10 +25,10 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     }
 
     res.cookie("adminToken", auth.result! as string, {
-      secure: isProduction,
+      secure: true,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      domain: isProduction ? ".prixelart.com" : "localhost",
+      sameSite:  "none",
+      domain: ".prixelart.com",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -104,10 +104,10 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
       message: "Logged Out Successfully",
     };
     res.clearCookie("adminToken", {
-      secure: isProduction,
+      secure: true,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      domain: isProduction ? ".prixelart.com" : "localhost",
+      sameSite:  "none" ,
+      domain: ".prixelart.com",
       path: "/",
     });
     res.send(response);
