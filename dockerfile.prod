@@ -20,11 +20,14 @@ RUN npm install --build-from-source=sharp
 # Copy application source code
 COPY . ./
 
-# install PM2 and ts-node
-RUN npm install -g pm2 ts-node
+RUN npm install --save-dev typescript \
+    && npx tsc   # compiles into ./dist by default
 
-# expose port
+# Install PM2 globally
+RUN npm install -g pm2
+
+# Expose your application port
 EXPOSE 8000
 
-# tell PM2 to use ts-node instead of bun
-CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
+# Start the application with PM2 runtime so that it auto-restarts on crashes
+CMD ["pm2-runtime", "start", "start.ts"]
