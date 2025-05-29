@@ -1,0 +1,66 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "description": "App that allows Prixers and Prixelart to manage arts and services, being able to showcasing, promote and sale.",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "html"
+    ],
+    "testEnvironment": "node",
+    "testTimeout": 90000
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapuzR/prixelart-be.git"
+  },
+  "keywords": [
+    "prixer",
+    "prix",
+    "prixelart"
+  ],
+  "author": "Ricardo Jesús Capuz Lárez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CapuzR/prixelart-be/issues"
+  },
+  "homepage": "https://github.com/CapuzR/prixelart-be#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^7.4.4",
+    "aws-sdk": "^2.907.0",
+    "bcrypt": "^5.1.0",
+    "cookie-parser": "^1.4.5",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^9.0.2",
+    "exceljs": "^4.3.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "form-data": "^4.0.1",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.30.1",
+    "mailgun-js": "^0.22.0",
+    "mailgun.js": "^12.0.1",
+    "mongoose": "^5.12.14",
+    "multer": "^1.4.2",
+    "multer-s3-transform": "^2.3.2",
+    "nanoid": "^3.3.6",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "remove-accents": "^0.5.0",
+    "sharp": "^0.33.2"
+  },
+  "devDependencies": {
+    "@types/underscore.string": "^0.0.38",
+    "nodemon": "^2.0.19",
+    "supertest": "^6.1.3"
+  }
+}
