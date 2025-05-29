@@ -30,4 +30,4 @@ RUN npm install -g pm2
 EXPOSE 8000
 
 # Start the application with PM2 runtime so that it auto-restarts on crashes
-CMD ["pm2-runtime", "start", "start.ts"]
+CMD ["pm2-runtime", "start", "dist/start.ts"]
