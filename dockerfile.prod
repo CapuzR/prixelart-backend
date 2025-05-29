@@ -21,13 +21,13 @@ RUN npm uninstall bcrypt \
 # Copy application source code
 COPY . ./
 
-# Install PM2 and ts-node globally
-RUN npm install -g pm2 ts-node
+# install TypeScript compiler and types
+RUN npm install --save-dev typescript @types/node \
+ && npx tsc
 
-# Expose your application port
+# install PM2 only
+RUN npm install -g pm2
+
+# remove ts-node entirely
 EXPOSE 8000
-
-CMD ["pm2-runtime", "start", "start.ts", \
-"--interpreter", "ts-node", \
-  "--interpreter-args", "--project tsconfig.json --transpile-only" \
- ]
+CMD ["pm2-runtime", "start", "dist/start.js"]
