@@ -18,9 +18,14 @@ COPY . ./
 # 3) install pm2 + ts-node
 RUN npm install -g pm2 ts-node
 
-# generate the PM2 config in one shot
-RUN printf "module.exports = { apps:[{ name:'backend', script:'start.ts', interpreter:'node', interpreter_args:'--loader ts-node/esm --project tsconfig.json --transpile-only' }] };" \
-> ecosystem.config.js
+# generate a CJS‐formatted PM2 config
+RUN printf "module.exports = { apps: [{ \
+  name: 'backend', \
+  script: 'start.ts', \
+  interpreter: 'node', \
+  interpreter_args: '--loader ts-node/esm --project tsconfig.json --transpile-only' \
+}] };" \
+> ecosystem.config.cjs
 
 EXPOSE 8000
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["pm2-runtime", "ecosystem.config.cjs"]
