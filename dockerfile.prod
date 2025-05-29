@@ -1,7 +1,8 @@
 FROM node:18.19-buster
 
 # Create app directory and set proper permissions
-RUN mkdir -p /home/node/backend/node_modules && chown -R node:node /home/node/backend
+RUN mkdir -p /home/node/backend/node_modules \
+ && chown -R node:node /home/node/backend
 
 WORKDIR /home/node/backend
 
@@ -12,22 +13,19 @@ RUN npm install
 # Set environment variables if needed
 ENV HOME='.'
 
-# Remove and re-install specific packages
-RUN npm uninstall bcrypt
-RUN npm install bcrypt
-RUN npm install --build-from-source=sharp
+# Reinstall specific packages
+RUN npm uninstall bcrypt \
+ && npm install bcrypt \
+ && npm install --build-from-source=sharp
 
 # Copy application source code
 COPY . ./
 
-RUN npm install --save-dev typescript \
-    && npx tsc   # compiles into ./dist by default
-
-# Install PM2 globally
-RUN npm install -g pm2
+# Install PM2 and ts-node globally
+RUN npm install -g pm2 ts-node
 
 # Expose your application port
 EXPOSE 8000
 
-# Start the application with PM2 runtime so that it auto-restarts on crashes
-CMD ["pm2-runtime", "start", "dist/start.ts"]
+# Start the app via PM2, using ts-node as the interpreter
+CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
