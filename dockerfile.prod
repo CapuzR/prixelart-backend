@@ -27,5 +27,7 @@ RUN npm install -g pm2 ts-node
 # Expose your application port
 EXPOSE 8000
 
-# Start the app via PM2, using ts-node as the interpreter
-CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
+CMD ["pm2-runtime", "start", "start.ts", \
+"--interpreter", "ts-node", \
+  "--interpreter-args", "--project tsconfig.json --transpile-only" \
+ ]
