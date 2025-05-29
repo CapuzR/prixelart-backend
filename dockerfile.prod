@@ -1,30 +1,39 @@
 FROM node:18.19-buster
 
-# 1) Prepare app dir
-RUN mkdir -p /home/node/backend/node_modules \
- && chown -R node:node /home/node/backend
+# 0) prep
 WORKDIR /home/node/backend
+RUN mkdir -p node_modules && chown -R node:node .
 
-# 2) Install runtime deps
+# 1) deps
 COPY package*.json ./
-RUN npm install
-
-# 3) Reinstall any oddballs
-RUN npm uninstall bcrypt \
+RUN npm install \
+ && npm uninstall bcrypt \
  && npm install bcrypt \
  && npm install --build-from-source=sharp
 
-# 4) Copy source + tsconfig
+# 2) copy code + tsconfig
 COPY tsconfig.json ./
 COPY . ./
 
-# 5) Install PM2 + ts-node globally
+# 3) install pm2 + ts-node
 RUN npm install -g pm2 ts-node
 
-# 6) Tell ts-node to load your tsconfig and skip full type‐checking
-ENV TS_NODE_PROJECT=tsconfig.json
-ENV TS_NODE_TRANSPILE_ONLY=true
+# 4) ts-node runtime config
+ENV TS_NODE_PROJECT=tsconfig.json \
+    TS_NODE_TRANSPILE_ONLY=true
 
-# 7) Expose & launch under ts-node interpreter
+# 5) generate a PM2 ecosystem that uses Node+ts-node/esm
+RUN cat << 'EOF' > ecosystem.config.js
+module.exports = {
+  apps: [{
+    name: 'backend',
+    script: 'start.ts',
+    interpreter: 'node',
+    interpreter_args: '--loader ts-node/esm --project tsconfig.json --transpile-only'
+  }]
+};
+EOF
+
+# 6) expose & run
 EXPOSE 8000
-CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
