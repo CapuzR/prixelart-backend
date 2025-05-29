@@ -32,7 +32,7 @@ dotenv.config()
 
 const app = express()
 
-export const isProduction = process.env.NODE_ENV === "prod"
+export const isProduction = process.env.NODE_ENV === "production"
 
 app.use(
   session({
