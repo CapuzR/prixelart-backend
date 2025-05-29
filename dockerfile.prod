@@ -1,33 +1,30 @@
 FROM node:18.19-buster
 
-# Create app directory and set proper permissions
+# 1) Prepare app dir
 RUN mkdir -p /home/node/backend/node_modules \
  && chown -R node:node /home/node/backend
-
 WORKDIR /home/node/backend
 
-# Copy package files and install dependencies
+# 2) Install runtime deps
 COPY package*.json ./
 RUN npm install
 
-# Set environment variables if needed
-ENV HOME='.'
-
-# Reinstall specific packages
+# 3) Reinstall any oddballs
 RUN npm uninstall bcrypt \
  && npm install bcrypt \
  && npm install --build-from-source=sharp
 
-# Copy application source code
+# 4) Copy source + tsconfig
+COPY tsconfig.json ./
 COPY . ./
 
-# install TypeScript compiler and types
-RUN npm install --save-dev typescript @types/node \
- && npx tsc
+# 5) Install PM2 + ts-node globally
+RUN npm install -g pm2 ts-node
 
-# install PM2 only
-RUN npm install -g pm2
+# 6) Tell ts-node to load your tsconfig and skip full type‐checking
+ENV TS_NODE_PROJECT=tsconfig.json
+ENV TS_NODE_TRANSPILE_ONLY=true
 
-# remove ts-node entirely
+# 7) Expose & launch under ts-node interpreter
 EXPOSE 8000
-CMD ["pm2-runtime", "start", "dist/start.js"]
+CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
