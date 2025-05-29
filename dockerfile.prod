@@ -20,11 +20,11 @@ RUN npm install --build-from-source=sharp
 # Copy application source code
 COPY . ./
 
-# Install PM2 globally
-RUN npm install -g pm2
+# install PM2 and ts-node
+RUN npm install -g pm2 ts-node
 
-# Expose your application port
+# expose port
 EXPOSE 8000
 
-# Start the application with PM2 runtime so that it auto-restarts on crashes
-CMD ["pm2-runtime", "start", "start.ts"]
+# tell PM2 to use ts-node instead of bun
+CMD ["pm2-runtime", "start", "start.ts", "--interpreter", "ts-node"]
