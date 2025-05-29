@@ -18,22 +18,9 @@ COPY . ./
 # 3) install pm2 + ts-node
 RUN npm install -g pm2 ts-node
 
-# 4) ts-node runtime config
-ENV TS_NODE_PROJECT=tsconfig.json \
-    TS_NODE_TRANSPILE_ONLY=true
+# generate the PM2 config in one shot
+RUN printf "module.exports = { apps:[{ name:'backend', script:'start.ts', interpreter:'node', interpreter_args:'--loader ts-node/esm --project tsconfig.json --transpile-only' }] };" \
+> ecosystem.config.js
 
-# 5) generate a PM2 ecosystem that uses Node+ts-node/esm
-RUN cat << 'EOF' > ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'backend',
-    script: 'start.ts',
-    interpreter: 'node',
-    interpreter_args: '--loader ts-node/esm --project tsconfig.json --transpile-only'
-  }]
-};
-EOF
-
-# 6) expose & run
 EXPOSE 8000
 CMD ["pm2-runtime", "ecosystem.config.js"]
