@@ -277,10 +277,10 @@ export const readPaymentMethod = async (req: Request, res: Response, next: NextF
 export const readAllPaymentMethods = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.createPaymentMethod) {
-      res.status(403).send({ success: false, message: "No tienes autorización para crear métodos de pago." });
-      return;
-    }
+    // if (!req.permissions?.createPaymentMethod) {
+    //   res.status(403).send({ success: false, message: "No tienes autorización para crear métodos de pago." });
+    //   return;
+    // }
 
     const resultPaymentMethods = await orderServices.readAllPaymentMethods();
     res.send(resultPaymentMethods);
@@ -377,10 +377,10 @@ export const createShippingMethod = async (req: Request, res: Response, next: Ne
 export const readAllShippingMethod = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
-      res.send({ success: false, message: "No tienes autorización para realizar esta acción." });
-      return;
-    }
+    // if (!req.permissions?.modifyAdmins) {
+    //   res.send({ success: false, message: "No tienes autorización para realizar esta acción." });
+    //   return;
+    // }
 
     const resultShippingMethods = await orderServices.readAllShippingMethod();
     res.send(resultShippingMethods);
