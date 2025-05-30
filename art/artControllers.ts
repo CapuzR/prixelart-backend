@@ -100,15 +100,15 @@ export const readAllArts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes permiso para modificar Artes.",
-        })
-      return
-    }
+    // if (!req.permissions?.createProduct) {
+    //   res
+    //     .status(403)
+    //     .send({
+    //       success: false,
+    //       message: "No tienes permiso para modificar Artes.",
+    //     })
+    //   return
+    // }
 
     const result = await artSvc.readAllArts()
     res.send(result)
