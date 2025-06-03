@@ -4,13 +4,13 @@ import * as accountServices from "./accountServices.ts";
 export const checkBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.deleteConsumer) {
-      res.send({
-        success: false,
-        message: "No tienes permiso para modificar Accounts.",
-      });
-      return;
-    }
+    // if (!req.permissions?.deleteConsumer) {
+    //   res.send({
+    //     success: false,
+    //     message: "No tienes permiso para modificar Accounts.",
+    //   });
+    //   return;
+    // }
 
     const id: string = req.body._id;
     const balance = await accountServices.checkBalance(id);

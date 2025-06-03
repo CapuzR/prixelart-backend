@@ -162,6 +162,14 @@ const s3StoreOptions: S3StoreOptions = {
   },
 }
 
+const streamToBuffer = (stream: Readable): Promise<Buffer> =>
+  new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)))
+    stream.on("error", reject)
+    stream.on("end", () => resolve(Buffer.concat(chunks)))
+  })
+
 const genericS3Client = new S3Client({
   region: doSpacesRegion,
   endpoint: `https://${doSpacesEndpoint}`,
@@ -249,9 +257,7 @@ const tusServer = new Server({
           })
 
         const originalImageBuffer = await streamToBuffer(getObjectResult.Body)
-        // console.log(
-        //   `[onUploadFinish] Procesando imagen de arte con Sharp (calidad 60%)...`
-        // )
+
         const processedImageBuffer = await sharp(originalImageBuffer)
           .webp({ quality: 50 })
           .toBuffer()
@@ -280,43 +286,53 @@ const tusServer = new Server({
         //   `[onUploadFinish] URL pública (Arte procesado) para el cliente: ${finalUrlToClient}`
         // )
       } else {
-        // console.log(
-        //   `[onUploadFinish] Procesando subida no-Arte: ${cleanKeyInPrivateBucket}`
-        // )
         const getObjectParams = {
-          Bucket: privateBucketName,
+          Bucket: privateBucketName!,
           Key: cleanKeyInPrivateBucket,
         }
-        // console.log(
-        //   `[onUploadFinish] Obteniendo objeto original (no-arte) de: s3://${privateBucketName}/${cleanKeyInPrivateBucket}`
-        // )
+        console.log(
+          `[onUploadFinish] Obteniendo objeto original (no-arte) de: s3://${privateBucketName}/${cleanKeyInPrivateBucket}`
+        )
         const getObjectResult = await genericS3Client.send(
           new GetObjectCommand(getObjectParams)
         )
-        if (!getObjectResult.Body) {
-          throw new Error("Cuerpo del objeto original (no-arte) no encontrado.")
+
+        if (
+          !getObjectResult.Body ||
+          !(getObjectResult.Body instanceof Readable)
+        ) {
+          // Asegurarse que Body es Readable
+          throw new Error(
+            "Cuerpo del objeto original (no-arte) no es un stream legible."
+          )
         }
-        const publicNonArtObjectKey = `otros_archivos_publicos/${cleanKeyInPrivateBucket}` // O simplemente cleanKeyInPrivateBucket
+        console.log(
+          `[onUploadFinish] Convirtiendo stream a buffer para ${cleanKeyInPrivateBucket} (no-arte)...`
+        )
+        const originalNonArtBuffer = await streamToBuffer(
+          getObjectResult.Body as Readable
+        )
+        console.log(
+          `[onUploadFinish] Buffer creado para ${cleanKeyInPrivateBucket} (no-arte), tamaño: ${originalNonArtBuffer.length}`
+        )
+
+        const publicNonArtObjectKey = `otros_archivos_publicos/${cleanKeyInPrivateBucket}`
         const putPublicNonArtParams = {
-          Bucket: publicBucketName,
+          Bucket: publicBucketName!,
           Key: publicNonArtObjectKey,
-          Body: getObjectResult.Body,
+          Body: originalNonArtBuffer, // <--- Usar el Buffer
           ACL: "public-read" as ObjectCannedACL,
           ContentType:
             (metadata.filetype as string) || "application/octet-stream",
         }
-        // console.log(
-        //   `[onUploadFinish] Subiendo copia pública (no-arte) a: s3://${publicBucketName}/${publicNonArtObjectKey}`
-        // )
+        console.log(
+          `[onUploadFinish] Subiendo copia pública (no-arte) a: s3://${publicBucketName}/${publicNonArtObjectKey}`
+        )
         await genericS3Client.send(new PutObjectCommand(putPublicNonArtParams))
-
         finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint.replace(
           "https://",
           ""
         )}/${publicNonArtObjectKey}`
-        // console.log(
-        //   `[onUploadFinish] URL pública (no-Arte) para el cliente: ${finalUrlToClient}`
-        // )
       }
     } catch (error: any) {
       console.error(`[onUploadFinish] Error general en el hook: `, error)

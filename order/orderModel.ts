@@ -16,6 +16,8 @@ export interface Order {
   billing: BillingDetails;
 
   totalUnits: number;
+  status: [OrderStatus, Date][]
+  // paymentStatus: [GlobalPaymentStatus, Date][]
 
   subTotal: number;
   discount?: number;
@@ -68,30 +70,25 @@ export interface OrderLine {
 }
 
 export enum OrderStatus {
-  // Initial states (post-order submission)
-  PendingPayment = 0, // Order submitted, awaiting payment confirmation for this item's order
-  PaymentFailed = 1,  // Payment attempt was unsuccessful for this item's order
-
-  // Active processing states
-  PaymentConfirmed = 2, // Payment successful, ready for processing this item
-  Processing = 3,       // This item is being actively worked on (e.g., photo review, printing, painting)
-  ReadyToShip = 4,      // This item is produced, packed, and waiting for carrier pickup
-
-  // Shipping & Delivery states
-  Shipped = 5,          // This item has been handed over to the shipping carrier
-  InTransit = 6,        // Optional: This item is currently with the carrier on its way
-  Delivered = 7,        // Carrier confirmed delivery of this item
-
-  // Exception/Completion states
-  Canceled = 8,         // This item was canceled from the order
-  OnHold = 9,           // Processing for this item is temporarily paused (e.g., stock issue for this item)
-
-  // Return states
-  ReturnRequested = 10, // Customer has requested a return for this item
-  ReturnReceived = 11,  // This returned item has been received back
-  Refunded = 12,        // Refund issued for this returned/canceled item
+  Pending = 0, // Order submitted, awaiting payment confirmation for this item's order
+  Impression = 1, // Payment attempt was unsuccessful for this item's order
+  Production = 2, // Payment successful, ready for processing this item
+  ReadyToShip = 3, // This item is produced, packed, and waiting for carrier pickup
+  Delivered = 4, // Carrier confirmed delivery of this item
+  Finished = 5, // This item was canceled from the order
+  Paused = 6, // Processing for this item is temporarily paused (e.g., stock issue for this item)
+  Canceled = 7, // Customer has requested a return for this item
 }
 
+export enum GlobalPaymentStatus {
+  Pending = 0, // Order submitted, awaiting payment confirmation for this item's order
+  Credited = 2, // Payment successful, ready for processing this item
+  Paid = 1, // Payment attempt was unsuccessful for this item's order
+
+  Cancelled = 3, // Customer has requested a return for this item
+  // Giftcard = 3, // This item is produced, packed, and waiting for carrier pickup
+  // Gift = 4, // Carrier confirmed delivery of this item
+}
 interface ConsumerDetails {
   basic: BasicInfo;
   selectedAddress: BasicAddress;
@@ -137,12 +134,14 @@ interface Payment {
   voucher?: string;
   metadata?: string;
   amount?: string;
+  createdOn: Date;
   lastFourDigits?: string; // Optional, last four digits of a card
   method: PaymentMethod;
 }
 interface PaymentDetails {
   total: number;
-  installments: Payment[];
+  payment: Payment[];
+  status: [GlobalPaymentStatus, Date][]
 }
 
 interface ShippingDetails {
