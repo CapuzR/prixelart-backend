@@ -91,6 +91,43 @@ export const changePassword = async (username: string, oldPassword: string, newP
   }
 };
 
+export const changePasswordFromAdmin = async (username: string, newPassword: string): Promise<PrixResponse> => {
+  try {
+    const users = usersCollection();
+    const userRecord = await users.findOne({ username: username });
+    if (!userRecord) {
+      return {
+        success: false,
+        message: "Nombre de usuario incorrecto.",
+      };
+    }
+    // if (userRecord.password && !bcrypt.compareSync(oldPassword, userRecord.password)) {
+    //   return {
+    //     success: false,
+    //     message: "Inténtalo de nuevo, contraseña incorrecta.",
+    //   };
+    // } else {
+      const salt = await bcrypt.genSalt(2);
+      const hash = await bcrypt.hash(newPassword, salt);
+      const updateResult = await users.findOneAndUpdate(
+        { username: username },
+        { $set: { password: hash } },
+        { returnDocument: "after" }
+      );
+      if (updateResult) {
+        return { success: true, message: "Contraseña actualizada correctamente." };
+      } else {
+        return { success: false, message: "No se pudo actualizar la contraseña." };
+      }
+    // }
+  } catch (e) {
+    return {
+      success: false,
+      message: "Unable to change the password.",
+    };
+  }
+}
+
 export const resetPassword = async (newPassword: string, user: User): Promise<PrixResponse> => {
   try {
     const users = usersCollection();

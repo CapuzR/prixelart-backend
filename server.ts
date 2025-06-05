@@ -6,14 +6,13 @@ import express, {
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import session from "cookie-session"
-import dotenv from "dotenv"
+import dotenv from 'dotenv'
 import helmet from "helmet"
 import { Server, EVENTS, Upload, ServerOptions } from "@tus/server"
-import { S3Store, S3StoreOptions } from "@tus/s3-store"
+import { S3Store } from "@tus/s3-store"
 import {
   S3Client,
   S3ClientConfig,
-  PutObjectAclCommand,
   GetObjectCommand,
   PutObjectCommand,
   ObjectCannedACL,
@@ -44,7 +43,7 @@ app.use(
     secure: isProduction ? true : false,
     httpOnly: true,
     sameSite: "none",
-    domain: isProduction ? ".prixelart.com" : "localhost",
+    domain:  ".prixelart.com",
     path: "/",
     maxAge: 12 * 60 * 60 * 1000,
     overwrite: true,
@@ -134,6 +133,19 @@ if (
   process.exit(1)
 }
 
+
+interface MyS3StoreOptions {
+  s3ClientConfig: S3ClientConfig & { bucket: string };
+  uploadParams?: (
+    req: any, 
+    upload: any 
+  ) => {
+    ACL?: ObjectCannedACL; 
+    ContentType?: string;
+    [key: string]: any;
+  };
+}
+
 const s3ClientConfigForStore: S3ClientConfig & { bucket: string } = {
   bucket: privateBucketName,
   region: doSpacesRegion,
@@ -145,7 +157,7 @@ const s3ClientConfigForStore: S3ClientConfig & { bucket: string } = {
   forcePathStyle: true,
 }
 
-const s3StoreOptions: S3StoreOptions = {
+const s3StoreOptions: MyS3StoreOptions = {
   s3ClientConfig: s3ClientConfigForStore,
   uploadParams: (req: any, upload: any) => {
     const metadata = upload.metadata || {}

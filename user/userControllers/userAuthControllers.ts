@@ -118,6 +118,22 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
   }
 };
 
+export const changePrixerPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (req.permissions?.area !== "Master") {
+      res.send({
+        success: false,
+        message: "No tienes permiso para modificar administradores.",
+      });
+      return;
+    }
+    const result = await userServices.changePasswordFromAdmin(req.body.username, req.body.newPassword);
+    res.send(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email } = req.body;

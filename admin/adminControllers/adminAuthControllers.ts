@@ -4,7 +4,7 @@ import * as adminServices from "../adminServices/adminServices.ts";
 import { Admin, Login } from "../adminModel.ts";
 import jwt from "jsonwebtoken";
 import { isProduction } from "../../server.ts";
-
+import {Permissions} from "../permissionsModel.ts"
 declare global {
   namespace Express {
     interface Request {
@@ -28,7 +28,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: true,
       httpOnly: true,
       sameSite:  "none",
-      domain: ".prixelart.com",
+      domain: isProduction ? ".prixelart.com" : "localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
