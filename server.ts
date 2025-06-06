@@ -40,7 +40,7 @@ app.use(
       "tu_clave_secreta_1_super_segura_y_unica_final_v8",
       "tu_clave_secreta_2_super_segura_y_unica_final_v8",
     ],
-    secure: isProduction ? true : false,
+    secure: true,
     httpOnly: true,
     sameSite: "none",
     domain:  ".prixelart.com",
