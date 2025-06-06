@@ -107,7 +107,7 @@ export const readAllPrixersActive = async (): Promise<PrixResponse> => {
     const users = usersCollection();
     const list = await users.find({
       ...prixerFilter(),
-      active: true,
+      // active: true,
       "prixer.status": true
     },
       { projection: excludePasswordProjection }

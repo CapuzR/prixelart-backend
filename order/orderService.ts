@@ -82,7 +82,7 @@ export const createOrder = async (order: Order, isPrixer?: boolean, prixerUserna
         );
 
         // 5) set initial status
-        line.status = [[OrderStatus.PendingPayment, new Date()]];
+        line.status = [[OrderStatus.Pending, new Date()]];
 
         return line;
       })

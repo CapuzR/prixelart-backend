@@ -1,4 +1,4 @@
-import { Organization } from "./organizationModel";
+import { Organization } from "./organizationModel.ts";
 
 import * as userSvc from "../user/userServices/userServices.ts";
 import { Collection, ObjectId } from "mongodb";
