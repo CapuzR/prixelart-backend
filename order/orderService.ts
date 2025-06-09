@@ -7,6 +7,7 @@ import { getDb } from "../mongo.ts";
 import { User } from "../user/userModel.ts";
 import { readByUsername } from "../prixer/prixerServices.ts";
 import { getVariantPrice } from "../product/productServices.ts";
+import mongoose from 'mongoose';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -75,11 +76,11 @@ export const createOrder = async (order: Order, isPrixer?: boolean, prixerUserna
         const [, finalPrice] = priceResp.result;
 
         // 4) overwrite pricePerUnit & recalc subtotal
-        line.pricePerUnit = Number(finalPrice);
+        // line.pricePerUnit = Number(finalPrice);
         line.discount = 0; // or your 10% logic
-        line.subtotal = parseFloat(
-          (line.quantity * Number(finalPrice) - (line.discount ?? 0)).toFixed(2)
-        );
+        // line.subtotal = parseFloat(
+        //   (line.quantity * Number(finalPrice) - (line.discount ?? 0)).toFixed(2)
+        // );
 
         // 5) set initial status
         line.status = [[OrderStatus.Pending, new Date()]];
@@ -90,11 +91,11 @@ export const createOrder = async (order: Order, isPrixer?: boolean, prixerUserna
 
     // 3) (Optional) Recalculate order totals
     const totalUnits = validatedLines.reduce((sum, l) => sum + l.quantity, 0);
-    const subTotal = parseFloat(
-      validatedLines
-        .reduce((sum, l) => sum + l.subtotal, 0)
-        .toFixed(2)
-    );
+    // const subTotal = parseFloat(
+    //   validatedLines
+    //     .reduce((sum, l) => sum + l.subtotal, 0)
+    //     .toFixed(2)
+    // );
 
     // 4) Insert into MongoDB
     const orders = orderCollection();
@@ -102,7 +103,7 @@ export const createOrder = async (order: Order, isPrixer?: boolean, prixerUserna
       ...order,
       lines: validatedLines,
       totalUnits,
-      subTotal,
+      // subTotal,
       createdOn: new Date(),
     });
 
@@ -202,7 +203,8 @@ export const updateOrder = async (id: string, update: Partial<Order>): Promise<P
 export const deleteOrder = async (orderId: string): Promise<PrixResponse> => {
   try {
     const order = orderCollection();
-    const { deletedCount } = await order.deleteOne({ orderId });
+    const ID = new mongoose.Types.ObjectId(orderId);
+        const { deletedCount } = await order.deleteOne({ _id: ID });
     return deletedCount
       ? { success: true, message: "Orden eliminada exitosamente" }
       : { success: false, message: "Orden no encontrada" };
