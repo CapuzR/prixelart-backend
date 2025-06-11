@@ -28,7 +28,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: true,
       httpOnly: true,
       sameSite:  "none",
-      domain: ".prixelart.com",
+      domain: isProduction ? ".prixelart.com" : "localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })

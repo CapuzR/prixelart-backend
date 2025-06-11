@@ -32,7 +32,6 @@ dotenv.config()
 const app = express()
 
 export const isProduction = process.env.NODE_ENV === "production"
-
 app.use(
   session({
     name: "session",
@@ -43,7 +42,7 @@ app.use(
     secure: true,
     httpOnly: true,
     sameSite: "none",
-    domain:  ".prixelart.com",
+    domain: "localhost",
     path: "/",
     maxAge: 12 * 60 * 60 * 1000,
     overwrite: true,
