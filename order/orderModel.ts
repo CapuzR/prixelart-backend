@@ -36,7 +36,13 @@ interface PickedArt
     Art,
     'artId' | 'title' | 'largeThumbUrl' | 'prixerUsername' | 'exclusive' | '_id'
   > { }
-
+  
+  export interface CustomImage {
+    url: string
+    title: string
+    description?: string
+    prixerUsername?: string
+  }
 interface PickedProduct
   extends Pick<
     Product,
@@ -51,7 +57,7 @@ interface PickedProduct
 
 interface Item {
   sku: string;
-  art?: PickedArt;
+  art?: PickedArt | CustomImage;
   product: PickedProduct;
   price: string;
   discount?: number;
@@ -106,7 +112,7 @@ interface BasicAddress {
   zipCode?: string;
 }
 
-interface BasicInfo {
+export interface BasicInfo {
   id?: string;
   name: string;
   lastName: string;
