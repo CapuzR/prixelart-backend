@@ -218,14 +218,12 @@ const forgotPasswordTemplate = (recoveryUrl: string): string => {
     </center>
   </body>
   </html>
-  `;
+  `
 }
 
 export const forgotPassword = async (email: string, recoveryUrl: string) => {
   try {
-    console.log(recoveryUrl)
     const emailHtml = forgotPasswordTemplate(recoveryUrl)
-
     const { data, error } = await resend.emails.send({
       from: "prixers@prixelart.com",
       to: [email],
