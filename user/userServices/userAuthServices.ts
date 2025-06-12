@@ -90,21 +90,21 @@ export const forgotPassword = async (email: string): Promise<PrixResponse> => {
       expiresIn: "15m",
     });
 
-    const templates: { [key: string]: string } = {
-      "forgot-password": "d-319b1f51b2424604b5e4951473205496",
-    };
+    // const templates: { [key: string]: string } = {
+    //   "forgot-password": "d-319b1f51b2424604b5e4951473205496",
+    // };
 
-    const message = {
-      to: user.email,
-      from: {
-        email: "prixers@prixelart.com",
-        name: "Prixelart",
-      },
-      templateId: templates["forgot-password"],
-      dynamic_template_data: {
-        recoveryUrl: process.env.FRONT_END_URL + "/recuperar/" + token,
-      },
-    };
+    // const message = {
+    //   to: user.email,
+    //   from: {
+    //     email: "prixers@prixelart.com",
+    //     name: "Prixelart",
+    //   },
+    //   templateId: templates["forgot-password"],
+    //   dynamic_template_data: {
+    //     recoveryUrl: process.env.FRONT_END_URL + "/recuperar/" + token,
+    //   },
+    // };
 
     const updateResult = await users.updateOne(
       { _id: user._id },
@@ -118,9 +118,9 @@ export const forgotPassword = async (email: string): Promise<PrixResponse> => {
       };
     }
 
-    const mail = await emailSender.sendEmail(message);
+    const mail = await emailSender.forgotPassword(email, process.env.FRONT_END_URL + "/recuperar/" + token);
     if (mail.success === false) {
-      await emailSender.sendEmail(message);
+      // await emailSender.forgotPassword(message);
       return {
         success: false,
         message: "No se pudo enviar el correo de recuperación, por favor refresca e reinténtalo de nuevo.",
