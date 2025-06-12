@@ -13,7 +13,6 @@ import { getDb } from "../mongo.ts"
 import { User } from "../user/userModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
-import mongoose from "mongoose"
 import { sendWelcomeEmail } from "../utils/emailSender.ts"
 
 // Order Service
@@ -256,7 +255,7 @@ export const updateOrder = async (
 export const deleteOrder = async (orderId: string): Promise<PrixResponse> => {
   try {
     const order = orderCollection()
-    const ID = new mongoose.Types.ObjectId(orderId)
+    const ID = new ObjectId(orderId)
     const { deletedCount } = await order.deleteOne({ _id: ID })
     return deletedCount
       ? { success: true, message: "Orden eliminada exitosamente" }
