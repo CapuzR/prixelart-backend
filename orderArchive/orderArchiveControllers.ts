@@ -25,10 +25,10 @@ export const readOrder = async (req: Request, res: Response, next: NextFunction)
 
 export const readAllOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-    if (!req.permissions?.orderStatus) {
-        res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
-        return;
-    }
+    // if (!req.permissions?.orderStatus) {
+    //     res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
+    //     return;
+    // }
 
     try {
         // --- Parse Query Parameters ---

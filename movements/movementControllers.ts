@@ -4,15 +4,14 @@ import { Movement } from "./movementModel.ts";
 
 export const createMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.modifyAdmins) {
-      res.send({
-        success: false,
-        message: "No tienes permiso para crear Movimientos.",
-      });
-      return;
-    }
+    // if (!req.permissions?.modifyAdmins) {
+    //   res.send({
+    //     success: false,
+    //     message: "No tienes permiso para crear Movimientos.",
+    //   });
+    //   return;
+    // }
 
-    // Grab TUS‐uploaded file under purpose "MovementItem"
     const movementFile =
       req.session?.uploadResults?.item?.find(
         (f: { purpose: string; url: string }) => f.purpose === "MovementItem"
