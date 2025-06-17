@@ -108,6 +108,21 @@ export const readByPrixer = async (prixer: string): Promise<PrixResponse> => {
   }
 };
 
+export const readByUserId = async (userId: string): Promise<PrixResponse> => {
+  try {
+    const services = serviceCollection()
+    const list = await services.find({ userId }).toArray()
+    return {
+      success: true,
+      message: "Servicios por userId encontrados.",
+      result: list,
+    }
+  } catch (e: unknown) {
+    const err = e instanceof Error ? e.message : String(e)
+    return { success: false, message: `Error: ${err}` }
+  }
+}
+
 export const updateMyService = async (id: string, updates: Partial<Service>): Promise<PrixResponse> => {
   try {
     const services = serviceCollection();

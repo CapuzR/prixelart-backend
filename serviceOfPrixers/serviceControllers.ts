@@ -138,6 +138,19 @@ export const getServicesByPrixer = async (
   }
 }
 
+export const getServicesByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const result = await serviceServices.readByUserId(req.params.userId)
+    res.send(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const updateMyService = async (
   req: Request,
   res: Response,
