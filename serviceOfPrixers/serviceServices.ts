@@ -110,16 +110,16 @@ export const readByPrixer = async (prixer: string): Promise<PrixResponse> => {
 
 export const readByUserId = async (userId: string): Promise<PrixResponse> => {
   try {
-    const services = serviceCollection()
-    const list = await services.find({ userId }).toArray()
+    const services = serviceCollection();
+    const list = await services.find({ userId, active: true }).toArray();
     return {
       success: true,
-      message: "Servicios por userId encontrados.",
+      message: "Servicios activos por userId encontrados.",
       result: list,
-    }
+    };
   } catch (e: unknown) {
-    const err = e instanceof Error ? e.message : String(e)
-    return { success: false, message: `Error: ${err}` }
+    const err = e instanceof Error ? e.message : String(e);
+    return { success: false, message: `Error: ${err}` };
   }
 }
 
