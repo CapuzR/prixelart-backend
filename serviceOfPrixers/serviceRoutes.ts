@@ -29,6 +29,11 @@ router.get(
   serviceControllers.getServicesByPrixer
 )
 
+router.get(
+  "/service/by-user/:userId",
+  serviceControllers.getServicesByUserId
+)
+
 router.put(
   "/service/updateMyService/:id",
   userAuthControllers.ensureAuthenticated,
