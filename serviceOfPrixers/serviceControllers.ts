@@ -38,7 +38,7 @@ export const createService = async (
       isLocal,
       isRemote,
       sources,
-      userId,
+      userid,
     } = req.body
 
     if (!title || !description || !prixer || !serviceArea) {
@@ -63,7 +63,7 @@ export const createService = async (
       isRemote,
       sources,
       publicPrice,
-      userId,
+      userid,
     }
 
     const result = await serviceServices.createService(serviceData)
@@ -144,7 +144,7 @@ export const getServicesByUserId = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const result = await serviceServices.readByUserId(req.params.userId)
+    const result = await serviceServices.readByUserId(req.params.userid)
     res.send(result)
   } catch (error) {
     next(error)
