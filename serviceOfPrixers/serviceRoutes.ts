@@ -30,7 +30,7 @@ router.get(
 )
 
 router.get(
-  "/service/by-user/:userId",
+  "/service/by-user/:userid",
   serviceControllers.getServicesByUserId
 )
 
