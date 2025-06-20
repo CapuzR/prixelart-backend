@@ -108,13 +108,13 @@ export const readByPrixer = async (prixer: string): Promise<PrixResponse> => {
   }
 };
 
-export const readByUserId = async (userId: string): Promise<PrixResponse> => {
+export const readByUserId = async (userid: string): Promise<PrixResponse> => {
   try {
     const services = serviceCollection();
-    const list = await services.find({ userId, active: true }).toArray();
+    const list = await services.find({ userid, active: true }).toArray();
     return {
       success: true,
-      message: "Servicios activos por userId encontrados.",
+      message: "Servicios activos por userid encontrados.",
       result: list,
     };
   } catch (e: unknown) {
