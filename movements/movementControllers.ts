@@ -4,13 +4,7 @@ import { Movement } from "./movementModel.ts";
 
 export const createMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // if (!req.permissions?.modifyAdmins) {
-    //   res.send({
-    //     success: false,
-    //     message: "No tienes permiso para crear Movimientos.",
-    //   });
-    //   return;
-    // }
+  // TODO: create permission or proccess for this action
 
     const movementFile =
       req.session?.uploadResults?.item?.find(
@@ -52,10 +46,10 @@ export const createMovement = async (req: Request, res: Response, next: NextFunc
 
 export const readByAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-  if (!req.permissions?.modifyAdmins) {
+  if (!req.permissions?.readMovements) {
     res.send({
       success: false,
-      message: "No tienes permiso para crear Movimientos.",
+      message: "No tienes permiso para leer estos Movimientos.",
     });
     return;
   }
@@ -70,10 +64,10 @@ export const readByAccount = async (req: Request, res: Response, next: NextFunct
 
 export const readAllMovements = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-  if (!req.permissions?.modifyAdmins) {
+  if (!req.permissions?.readMovements) {
     res.send({
       success: false,
-      message: "No tienes permiso para crear Movimientos.",
+      message: "No tienes permiso para leer los Movimientos.",
     });
     return;
   }
@@ -110,10 +104,10 @@ export const readAllMovements = async (req: Request, res: Response, next: NextFu
 
 export const readById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-  if (!req.permissions?.modifyAdmins) {
+  if (!req.permissions?.readMovements) {
     res.send({
       success: false,
-      message: "No tienes permiso para crear Movimientos.",
+      message: "No tienes permiso para leer Movimientos.",
     });
     return;
   }

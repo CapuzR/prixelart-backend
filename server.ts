@@ -42,7 +42,7 @@ app.use(
     secure: true,
     httpOnly: true,
     sameSite: "none",
-    domain: ".prixelart.com",
+    domain: "localhost",
     path: "/",
     maxAge: 12 * 60 * 60 * 1000,
     overwrite: true,

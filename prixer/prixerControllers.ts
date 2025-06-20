@@ -9,13 +9,13 @@ export const createPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
-      res.status(403).send({
-        success: false,
-        message: "No tienes permiso para crear perfiles de Prixer.",
-      })
-      return
-    }
+    // if (!req.permissions?.prixerBan) {
+    //   res.status(403).send({
+    //     success: false,
+    //     message: "No tienes permiso para crear perfiles de Prixer.",
+    //   })
+    //   return
+    // }
 
     const userId = req.params.userId
     if (!userId) {
@@ -123,13 +123,13 @@ export const readAllPrixers = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
-      res.send({
-        success: false,
-        message: "No tienes permiso para editar un Prixer.",
-      })
-      return
-    }
+    // if (!req.permissions?.prixerBan) {
+    //   res.send({
+    //     success: false,
+    //     message: "No tienes permiso para editar un Prixer.",
+    //   })
+    //   return
+    // }
 
     const result = await prixerServices.readAllPrixers()
 
@@ -160,7 +160,7 @@ export const updatePrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
+    if (!req.permissions?.setPrixerBalance) {
       res.send({
         success: false,
         message: "No tienes permiso para editar un Prixer.",

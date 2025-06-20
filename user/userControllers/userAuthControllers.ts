@@ -159,24 +159,24 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const resetByAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
+// export const resetByAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//   try {
 
-    if (!req.permissions?.createConsumer) {
-      res.send({
-        success: false,
-        message: "No tienes permiso para modificar usuarios.",
-      });
-      return;
-    }
+//     if (!req.permissions?.createConsumer) {
+//       res.send({
+//         success: false,
+//         message: "No tienes permiso para modificar usuarios.",
+//       });
+//       return;
+//     }
 
-    const { id, newPassword } = req.body;
-    const result = await authServices.resetByAdmin(id, newPassword);
-    res.send(result);
-  } catch (error) {
-    next(error);
-  }
-};
+//     const { id, newPassword } = req.body;
+//     const result = await authServices.resetByAdmin(id, newPassword);
+//     res.send(result);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const checkPasswordToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

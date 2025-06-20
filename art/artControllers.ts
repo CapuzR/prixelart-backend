@@ -62,7 +62,7 @@ export const updateArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
+    if (!req.permissions?.modifyArtBestSellers) {
       res
         .status(403)
         .send({
@@ -256,6 +256,14 @@ export const deleteArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.permissions?.modifyArtBestSellers) {
+      res.send({
+        success: false,
+        message: "No tienes permiso para eliminar Artes.",
+      })
+      return
+    }
+
     const result = await artSvc.deleteArt(req.params.id)
     res.send(result)
   } catch (e) {
@@ -269,6 +277,16 @@ export const disableArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.permissions?.modifyArtBestSellers) {
+      res
+        .status(403)
+        .send({
+          success: false,
+          message: "No tienes permiso para modificar Artes.",
+        })
+      return
+    }
+
     const result = await artSvc.disableArt(req.params.id)
     res.send(result)
   } catch (e) {
@@ -282,6 +300,15 @@ export const rankArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.permissions?.modifyArtBestSellers) {
+      res
+        .status(403)
+        .send({
+          success: false,
+          message: "No tienes permiso para modificar Artes.",
+        })
+      return
+    }
     const result = await artSvc.rankArt(req.params.id, req.body)
     res.send(result)
   } catch (e) {

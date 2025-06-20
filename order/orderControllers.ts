@@ -48,6 +48,14 @@ export const addVoucher = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.permissions?.createOrder) {
+      res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      })
+      return
+    }
+
     const voucherUrl =
       req.session?.uploadResults?.vouchers?.find(
         (v: { purpose: string; url: string }) => v.purpose === "PaymentVoucher"
@@ -85,10 +93,10 @@ export const readAllOrders = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.orderStatus) {
+  if (!req.permissions?.createOrder) {
     res.send({
       success: false,
-      message: "No tienes autorización para realizar esta acción.",
+      message: "No tienes autorización para leer todos los pedidos.",
     })
     return
   }
@@ -107,13 +115,14 @@ export const readOrdersByEmail = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.orderStatus) {
-    res.send({
-      success: false,
-      message: "No tienes autorización para realizar esta acción.",
-    })
-    return
-  }
+  // if (!req.permissions?.createOrder) {
+  //   res.send({
+  //     success: false,
+  //     message: "No tienes autorización para leer estos pedidos",
+  //   })
+  //   return
+  // }
+  // TODO: apply a validation for users
 
   try {
     const results = await orderServices.readOrdersByEmail(req.body)
@@ -374,15 +383,15 @@ export const readPaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para crear métodos de pago.",
-        })
-      return
-    }
+    // if (!req.permissions?.createPaymentMethod) {
+    //   res
+    //     .status(403)
+    //     .send({
+    //       success: false,
+    //       message: "No tienes autorización para crear métodos de pago.",
+    //     })
+    //   return
+    // }
 
     const resultPaymentMethod = await orderServices.readPaymentMethodById(
       req.params.id
@@ -475,7 +484,7 @@ export const deletePaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
+    if (!req.permissions?.deletePaymentMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -506,7 +515,7 @@ export const createShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.createShippingMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -571,13 +580,13 @@ export const readShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyAdmins) {
-      res.send({
-        success: false,
-        message: "No tienes autorización para realizar esta acción.",
-      })
-      return
-    }
+    // if (!req.permissions?.modifyAdmins) {
+    //   res.send({
+    //     success: false,
+    //     message: "No tienes autorización para realizar esta acción.",
+    //   })
+    //   return
+    // }
 
     const resultShippingMethod = await orderServices.readShippingMethodById(
       req.params.id
@@ -640,7 +649,7 @@ export const deleteShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.deleteShippingMethod) {
       res
         .status(403)
         .send({
