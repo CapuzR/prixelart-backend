@@ -26,6 +26,11 @@ import { User } from "../user/userModel.ts"
 type DiscountValues = number[]
 type Gallery = { arts: Art[]; length: number }
 
+export interface GalleryResult {
+  arts: Art[];
+  hasMore: boolean;
+}
+
 interface email {
   success: boolean
   message: string
@@ -33,6 +38,7 @@ interface email {
 }
 type PrixResult =
   | GlobalDashboardStatsData
+  | GalleryResult
   | TopPerformingItemData[]
   | Gallery
   | CarouselItem
