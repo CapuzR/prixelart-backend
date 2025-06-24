@@ -416,6 +416,129 @@ export const getProductPerformance = async (
   }
 }
 
+export const getProductionLinePerformance = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
+
+    if (startDate > endDate) {
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      })
+      return
+    }
+
+    const result = await orderServices.getProductionLinePerformance(
+      startDate,
+      endDate
+    )
+    res.send(result)
+  } catch (err) {
+    console.error("[Controller Error] getProductionLinePerformance:", err)
+    next(err)
+  }
+}
+
+export const getArtPerformance = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
+    const endDate = parseDateQuery(req.query.endDate, new Date());
+    endDate.setHours(23, 59, 59, 999);
+
+    if (startDate > endDate) {
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      });
+      return;
+    }
+
+    const result = await orderServices.getArtPerformance(startDate, endDate);
+    res.send(result);
+  } catch (err) {
+    console.error("[Controller Error] getArtPerformance:", err);
+    next(err);
+  }
+};
+
+export const getCustomerAnalytics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
+    const endDate = parseDateQuery(req.query.endDate, new Date());
+    endDate.setHours(23, 59, 59, 999);
+
+    if (startDate > endDate) {
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      });
+      return;
+    }
+
+    const result = await orderServices.getCustomerAnalytics(startDate, endDate);
+    res.send(result);
+  } catch (err) {
+    console.error("[Controller Error] getCustomerAnalytics:", err);
+    next(err);
+  }
+};
+
+export const getCycleTimeAnalytics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
+    const endDate = parseDateQuery(req.query.endDate, new Date());
+    endDate.setHours(23, 59, 59, 999);
+
+    if (startDate > endDate) {
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      });
+      return;
+    }
+
+    const result = await orderServices.getCycleTimeAnalytics(startDate, endDate);
+    res.send(result);
+  } catch (err) {
+    console.error("[Controller Error] getCycleTimeAnalytics:", err);
+    next(err);
+  }
+};
+
 // PaymentMethod
 
 export const createPaymentMethod = async (
