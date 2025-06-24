@@ -8,6 +8,7 @@ import { Movement } from "../movements/movementModel.ts"
 import { Order, PaymentMethod, ShippingMethod } from "../order/orderModel.ts"
 import {
   GlobalDashboardStatsData,
+  PerformanceData,
   TopPerformingItemData,
 } from "../order/orderService.ts"
 import { OrderArchive } from "../orderArchive/orderArchiveModel.ts"
@@ -40,6 +41,7 @@ type PrixResult =
   | GlobalDashboardStatsData
   | GalleryResult
   | TopPerformingItemData[]
+  | PerformanceData[]
   | Gallery
   | CarouselItem
   | CarouselItem[]

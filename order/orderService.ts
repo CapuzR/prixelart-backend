@@ -14,6 +14,7 @@ import { User } from "../user/userModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { sendWelcomeEmail } from "../utils/emailSender.ts"
+import { Admin } from "../admin/adminModel.ts"
 
 // Order Service
 
@@ -26,6 +27,10 @@ function paymentMethodCollection(): Collection<PaymentMethod> {
 
 function shippingMethodCollection(): Collection<ShippingMethod> {
   return getDb().collection<ShippingMethod>("shippingMethod")
+}
+
+function adminCollection(): Collection<Admin> {
+  return getDb().collection<Admin>("admin")
 }
 
 export const createOrder = async (
@@ -128,7 +133,7 @@ export const createOrder = async (
     return {
       success: true,
       message: "Orden creada con éxito.",
-      result: { ...order, _id: insertedId  },
+      result: { ...order, _id: insertedId },
       email: orderEmail
     }
   } catch (e: any) {
@@ -179,10 +184,10 @@ export const readAllOrders = async (): Promise<PrixResponse> => {
       .toArray()
     return orders.length
       ? {
-          success: true,
-          message: "Todas las órdenes disponibles.",
-          result: orders,
-        }
+        success: true,
+        message: "Todas las órdenes disponibles.",
+        result: orders,
+      }
       : { success: false, message: "No hay órdenes registradas." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -219,10 +224,10 @@ export const addVoucher = async (
     )
     return updatedOrder
       ? {
-          success: true,
-          message: "Comprobante agregado.",
-          result: updatedOrder,
-        }
+        success: true,
+        message: "Comprobante agregado.",
+        result: updatedOrder,
+      }
       : { success: false, message: "Orden no encontrada." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -242,10 +247,10 @@ export const updateOrder = async (
     )
     return updatedOrder
       ? {
-          success: true,
-          message: "Órden actualizada con éxito",
-          result: updatedOrder,
-        }
+        success: true,
+        message: "Órden actualizada con éxito",
+        result: updatedOrder,
+      }
       : { success: false, message: "Orden no encontrada." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -378,7 +383,7 @@ export const calculateGlobalDashboardStats = async (
       })
 
     ordersForStatusCount.forEach((order) => {
-      ;(order.lines || []).forEach((line) => {
+      ; (order.lines || []).forEach((line) => {
         if (line.status && line.status.length > 0) {
           const latestStatusTuple = line.status[line.status.length - 1]
           const statusEnum = latestStatusTuple[0]
@@ -423,7 +428,6 @@ export const getGlobalTopPerformingItems = async (
 ): Promise<PrixResponse> => {
   try {
     const collection = orderCollection()
-    // No seller filter in the $match stage for global top items
     const pipeline = [
       {
         $match: {
@@ -470,6 +474,206 @@ export const getGlobalTopPerformingItems = async (
     return {
       success: false,
       message: `Error fetching global top items: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
+}
+
+export interface PerformanceData {
+  id: string
+  name: string
+  imageUrl?: string
+  totalSales: number
+  totalUnits: number
+  orderCount: number
+}
+
+export const getSellerPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const admins = adminCollection()
+
+    const performancePipeline = [
+      {
+        $match: {
+          createdOn: { $gte: startDate, $lte: endDate },
+          seller: { $exists: true, $nin: [null, ""] },
+        },
+      },
+      {
+        $group: {
+          _id: "$seller",
+          totalSales: { $sum: "$total" },
+          totalUnits: { $sum: "$totalUnits" },
+          orderCount: { $sum: 1 },
+        },
+      },
+    ]
+    const performanceResults = await orders
+      .aggregate(performancePipeline)
+      .toArray()
+
+    const allSellers = await admins
+      .find({ isSeller: true }, { projection: { _id: 1, firstname: 1, lastname: 1 } })
+      .toArray()
+    const sellerMap = new Map<string, string>()
+    allSellers.forEach((seller) => {
+      const fullName = `${seller.firstname} ${seller.lastname}`
+      sellerMap.set(fullName, seller._id.toHexString())
+    })
+
+    const finalData = performanceResults.map((item: any) => ({
+      id: sellerMap.get(item._id) || item._id,
+      name: item._id,
+      totalSales: item.totalSales,
+      totalUnits: item.totalUnits,
+      orderCount: item.orderCount,
+      imageUrl: undefined,
+    }))
+
+    return {
+      success: true,
+      message: "Seller performance data retrieved.",
+      result: finalData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getSellerPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching seller performance: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
+}
+
+export const getPrixerPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      {
+        $match: {
+          "lines.item.art.prixerUsername": { $exists: true, $nin: [null, ""] },
+        },
+      },
+      {
+        $group: {
+          _id: "$lines.item.art.prixerUsername",
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          orderIds: { $addToSet: "$_id" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "username",
+          as: "prixerInfo",
+        },
+      },
+      { $unwind: { path: "$prixerInfo", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          id: { $ifNull: ["$prixerInfo._id", "$_id"] },
+          name: "$_id",
+          imageUrl: { $ifNull: ["$prixerInfo.prixer.avatar", "$prixerInfo.avatar"] },
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+    ]
+
+    const performanceData = await orders.aggregate(pipeline).toArray()
+
+    return {
+      success: true,
+      message: "Prixer performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getPrixerPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching prixer performance: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
+}
+
+export const getProductPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      { $match: { "lines.item.product._id": { $exists: true, $ne: null } } },
+      {
+        $group: {
+          _id: "$lines.item.product._id",
+          name: { $first: "$lines.item.product.name" },
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          orderIds: { $addToSet: "$_id" },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "fullProductInfo",
+        },
+      },
+      {
+        $unwind: { path: "$fullProductInfo", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          name: 1,
+          imageUrl: {
+            $ifNull: [
+              {
+                $cond: {
+                  if: { $eq: [{ $type: "$fullProductInfo.mockUp" }, "object"] },
+                  then: "$fullProductInfo.mockUp.mockupImg",
+                  else: "$fullProductInfo.mockUp"
+                }
+              },
+              "$fullProductInfo.thumbUrl"
+            ]
+          },
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+    ]
+
+    const performanceData = await orders.aggregate(pipeline).toArray()
+
+
+    return {
+      success: true,
+      message: "Product performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getProductPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching product performance: ${e instanceof Error ? e.message : String(e)}`,
     }
   }
 }
@@ -578,14 +782,14 @@ export const updatePaymentMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de pago actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de pago actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de pago no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de pago no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating payment method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -616,9 +820,9 @@ export const deletePaymentMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de pago eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de pago no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de pago no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting payment method:", e)
     return {
@@ -732,14 +936,14 @@ export const updateShippingMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de envío actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de envío actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de envío no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de envío no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating shipping method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -770,9 +974,9 @@ export const deleteShippingMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de envío eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de envío no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de envío no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting shipping method:", e)
     return {

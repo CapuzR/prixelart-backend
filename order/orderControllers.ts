@@ -271,7 +271,6 @@ export const getGlobalDashboardStats = async (
       return
     }
 
-    // @ts-ignore
     const result = await orderServices.calculateGlobalDashboardStats(
       startDate,
       endDate
@@ -318,7 +317,6 @@ export const getGlobalTopPerformingItems = async (
       return
     }
 
-    // @ts-ignore
     const result = await orderServices.getGlobalTopPerformingItems(
       startDate,
       endDate,
@@ -327,6 +325,93 @@ export const getGlobalTopPerformingItems = async (
     res.send(result)
   } catch (err) {
     console.error("[Controller Error] getGlobalTopPerformingItems:", err)
+    next(err)
+  }
+}
+
+export const getSellerPerformance = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
+
+    if (startDate > endDate) {
+      res
+        .status(400)
+        .send({ success: false, message: "Start date cannot be after end date." })
+      return
+    }
+
+    const result = await orderServices.getSellerPerformance(startDate, endDate)
+    res.send(result)
+  } catch (err) {
+    console.error("[Controller Error] getSellerPerformance:", err)
+    next(err)
+  }
+}
+
+export const getPrixerPerformance = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
+
+    if (startDate > endDate) {
+      res
+        .status(400)
+        .send({ success: false, message: "Start date cannot be after end date." })
+      return
+    }
+
+    const result = await orderServices.getPrixerPerformance(startDate, endDate)
+    res.send(result)
+  } catch (err) {
+    console.error("[Controller Error] getPrixerPerformance:", err)
+    next(err)
+  }
+}
+
+export const getProductPerformance = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
+
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
+
+    if (startDate > endDate) {
+      res
+        .status(400)
+        .send({ success: false, message: "Start date cannot be after end date." })
+      return
+    }
+
+    const result = await orderServices.getProductPerformance(startDate, endDate)
+    res.send(result)
+  } catch (err) {
+    console.error("[Controller Error] getProductPerformance:", err)
     next(err)
   }
 }
