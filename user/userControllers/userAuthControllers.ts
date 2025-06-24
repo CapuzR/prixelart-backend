@@ -83,6 +83,12 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
           req.body.prixerUsername = validUser.username;
         }
       }
+    } else {
+      return
+      // return {
+      //   success: false,
+      //   message: "Inicia sesión.",
+      // };
     }
     next();
   } catch (err) {

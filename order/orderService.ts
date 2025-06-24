@@ -13,7 +13,7 @@ import { getDb } from "../mongo.ts"
 import { User } from "../user/userModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
-import { sendWelcomeEmail } from "../utils/emailSender.ts"
+import { thanksForYourPurchase } from "../utils/emailSender.ts"
 
 // Order Service
 
@@ -122,7 +122,7 @@ export const createOrder = async (
     if (!acknowledged) {
       return { success: false, message: "No se pudo crear la orden." }
     } else {
-      orderEmail = await sendEmail(order)
+      orderEmail = await sendEmail({ ...order, _id: insertedId  })
     }
 
     return {
@@ -142,11 +142,10 @@ export const createOrder = async (
 
 export const sendEmail = async (orderData: Order): Promise<PrixResponse> => {
   try {
-    const res = await sendWelcomeEmail(
-      orderData.consumerDetails?.basic!,
+    const res = await thanksForYourPurchase(
+      orderData,
     )
     const response = { ...res, message: "Correo enviado exitosamente." }
-    console.log(response)
     return response
   } catch (e) {
     return { success: false, message: "Error enviando correo." }

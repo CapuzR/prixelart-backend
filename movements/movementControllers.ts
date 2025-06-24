@@ -46,13 +46,13 @@ export const createMovement = async (req: Request, res: Response, next: NextFunc
 
 export const readByAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-  if (!req.permissions?.readMovements) {
-    res.send({
-      success: false,
-      message: "No tienes permiso para leer estos Movimientos.",
-    });
-    return;
-  }
+  // if (!req.permissions?.readMovements) {
+  //   res.send({
+  //     success: false,
+  //     message: "No tienes permiso para leer estos Movimientos.",
+  //   });
+  //   return;
+  // }
 
   try {
     const result = await movementServices.readByAccount(req.body._id);
