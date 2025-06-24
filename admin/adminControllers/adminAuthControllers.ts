@@ -4,7 +4,7 @@ import * as adminServices from "../adminServices/adminServices.ts";
 import { Admin, Login } from "../adminModel.ts";
 import jwt from "jsonwebtoken";
 
-const isProduction = false;
+const isProduction = true;
 
 declare global {
   namespace Express {
