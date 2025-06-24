@@ -18,8 +18,6 @@ import {
   ObjectCannedACL,
 } from "@aws-sdk/client-s3"
 
-import path from "path"
-import { fileURLToPath } from "node:url"
 import pathNode from "node:path"
 import sharp from "sharp"
 import { Readable } from "stream"
