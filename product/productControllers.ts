@@ -18,27 +18,6 @@ export const createProduct = async (
       return
     }
 
-    // const uploads =
-    //   (req.session &&
-    //     (req.session.uploadResults?.files as Array<{
-    //       name: string
-    //       url: string
-    //     }>)) ||
-    //   []
-
-    // const imageEntries = uploads.filter((u) => u.name === "productImage")
-    // const videoEntry = uploads.find((u) => u.name === "productVideo")
-
-    // if (imageEntries.length === 0) {
-    //   res
-    //     .status(400)
-    //     .send({
-    //       success: false,
-    //       message: "Debe subir al menos una imagen de producto.",
-    //     })
-    //   return
-    // }
-
     const {
       name,
       description,
@@ -59,6 +38,7 @@ export const createProduct = async (
       sources,
       mockUp,
       variants,
+      productionLines,
     } = req.body
 
     if (!name || !description || !category) {
@@ -85,6 +65,7 @@ export const createProduct = async (
       bestSeller: Boolean(bestSeller),
       mockUp: mockUp || "",
       variants: variants,
+      productionLines: productionLines, // Added
     }
 
     const result = await productServices.createProduct(productData)
@@ -228,32 +209,21 @@ export const updateProduct = async (
       return
     }
 
-    // const uploads =
-    //   (req.session &&
-    //     (req.session.uploadResults?.files as Array<{
-    //       name: string
-    //       url: string
-    //     }>)) ||
-    //   []
-    // const newImages = uploads
-    //   .filter((u) => u.name === "productImage")
-    //   .map((u) => u.url)
-    // const newVideo = uploads.find((u) => u.name === "productVideo")?.url
-
     const updateData: Partial<Product> = {}
-    ;[
-      "name",
-      "description",
-      "category",
-      "productionTime",
-      "cost",
-      "discount",
-      "mockUp",
-      "variants",
-    ].forEach((f) => {
-      if (req.body[f] !== undefined)
-        updateData[f as keyof Product] = req.body[f]
-    })
+      ;[
+        "name",
+        "description",
+        "category",
+        "productionTime",
+        "cost",
+        "discount",
+        "mockUp",
+        "variants",
+        "productionLines",
+      ].forEach((f) => {
+        if (req.body[f] !== undefined)
+          updateData[f as keyof Product] = req.body[f]
+      })
     if (req.body.active !== undefined)
       updateData.active = Boolean(req.body.active)
     if (req.body.hasSpecialVar !== undefined)
@@ -262,21 +232,7 @@ export const updateProduct = async (
       updateData.autoCertified = Boolean(req.body.autoCertified)
     if (req.body.bestSeller !== undefined)
       updateData.bestSeller = Boolean(req.body.bestSeller)
-    // if (newImages.length) {
-    //   updateData.sources = updateData.sources || {
-    //     images: [],
-    //     video: undefined,
-    //   }
-    //   updateData.sources.images = newImages.map((url) => ({ url }))
-    // }
 
-    // if (newVideo) {
-    //   updateData.sources = updateData.sources || {
-    //     images: [],
-    //     video: undefined,
-    //   }
-    //   updateData.sources.video = newVideo
-    // }
     updateData.sources = req.body.sources
     updateData.variants = req.body.variants
 
@@ -284,6 +240,19 @@ export const updateProduct = async (
     res.send(resp)
   } catch (err) {
     console.error(err)
+    next(err)
+  }
+}
+
+export const getUniqueProductionLines = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const resp = await productServices.getUniqueProductionLines()
+    res.send(resp)
+  } catch (err) {
     next(err)
   }
 }

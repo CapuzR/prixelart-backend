@@ -3,7 +3,7 @@ import * as prixerServices from "./prixerServices.ts"
 import { Prixer } from "./prixerModel.ts"
 import { ObjectId } from "mongodb"
 
-export const createPrixer = async (
+export const promoteToPrixer = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -49,9 +49,9 @@ export const createPrixer = async (
       ? Array.isArray(req.body.specialty)
         ? req.body.specialty
         : (req.body.specialty as string)
-            .split(",")
-            .map((s) => s.trim())
-            .filter((s) => s.length > 0)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0)
       : undefined
 
     const {
@@ -160,47 +160,59 @@ export const updatePrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.setPrixerBalance) {
-      res.send({
+    const idToUpdate = (req.body.id as string) || req.params.id;
+
+    if (!idToUpdate) {
+      res.status(400).send({
         success: false,
-        message: "No tienes permiso para editar un Prixer.",
-      })
-      return
+        message: "Prixer ID is required for update.",
+      });
+      return;
     }
 
-    const avatarUploads = (req.session?.uploadResults as any)?.avatar as
-      | { purpose: string; url: string }[]
-      | undefined
-    const avatarUrl = avatarUploads?.find(
-      (u) => u.purpose === "PrixerAvatar"
-    )?.url
+    const isOwner = req.userId && req.userId === idToUpdate;
+    const isAdminWithPermission = req.permissions?.prixerBan;
 
-    const updateData: Partial<Prixer> = {}
+    if (!isOwner && !isAdminWithPermission) {
+      res.status(403).send({
+        success: false,
+        message: "You do not have permission to edit this Prixer profile.",
+      });
+      return;
+    }
+
+    const updateData: Partial<Prixer> = {};
+
+    if (req.body.avatar !== undefined) {
+      updateData.avatar = req.body.avatar;
+    }
+
     if (req.body.specialty !== undefined) {
       updateData.specialty = Array.isArray(req.body.specialty)
         ? req.body.specialty
-        : (req.body.specialty as string).split(",")
+        : (req.body.specialty as string).split(",");
     }
     if (req.body.description !== undefined)
-      updateData.description = req.body.description
+      updateData.description = req.body.description;
     if (req.body.instagram !== undefined)
-      updateData.instagram = req.body.instagram
-    if (req.body.twitter !== undefined) updateData.twitter = req.body.twitter
-    if (req.body.facebook !== undefined) updateData.facebook = req.body.facebook
-    if (req.body.phone !== undefined) updateData.phone = req.body.phone
-    if (avatarUrl !== undefined) updateData.avatar = avatarUrl
-    if (req.body.active !== undefined) updateData.status = req.body.active
-    if (req.body.termsAgree !== undefined)
-      updateData.termsAgree = req.body.termsAgree
+      updateData.instagram = req.body.instagram;
+    if (req.body.twitter !== undefined) updateData.twitter = req.body.twitter;
+    if (req.body.facebook !== undefined) updateData.facebook = req.body.facebook;
+    if (req.body.phone !== undefined) updateData.phone = req.body.phone;
 
-    const id = (req.body.id as string) || req.params.id
-    const result = await prixerServices.updatePrixer(id, updateData)
-    res.send(result)
+    if (isAdminWithPermission && req.body.status !== undefined) {
+      updateData.status = req.body.status === "true" || req.body.status === true;
+    }
+    if (req.body.termsAgree !== undefined)
+      updateData.termsAgree = req.body.termsAgree === "true" || req.body.termsAgree === true;
+
+    const result = await prixerServices.updatePrixer(idToUpdate, updateData);
+    res.send(result);
   } catch (e) {
-    console.error(e)
-    next(e)
+    console.error(e);
+    next(e);
   }
-}
+};
 
 export const updateVisibility = async (
   req: Request,

@@ -35,6 +35,12 @@ router.get(
 )
 router.get("/product/read-all-active", productControllers.readAllActiveProducts)
 
+router.get(
+  "/product/unique-production-lines",
+  adminControllers.ensureAuthenticated,
+  productControllers.getUniqueProductionLines
+)
+
 router.put(
   "/product/update/:id",
   adminControllers.ensureAuthenticated,
