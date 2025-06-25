@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Order Routes
 router.post("/order/create", adminControllers.ensureAuthenticated, orderControllers.createOrder);
+router.post("/order/public-create", orderControllers.createPublicOrder);
 router.post("/order/createv2", userAuthControllers.ensureAuthenticated, orderControllers.createOrder4Client);
 router.get("/order/read/:id", orderControllers.readOrder);
 router.get("/order/read-all", adminControllers.ensureAuthenticated, orderControllers.readAllOrders);

@@ -312,3 +312,21 @@ export const deleteVariant = async (
     next(err)
   }
 }
+
+export const getTuFotoDivertidaProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const productIds = [
+      "6413349c2657ac0012046477",
+      "620a3f1791523f0011ebd573",
+      "6176a5787404fa0011b10216",
+    ];
+    const resp = await productServices.readProductsByIds(productIds);
+    res.send(resp);
+  } catch (err) {
+    next(err);
+  }
+};

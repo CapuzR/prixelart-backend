@@ -1,3 +1,5 @@
+//--- File: product/productRoutes.ts ---
+
 import express from "express"
 import * as adminControllers from "../admin/adminControllers/adminAuthControllers.ts"
 import * as productControllers from "./productControllers.ts"
@@ -48,6 +50,8 @@ router.put(
 )
 
 router.get("/product/bestSellers", productControllers.readBestSellers)
+
+router.get("/product/tufotodivertida-special", productControllers.getTuFotoDivertidaProducts);
 
 router.delete(
   "/product/deleteVariant",

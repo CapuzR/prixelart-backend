@@ -59,6 +59,10 @@ const allowedOrigins: string[] = [
   `www.${frontEndUrl}`,
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://tufotodivertida.com",
+  "https://tufotodivertida.com",
+  "http://www.tufotodivertida.com",
+  "https://www.tufotodivertida.com",
 ]
 
 app.disable("x-powered-by")
@@ -214,14 +218,14 @@ const tusServer = new Server({
     const metadata = upload.metadata || {};
     const objectKeyInPrivateBucket = upload.id;
     if (!objectKeyInPrivateBucket) {
-        console.error(
-            `[onUploadFinish] Error: No objectKey for upload ID: ${upload.id}`
-        );
-        return { status_code: 500, body: "Internal Error: No object key." };
+      console.error(
+        `[onUploadFinish] Error: No objectKey for upload ID: ${upload.id}`
+      );
+      return { status_code: 500, body: "Internal Error: No object key." };
     }
     const cleanKeyInPrivateBucket = objectKeyInPrivateBucket.startsWith("/")
-        ? objectKeyInPrivateBucket.substring(1)
-        : objectKeyInPrivateBucket;
+      ? objectKeyInPrivateBucket.substring(1)
+      : objectKeyInPrivateBucket;
 
     const isArtUpload = metadata.context === "artPieceImage";
     let finalUrlToClient: string;
@@ -236,107 +240,107 @@ const tusServer = new Server({
     // --- End Caching Configuration ---
 
     try {
-        // Handle Art Uploads (with image processing)
-        if (isArtUpload) {
-            const getObjectParams = {
-                Bucket: privateBucketName,
-                Key: cleanKeyInPrivateBucket,
-            };
-            const getObjectResult = await genericS3Client.send(
-                new GetObjectCommand(getObjectParams)
-            );
-            if (
-                !getObjectResult.Body ||
-                !(getObjectResult.Body instanceof Readable)
-            ) {
-                throw new Error(
-                    "The body of the original object is not a readable stream."
-                );
-            }
-
-            const originalImageBuffer = await streamToBuffer(getObjectResult.Body);
-            const processedImageBuffer = await sharp(originalImageBuffer)
-                .webp({ quality: 50 })
-                .toBuffer();
-            const originalFileNameNoExt = pathNode.basename(
-                cleanKeyInPrivateBucket,
-                pathNode.extname(cleanKeyInPrivateBucket)
-            );
-            const publicArtObjectKey = `arte_procesado/${originalFileNameNoExt}_q50_${Date.now()}.webp`;
-
-            const putPublicArtParams = {
-                Bucket: publicBucketName,
-                Key: publicArtObjectKey,
-                Body: processedImageBuffer,
-                ACL: "public-read" as ObjectCannedACL,
-                ContentType: "image/webp",
-                // Add Caching Headers
-                CacheControl: cacheControlHeader,
-                Expires: expiresDate,
-            };
-
-            await genericS3Client.send(new PutObjectCommand(putPublicArtParams));
-            finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint!.replace(
-                "https://",
-                ""
-            )}/${publicArtObjectKey}`;
-        
-        // Handle all other file uploads
-        } else {
-            const getObjectParams = {
-                Bucket: privateBucketName!,
-                Key: cleanKeyInPrivateBucket,
-            };
-            const getObjectResult = await genericS3Client.send(
-                new GetObjectCommand(getObjectParams)
-            );
-            if (
-                !getObjectResult.Body ||
-                !(getObjectResult.Body instanceof Readable)
-            ) {
-                throw new Error(
-                    "The body of the original non-art object is not a readable stream."
-                );
-            }
-            const originalNonArtBuffer = await streamToBuffer(
-                getObjectResult.Body as Readable
-            );
-            const publicNonArtObjectKey = `otros_archivos_publicos/${cleanKeyInPrivateBucket}`;
-
-            const putPublicNonArtParams = {
-                Bucket: publicBucketName!,
-                Key: publicNonArtObjectKey,
-                Body: originalNonArtBuffer,
-                ACL: "public-read" as ObjectCannedACL,
-                ContentType:
-                    (metadata.filetype as string) || "application/octet-stream",
-                // Add Caching Headers
-                CacheControl: cacheControlHeader,
-                Expires: expiresDate,
-            };
-
-            await genericS3Client.send(new PutObjectCommand(putPublicNonArtParams));
-            finalUrlToClient = `https://${publicBucketName!}.${doSpacesEndpoint!.replace(
-                "https://",
-                ""
-            )}/${publicNonArtObjectKey}`;
-        }
-    } catch (error: any) {
-        console.error(`[onUploadFinish] General error in hook: `, error);
-        return {
-            status_code: 500,
-            body: `Server error during upload finalization: ${error.message}`,
+      // Handle Art Uploads (with image processing)
+      if (isArtUpload) {
+        const getObjectParams = {
+          Bucket: privateBucketName,
+          Key: cleanKeyInPrivateBucket,
         };
+        const getObjectResult = await genericS3Client.send(
+          new GetObjectCommand(getObjectParams)
+        );
+        if (
+          !getObjectResult.Body ||
+          !(getObjectResult.Body instanceof Readable)
+        ) {
+          throw new Error(
+            "The body of the original object is not a readable stream."
+          );
+        }
+
+        const originalImageBuffer = await streamToBuffer(getObjectResult.Body);
+        const processedImageBuffer = await sharp(originalImageBuffer)
+          .webp({ quality: 50 })
+          .toBuffer();
+        const originalFileNameNoExt = pathNode.basename(
+          cleanKeyInPrivateBucket,
+          pathNode.extname(cleanKeyInPrivateBucket)
+        );
+        const publicArtObjectKey = `arte_procesado/${originalFileNameNoExt}_q50_${Date.now()}.webp`;
+
+        const putPublicArtParams = {
+          Bucket: publicBucketName,
+          Key: publicArtObjectKey,
+          Body: processedImageBuffer,
+          ACL: "public-read" as ObjectCannedACL,
+          ContentType: "image/webp",
+          // Add Caching Headers
+          CacheControl: cacheControlHeader,
+          Expires: expiresDate,
+        };
+
+        await genericS3Client.send(new PutObjectCommand(putPublicArtParams));
+        finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint!.replace(
+          "https://",
+          ""
+        )}/${publicArtObjectKey}`;
+
+        // Handle all other file uploads
+      } else {
+        const getObjectParams = {
+          Bucket: privateBucketName!,
+          Key: cleanKeyInPrivateBucket,
+        };
+        const getObjectResult = await genericS3Client.send(
+          new GetObjectCommand(getObjectParams)
+        );
+        if (
+          !getObjectResult.Body ||
+          !(getObjectResult.Body instanceof Readable)
+        ) {
+          throw new Error(
+            "The body of the original non-art object is not a readable stream."
+          );
+        }
+        const originalNonArtBuffer = await streamToBuffer(
+          getObjectResult.Body as Readable
+        );
+        const publicNonArtObjectKey = `otros_archivos_publicos/${cleanKeyInPrivateBucket}`;
+
+        const putPublicNonArtParams = {
+          Bucket: publicBucketName!,
+          Key: publicNonArtObjectKey,
+          Body: originalNonArtBuffer,
+          ACL: "public-read" as ObjectCannedACL,
+          ContentType:
+            (metadata.filetype as string) || "application/octet-stream",
+          // Add Caching Headers
+          CacheControl: cacheControlHeader,
+          Expires: expiresDate,
+        };
+
+        await genericS3Client.send(new PutObjectCommand(putPublicNonArtParams));
+        finalUrlToClient = `https://${publicBucketName!}.${doSpacesEndpoint!.replace(
+          "https://",
+          ""
+        )}/${publicNonArtObjectKey}`;
+      }
+    } catch (error: any) {
+      console.error(`[onUploadFinish] General error in hook: `, error);
+      return {
+        status_code: 500,
+        body: `Server error during upload finalization: ${error.message}`,
+      };
     }
 
     // Return the final public URL to the client
     return {
-        headers: {
-            "x-final-url": finalUrlToClient,
-            "Access-Control-Expose-Headers": TUS_EXPOSED_HEADERS_STRING,
-        },
+      headers: {
+        "x-final-url": finalUrlToClient,
+        "Access-Control-Expose-Headers": TUS_EXPOSED_HEADERS_STRING,
+      },
     };
-},
+  },
 
   onResponseError: async (
     req: any,
@@ -399,21 +403,21 @@ app.get("/ping", (req, res) => {
   res.status(200).send("pong desde Express!")
 })
 
-import userRoutes from "./user/userRoutes.js"
-import prixerRoutes from "./prixer/prixerRoutes.js"
-import adminRoutes from "./admin/adminRoutes.js"
-import preferencesRoutes from "./preferences/preferencesRoutes.js"
-import artRoutes from "./art/artRoutes.js"
-import productRoutes from "./product/productRoutes.js"
-import orderRoutes from "./order/orderRoutes.js"
+import userRoutes from "./user/userRoutes.ts"
+import prixerRoutes from "./prixer/prixerRoutes.ts"
+import adminRoutes from "./admin/adminRoutes.ts"
+import preferencesRoutes from "./preferences/preferencesRoutes.ts"
+import artRoutes from "./art/artRoutes.ts"
+import productRoutes from "./product/productRoutes.ts"
+import orderRoutes from "./order/orderRoutes.ts"
 import orderArchiveRoutes from "./orderArchive/orderArchiveRoutes.js"
 import testimonialRoutes from "./testimonials/testimonialRoutes.js"
-import discountRoutes from "./discount/discountRoutes.js"
+import discountRoutes from "./discount/discountRoutes.ts"
 import accountRoutes from "./account/accountRoutes.js"
-import movementsRoutes from "./movements/movementRoutes.js"
-import servicesRoutes from "./serviceOfPrixers/serviceRoutes.js"
+import movementsRoutes from "./movements/movementRoutes.ts"
+import servicesRoutes from "./serviceOfPrixers/serviceRoutes.ts"
 import organizationsRoutes from "./organizations/organizationRoutes.js"
-import surchargeRoutes from "./surcharge/surchargeRoutes.js"
+import surchargeRoutes from "./surcharge/surchargeRoutes.ts"
 
 app.use("/", userRoutes)
 app.use("/", prixerRoutes)

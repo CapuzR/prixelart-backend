@@ -27,6 +27,47 @@ export const createOrder = async (
   }
 }
 
+export const createPublicOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      "http://tufotodivertida.com",
+      "https://tufotodivertida.com",
+      "http://www.tufotodivertida.com",
+      "https://www.tufotodivertida.com",
+    ];
+
+    if (!origin || !allowedOrigins.includes(origin)) {
+      res.status(403).send({
+        success: false,
+        message: "Origin not allowed to create public orders.",
+      });
+      return;
+    }
+
+    const orderData = req.body as Order;
+
+    // Set seller and creator for this specific origin
+    orderData.seller = "Ami";
+    orderData.createdBy = "Ami";
+
+    const creationResult = await orderServices.createOrder(orderData);
+    if (creationResult.success) {
+      await orderServices.sendEmail(orderData);
+      res.send({ success: true, message: "Order created successfully." });
+    } else {
+      res.status(400).send(creationResult);
+    }
+  } catch (err) {
+    console.error("Error in createPublicOrder controller:", err);
+    next(err);
+  }
+};
+
 export const createOrder4Client = async (
   req: Request,
   res: Response,

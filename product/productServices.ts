@@ -630,6 +630,28 @@ export const getUniqueProductionLines = async (): Promise<PrixResponse> => {
   }
 }
 
+export const readProductsByIds = async (ids: string[]): Promise<PrixResponse> => {
+  try {
+    const products = productCollection();
+    const objectIds = ids.map(id => new ObjectId(id));
+
+    const productList = await products.find({ _id: { $in: objectIds }, active: true }).toArray();
+
+    if (productList.length === 0) {
+      return { success: false, message: "No active products found for the given IDs." };
+    }
+
+    // Apply adjustments like discounts and surcharges to get the most current data.
+    const adjustedList = await applyAdjustmentsToList(productList);
+
+    return { success: true, message: "Products retrieved successfully.", result: adjustedList };
+  } catch (e: unknown) {
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    console.error("Error in readProductsByIds:", e);
+    return { success: false, message: `An error occurred while fetching products: ${errorMsg}` };
+  }
+};
+
 function getMinVariantPublicPrice(product: Product): number {
   if (!product.variants || product.variants.length === 0) {
     return Infinity // Para productos sin variantes, se consideran "más caros"
