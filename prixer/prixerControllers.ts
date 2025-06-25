@@ -9,13 +9,44 @@ export const promoteToPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.prixerBan) {
-    //   res.status(403).send({
-    //     success: false,
-    //     message: "No tienes permiso para crear perfiles de Prixer.",
-    //   })
-    //   return
-    // }
+    if (!req.permissions?.prixerBan) {
+      res.status(403).send({
+        success: false,
+        message: "You do not have permission to promote users to Prixers.",
+      });
+      return;
+    }
+
+    const { userId } = req.body;
+    if (!userId) {
+      res.status(400).send({
+        success: false,
+        message: "userId is required in the request body.",
+      });
+      return;
+    }
+
+    const result = await prixerServices.promoteUserToPrixer(userId);
+    res.send(result);
+
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const createPrixer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.permissions?.prixerBan) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes permiso para crear perfiles de Prixer.",
+      })
+      return
+    }
 
     const userId = req.params.userId
     if (!userId) {
