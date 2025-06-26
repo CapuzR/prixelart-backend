@@ -28,8 +28,8 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     res.cookie("adminToken", auth.result! as string, {
       secure: isProduction,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      ...(isProduction ? { domain: ".prixelart.com" } : {}),
+      sameSite:  "none",
+      domain: "localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })

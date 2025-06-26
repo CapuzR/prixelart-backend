@@ -1,11 +1,26 @@
-import { Router } from "express";
-import * as accountControllers from "./accountControllers.ts";
-import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers.ts";
-import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts";
+import { Router } from "express"
+import * as accountControllers from "./accountControllers.ts"
+import * as adminAuthControllers from "../admin/adminControllers/adminAuthControllers.ts"
+import * as userAuthControllers from "../user/userControllers/userAuthControllers.ts"
 
-const router: Router = Router();
+const router: Router = Router()
 
-router.post("/account/readById", userAuthControllers.ensureAuthenticated, accountControllers.checkBalance);
-router.post("/account/readAll", adminAuthControllers.ensureAuthenticated, accountControllers.readAll);
+router.get(
+  "/account/readById/:id",
+  adminAuthControllers.ensureAuthenticated,
+  accountControllers.checkBalance
+)
 
-export default router;
+router.post(
+    "/account/readById",
+    userAuthControllers.ensureAuthenticated,
+    accountControllers.checkBalance
+  )
+
+router.post(
+  "/account/readAll",
+  adminAuthControllers.ensureAuthenticated,
+  accountControllers.readAll
+)
+
+export default router

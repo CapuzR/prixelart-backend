@@ -8,7 +8,7 @@ export const checkBalance = async (
 ): Promise<void> => {
   try {
     // TODO: need verify if admin with read balance permission OR account owner
-    const id: string = req.body._id
+    const id: string = req.params.id
     const balance = await accountServices.checkBalance(id)
     res.send(balance)
     return
