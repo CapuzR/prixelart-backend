@@ -15,6 +15,13 @@ router.post("/order/byEmail", orderControllers.readOrdersByEmail);
 router.get('/orders', adminControllers.ensureAuthenticated, orderControllers.getGlobalOrders);
 router.get('/stats', adminControllers.ensureAuthenticated, orderControllers.getGlobalDashboardStats);
 router.get('/top-items', adminControllers.ensureAuthenticated, orderControllers.getGlobalTopPerformingItems);
+router.get('/stats/performance/sellers', adminControllers.ensureAuthenticated, orderControllers.getSellerPerformance);
+router.get('/stats/performance/prixers', adminControllers.ensureAuthenticated, orderControllers.getPrixerPerformance);
+router.get('/stats/performance/products', adminControllers.ensureAuthenticated, orderControllers.getProductPerformance);
+router.get('/stats/performance/production-lines', adminControllers.ensureAuthenticated, orderControllers.getProductionLinePerformance);
+router.get('/stats/performance/arts', adminControllers.ensureAuthenticated, orderControllers.getArtPerformance);
+router.get('/stats/analytics/customers', adminControllers.ensureAuthenticated, orderControllers.getCustomerAnalytics);
+router.get('/stats/analytics/cycle-time', adminControllers.ensureAuthenticated, orderControllers.getCycleTimeAnalytics);
 
 router.put("/order/addVoucher/:id", orderControllers.addVoucher);
 router.put("/order/update/:id", adminControllers.ensureAuthenticated, orderControllers.updateOrder);

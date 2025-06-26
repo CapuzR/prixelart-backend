@@ -101,6 +101,7 @@ export interface MovementQueryOptions {
   sortOrder: 1 | -1;
   filterType?: 'Depósito' | 'Retiro';
   searchDesc?: string;
+  destinatary?: string;
 }
 
 interface PaginatedMovementResponse extends Omit<PrixResponse, 'result'> {
@@ -112,7 +113,7 @@ interface PaginatedMovementResponse extends Omit<PrixResponse, 'result'> {
 
 export const readAllMovements = async (options: MovementQueryOptions): Promise<PaginatedMovementResponse> => {
   try {
-    const { page, limit, sortBy, sortOrder, filterType, searchDesc } = options;
+    const { page, limit, sortBy, sortOrder, filterType, searchDesc, destinatary } = options;
     const movements = movementCollection();
     const skip = (page - 1) * limit;
 
@@ -124,6 +125,9 @@ export const readAllMovements = async (options: MovementQueryOptions): Promise<P
       filterQuery.description = { $regex: searchDesc, $options: 'i' };
     }
 
+    if (destinatary) {
+      filterQuery.destinatary = destinatary
+    }
     const totalCount = await movements.countDocuments(filterQuery);
 
     const list = await movements

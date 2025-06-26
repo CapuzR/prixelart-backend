@@ -228,7 +228,7 @@ export const disableService = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.updateMyService) {
+  if (!req.permissions?.prixerBan) {
     res.status(403).send({
       success: false,
       message: "No tienes permiso para actualizar servicios.",

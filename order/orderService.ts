@@ -13,7 +13,8 @@ import { getDb } from "../mongo.ts"
 import { User } from "../user/userModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
-import { sendWelcomeEmail } from "../utils/emailSender.ts"
+import { thanksForYourPurchase } from "../utils/emailSender.ts"
+import { Admin } from "../admin/adminModel.ts"
 
 // Order Service
 
@@ -26,6 +27,10 @@ function paymentMethodCollection(): Collection<PaymentMethod> {
 
 function shippingMethodCollection(): Collection<ShippingMethod> {
   return getDb().collection<ShippingMethod>("shippingMethod")
+}
+
+function adminCollection(): Collection<Admin> {
+  return getDb().collection<Admin>("admin")
 }
 
 export const createOrder = async (
@@ -122,13 +127,13 @@ export const createOrder = async (
     if (!acknowledged) {
       return { success: false, message: "No se pudo crear la orden." }
     } else {
-      orderEmail = await sendEmail(order)
+      orderEmail = await sendEmail({ ...order, _id: insertedId  })
     }
 
     return {
       success: true,
       message: "Orden creada con éxito.",
-      result: { ...order, _id: insertedId  },
+      result: { ...order, _id: insertedId },
       email: orderEmail
     }
   } catch (e: any) {
@@ -142,11 +147,10 @@ export const createOrder = async (
 
 export const sendEmail = async (orderData: Order): Promise<PrixResponse> => {
   try {
-    const res = await sendWelcomeEmail(
-      orderData.consumerDetails?.basic!,
+    const res = await thanksForYourPurchase(
+      orderData,
     )
     const response = { ...res, message: "Correo enviado exitosamente." }
-    console.log(response)
     return response
   } catch (e) {
     return { success: false, message: "Error enviando correo." }
@@ -179,10 +183,10 @@ export const readAllOrders = async (): Promise<PrixResponse> => {
       .toArray()
     return orders.length
       ? {
-          success: true,
-          message: "Todas las órdenes disponibles.",
-          result: orders,
-        }
+        success: true,
+        message: "Todas las órdenes disponibles.",
+        result: orders,
+      }
       : { success: false, message: "No hay órdenes registradas." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -219,10 +223,10 @@ export const addVoucher = async (
     )
     return updatedOrder
       ? {
-          success: true,
-          message: "Comprobante agregado.",
-          result: updatedOrder,
-        }
+        success: true,
+        message: "Comprobante agregado.",
+        result: updatedOrder,
+      }
       : { success: false, message: "Orden no encontrada." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -242,10 +246,10 @@ export const updateOrder = async (
     )
     return updatedOrder
       ? {
-          success: true,
-          message: "Órden actualizada con éxito",
-          result: updatedOrder,
-        }
+        success: true,
+        message: "Órden actualizada con éxito",
+        result: updatedOrder,
+      }
       : { success: false, message: "Orden no encontrada." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -280,6 +284,8 @@ export interface GlobalDashboardStatsData {
   averageOrderValue: number
   unitsSold: number
   orderStatusCounts: Record<string, number>
+  prevPeriodTotalSales: number;
+  prevPeriodTotalOrders: number;
 }
 
 export const readAllOrdersByDateRange = async (
@@ -321,20 +327,18 @@ export const calculateGlobalDashboardStats = async (
   endDate: Date
 ): Promise<PrixResponse> => {
   try {
-    const collection = orderCollection()
-    // No seller filter in matchQuery for global stats
+    const collection = orderCollection();
+
+    // --- Current Period Calculation ---
     const matchQuery = {
-      createdOn: {
-        $gte: startDate,
-        $lte: endDate,
-      },
-    }
+      createdOn: { $gte: startDate, $lte: endDate },
+    };
 
     const statsPipeline = [
       { $match: matchQuery },
       {
         $group: {
-          _id: null, // Grouping all documents together
+          _id: null,
           totalSales: { $sum: "$total" },
           totalOrders: { $sum: 1 },
           totalUnits: { $sum: "$totalUnits" },
@@ -355,41 +359,72 @@ export const calculateGlobalDashboardStats = async (
           },
         },
       },
-    ]
-    const statsResult = await collection.aggregate(statsPipeline).toArray()
+    ];
+    const statsResult = await collection.aggregate(statsPipeline).toArray();
     const mainStats = statsResult[0] || {
       totalSales: 0,
       totalOrders: 0,
       totalUnits: 0,
       averageOrderValue: 0,
-    }
+    };
+
+    // --- Previous Period Calculation ---
+    const diff = endDate.getTime() - startDate.getTime();
+    const prevStartDate = new Date(startDate.getTime() - diff);
+    const prevEndDate = new Date(startDate.getTime() - 1);
+
+    const prevMatchQuery = {
+      createdOn: { $gte: prevStartDate, $lte: prevEndDate }
+    };
+
+    const prevStatsPipeline = [
+      { $match: prevMatchQuery },
+      {
+        $group: {
+          _id: null,
+          totalSales: { $sum: "$total" },
+          totalOrders: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalOrders: { $ifNull: ["$totalOrders", 0] }
+        }
+      }
+    ];
+
+    const prevStatsResult = await collection.aggregate(prevStatsPipeline).toArray();
+    const prevStats = prevStatsResult[0] || { totalSales: 0, totalOrders: 0 };
+
 
     // For Order Status Counts, fetch all relevant orders and process
     const ordersForStatusCount = (await collection
       .find(matchQuery)
       .project({ lines: 1 })
-      .toArray()) as unknown as Pick<Order, "lines">[]
-    const orderStatusCounts: Record<string, number> = {}
+      .toArray()) as unknown as Pick<Order, "lines">[];
+    const orderStatusCounts: Record<string, number> = {};
 
     Object.values(OrderStatus)
       .filter((value) => typeof value === "string")
       .forEach((statusName) => {
-        orderStatusCounts[statusName as string] = 0
-      })
+        orderStatusCounts[statusName as string] = 0;
+      });
 
     ordersForStatusCount.forEach((order) => {
-      ;(order.lines || []).forEach((line) => {
+      (order.lines || []).forEach((line) => {
         if (line.status && line.status.length > 0) {
-          const latestStatusTuple = line.status[line.status.length - 1]
-          const statusEnum = latestStatusTuple[0]
-          const statusName = OrderStatus[statusEnum as OrderStatus]
+          const latestStatusTuple = line.status[line.status.length - 1];
+          const statusEnum = latestStatusTuple[0];
+          const statusName = OrderStatus[statusEnum as OrderStatus];
           if (statusName) {
             orderStatusCounts[statusName] =
-              (orderStatusCounts[statusName] || 0) + 1
+              (orderStatusCounts[statusName] || 0) + 1;
           }
         }
-      })
-    })
+      });
+    });
 
     const dashboardData: GlobalDashboardStatsData = {
       totalSales: mainStats.totalSales,
@@ -397,19 +432,21 @@ export const calculateGlobalDashboardStats = async (
       averageOrderValue: mainStats.averageOrderValue,
       unitsSold: mainStats.totalUnits,
       orderStatusCounts,
-    }
+      prevPeriodTotalSales: prevStats.totalSales,
+      prevPeriodTotalOrders: prevStats.totalOrders
+    };
 
     return {
       success: true,
       message: "Global dashboard stats calculated.",
       result: dashboardData,
-    }
+    };
   } catch (e) {
-    console.error("Error in calculateGlobalDashboardStats:", e)
+    console.error("Error in calculateGlobalDashboardStats:", e);
     return {
       success: false,
       message: `Error calculating global stats: ${e instanceof Error ? e.message : String(e)}`,
-    }
+    };
   }
 }
 
@@ -423,7 +460,6 @@ export const getGlobalTopPerformingItems = async (
 ): Promise<PrixResponse> => {
   try {
     const collection = orderCollection()
-    // No seller filter in the $match stage for global top items
     const pipeline = [
       {
         $match: {
@@ -473,6 +509,489 @@ export const getGlobalTopPerformingItems = async (
     }
   }
 }
+
+export interface PerformanceData {
+  id: string
+  name: string
+  imageUrl?: string
+  totalSales: number
+  totalUnits: number
+  orderCount: number
+}
+
+export const getSellerPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const admins = adminCollection()
+
+    const performancePipeline = [
+      {
+        $match: {
+          createdOn: { $gte: startDate, $lte: endDate },
+          seller: { $exists: true, $nin: [null, ""] },
+        },
+      },
+      {
+        $group: {
+          _id: "$seller",
+          totalSales: { $sum: "$total" },
+          totalUnits: { $sum: "$totalUnits" },
+          orderCount: { $sum: 1 },
+        },
+      },
+    ]
+    const performanceResults = await orders
+      .aggregate(performancePipeline)
+      .toArray()
+
+    const allSellers = await admins
+      .find({ isSeller: true }, { projection: { _id: 1, firstname: 1, lastname: 1 } })
+      .toArray()
+    const sellerMap = new Map<string, string>()
+    allSellers.forEach((seller) => {
+      const fullName = `${seller.firstname} ${seller.lastname}`
+      sellerMap.set(fullName, seller._id.toHexString())
+    })
+
+    const finalData = performanceResults.map((item: any) => ({
+      id: sellerMap.get(item._id) || item._id,
+      name: item._id,
+      totalSales: item.totalSales,
+      totalUnits: item.totalUnits,
+      orderCount: item.orderCount,
+      imageUrl: undefined,
+    }))
+
+    return {
+      success: true,
+      message: "Seller performance data retrieved.",
+      result: finalData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getSellerPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching seller performance: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
+}
+
+export const getPrixerPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      {
+        $match: {
+          "lines.item.art.prixerUsername": { $exists: true, $nin: [null, ""] },
+        },
+      },
+      {
+        $group: {
+          _id: "$lines.item.art.prixerUsername",
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          orderIds: { $addToSet: "$_id" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "username",
+          as: "prixerInfo",
+        },
+      },
+      { $unwind: { path: "$prixerInfo", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          id: { $ifNull: ["$prixerInfo._id", "$_id"] },
+          name: "$_id",
+          imageUrl: { $ifNull: ["$prixerInfo.prixer.avatar", "$prixerInfo.avatar"] },
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+    ]
+
+    const performanceData = await orders.aggregate(pipeline).toArray()
+
+    return {
+      success: true,
+      message: "Prixer performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getPrixerPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching prixer performance: ${e instanceof Error ? e.message : String(e)}`,
+    }
+  }
+}
+
+export const getProductPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection();
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      { $match: { "lines.item.product._id": { $exists: true, $ne: null } } },
+      {
+        $group: {
+          _id: "$lines.item.product._id",
+          name: { $first: "$lines.item.product.name" },
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          orderIds: { $addToSet: "$_id" },
+          // Add sources to the grouped data
+          sources: { $first: "$lines.item.product.sources" },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "fullProductInfo",
+        },
+      },
+      {
+        $unwind: { path: "$fullProductInfo", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          name: 1,
+          sources: 1, // Pass the sources object through
+          imageUrl: {
+            $ifNull: [
+              {
+                $cond: {
+                  if: { $eq: [{ $type: "$fullProductInfo.mockUp" }, "object"] },
+                  then: "$fullProductInfo.mockUp.mockupImg",
+                  else: "$fullProductInfo.mockUp"
+                }
+              },
+              "$fullProductInfo.thumbUrl"
+            ]
+          },
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+    ];
+
+    const performanceData = await orders.aggregate(pipeline).toArray();
+
+    return {
+      success: true,
+      message: "Product performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    };
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getProductPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching product performance: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+};
+
+export const getProductionLinePerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection()
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      {
+        $match: {
+          "lines.item.product.productionLines": {
+            $exists: true,
+            $ne: [],
+            $not: { $size: 0 },
+          },
+        },
+      },
+      { $unwind: "$lines.item.product.productionLines" },
+      {
+        $group: {
+          _id: "$lines.item.product.productionLines",
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          orderIds: { $addToSet: "$_id" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          name: "$_id",
+          imageUrl: undefined,
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+      { $sort: { totalSales: -1 } },
+    ]
+
+    const performanceData = await orders.aggregate(pipeline).toArray()
+
+    return {
+      success: true,
+      message: "Production line performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    }
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getProductionLinePerformance:", e)
+    return {
+      success: false,
+      message: `Error fetching production line performance: ${e instanceof Error ? e.message : String(e)
+        }`,
+    }
+  }
+}
+
+export const getArtPerformance = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection();
+    const pipeline = [
+      { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+      { $unwind: "$lines" },
+      {
+        $match: {
+          "lines.item.art.artId": { $exists: true, $ne: null },
+          "lines.item.art.title": { $exists: true, $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            artId: "$lines.item.art.artId",
+            title: "$lines.item.art.title",
+          },
+          totalSales: { $sum: "$lines.subtotal" },
+          totalUnits: { $sum: "$lines.quantity" },
+          imageUrl: { $first: "$lines.item.art.largeThumbUrl" }, // Use large thumb for better quality
+          orderIds: { $addToSet: "$_id" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id.artId",
+          name: "$_id.title",
+          imageUrl: "$imageUrl",
+          totalSales: { $ifNull: ["$totalSales", 0] },
+          totalUnits: { $ifNull: ["$totalUnits", 0] },
+          orderCount: { $size: { $ifNull: ["$orderIds", []] } },
+        },
+      },
+      { $sort: { totalSales: -1 } },
+    ];
+
+    const performanceData = await orders.aggregate(pipeline).toArray();
+
+    return {
+      success: true,
+      message: "Art performance data retrieved.",
+      result: performanceData as PerformanceData[],
+    };
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getArtPerformance:", e);
+    return {
+      success: false,
+      message: `Error fetching art performance: ${e instanceof Error ? e.message : String(e)
+        }`,
+    };
+  }
+};
+
+export interface CustomerAnalyticsData {
+  newCustomers: { count: number; totalSales: number };
+  returningCustomers: { count: number; totalSales: number };
+}
+
+export const getCustomerAnalytics = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection();
+    const pipeline = [
+      // Get all orders in the date range
+      { $match: { "createdOn": { $gte: startDate, $lte: endDate }, "consumerDetails.basic.email": { $exists: true, $ne: null } } },
+      // Sort by customer and date to easily find their first order
+      { $sort: { "consumerDetails.basic.email": 1, "createdOn": 1 } },
+      // Group by customer email
+      {
+        $group: {
+          _id: "$consumerDetails.basic.email",
+          firstOrderDate: { $first: "$createdOn" },
+          orders: { $push: { total: "$total", createdOn: "$createdOn" } }
+        }
+      },
+      // Determine if the customer is new *within this period*
+      {
+        $project: {
+          isNew: { $gte: ["$firstOrderDate", startDate] },
+          orders: 1
+        }
+      }
+    ];
+
+    const customerGroups = await orders.aggregate(pipeline).toArray();
+
+    const analytics: CustomerAnalyticsData = {
+      newCustomers: { count: 0, totalSales: 0 },
+      returningCustomers: { count: 0, totalSales: 0 }
+    };
+
+    customerGroups.forEach(group => {
+      if (group.isNew) {
+        analytics.newCustomers.count += 1;
+        analytics.newCustomers.totalSales += group.orders.reduce((sum: number, order: any) => sum + order.total, 0);
+      } else {
+        analytics.returningCustomers.count += 1;
+        // We still need to sum up their sales within the period
+        const salesInPeriod = group.orders
+          .filter((order: any) => order.createdOn >= startDate && order.createdOn <= endDate)
+          .reduce((sum: number, order: any) => sum + order.total, 0);
+
+        // A returning customer might not have made a purchase in this period
+        if (salesInPeriod > 0) {
+          analytics.returningCustomers.count += 1;
+          analytics.returningCustomers.totalSales += salesInPeriod;
+        }
+      }
+    });
+
+    return {
+      success: true,
+      message: "Customer analytics retrieved successfully.",
+      result: analytics as any,
+    };
+
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getCustomerAnalytics:", e);
+    return {
+      success: false,
+      message: `Error fetching customer analytics: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+};
+
+export interface CycleTimeData {
+  status: string;
+  averageDays: number;
+}
+
+export const getCycleTimeAnalytics = async (
+  startDate: Date,
+  endDate: Date
+): Promise<PrixResponse> => {
+  try {
+    const orders = orderCollection();
+    const pipeline = [
+      // 1. Get orders within the date range
+      { $match: { "createdOn": { $gte: startDate, $lte: endDate } } },
+      // 2. Unwind the status array to process each status entry
+      { $unwind: "$status" },
+      // 3. Sort by order and then by the date of the status change
+      { $sort: { "_id": 1, "status.1": 1 } },
+      // 4. Group by order to create pairs of statuses
+      {
+        $group: {
+          _id: "$_id",
+          statusHistory: { $push: "$status" }
+        }
+      },
+      // 5. Create a new stage to transform the data into time intervals
+      {
+        $project: {
+          intervals: {
+            $map: {
+              input: { $range: [0, { $subtract: [{ $size: "$statusHistory" }, 1] }] },
+              as: "idx",
+              in: {
+                statusEnum: { $arrayElemAt: [{ $arrayElemAt: ["$statusHistory", "$$idx"] }, 0] },
+                // --- FIX IS HERE: Convert to Date before assignment ---
+                startDate: { $toDate: { $arrayElemAt: [{ $arrayElemAt: ["$statusHistory", "$$idx"] }, 1] } },
+                endDate: { $toDate: { $arrayElemAt: [{ $arrayElemAt: ["$statusHistory", { $add: ["$$idx", 1] }] }, 1] } }
+              }
+            }
+          }
+        }
+      },
+      // 6. Unwind the newly created intervals
+      { $unwind: "$intervals" },
+      // 7. Calculate the duration of each interval in milliseconds
+      {
+        $project: {
+          status: "$intervals.statusEnum",
+          duration: { $subtract: ["$intervals.endDate", "$intervals.startDate"] }
+        }
+      },
+      // 8. Group by status to calculate the average duration
+      {
+        $group: {
+          _id: "$status",
+          averageDurationMs: { $avg: "$duration" }
+        }
+      },
+      // 9. Convert milliseconds to days and format the output
+      {
+        $project: {
+          _id: 0,
+          status: "$_id",
+          averageDays: { $divide: ["$averageDurationMs", 1000 * 60 * 60 * 24] }
+        }
+      }
+    ];
+
+    const cycleTimeResults = await orders.aggregate(pipeline).toArray();
+
+    // Convert status enum number to string name
+    const finalResults = cycleTimeResults.map(item => ({
+      ...item,
+      status: OrderStatus[item.status as number] || 'Desconocido'
+    }));
+
+    return {
+      success: true,
+      message: "Cycle time analytics retrieved successfully.",
+      result: finalResults as any,
+    };
+
+  } catch (e) {
+    console.error("!!! [CRITICAL_ERROR] in getCycleTimeAnalytics:", e);
+    return {
+      success: false,
+      message: `Error fetching cycle time analytics: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+};
 
 // Payment Methods
 
@@ -578,14 +1097,14 @@ export const updatePaymentMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de pago actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de pago actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de pago no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de pago no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating payment method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -616,9 +1135,9 @@ export const deletePaymentMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de pago eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de pago no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de pago no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting payment method:", e)
     return {
@@ -732,14 +1251,14 @@ export const updateShippingMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de envío actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de envío actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de envío no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de envío no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating shipping method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -770,9 +1289,9 @@ export const deleteShippingMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de envío eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de envío no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de envío no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting shipping method:", e)
     return {

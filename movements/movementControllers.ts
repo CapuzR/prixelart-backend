@@ -1,31 +1,34 @@
-import { Request, Response, NextFunction } from "express";
-import * as movementServices from "./movementServices.ts";
-import { Movement } from "./movementModel.ts";
+import { Request, Response, NextFunction } from "express"
+import * as movementServices from "./movementServices.ts"
+import { Movement } from "./movementModel.ts"
 
-export const createMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const createMovement = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    // if (!req.permissions?.modifyAdmins) {
-    //   res.send({
-    //     success: false,
-    //     message: "No tienes permiso para crear Movimientos.",
-    //   });
-    //   return;
-    // }
-
+  if (!req.permissions?.readMovements) {
+    res.send({
+      success: false,
+      message: "No tienes permiso para leer estos Movimientos.",
+    });
+    return;
+  }
     const movementFile =
       req.session?.uploadResults?.item?.find(
         (f: { purpose: string; url: string }) => f.purpose === "MovementItem"
-      )?.url || null;
+      )?.url || null
 
-    const { destinatary, description, type, value, order } = req.body;
+    const { destinatary, description, type, value, order } = req.body
 
     if (!destinatary || !description || !type || value === undefined) {
       res.status(400).send({
         success: false,
         message:
           "Missing required fields: destinatary, description, type, and value are required.",
-      });
-      return;
+      })
+      return
     }
 
     const movementData: Movement = {
@@ -38,57 +41,66 @@ export const createMovement = async (req: Request, res: Response, next: NextFunc
       createdOn: new Date(),
       createdBy: req.adminUsername,
       item: movementFile ? { url: movementFile } : undefined,
-    };
+    }
 
-    const createResult = await movementServices.createMovement(movementData);
-    const balanceResult = await movementServices.updateBalance(movementData);
+    const createResult = await movementServices.createMovement(movementData)
+    const balanceResult = await movementServices.updateBalance(movementData)
 
-    res.send({ createResult, balanceResult });
+    res.send({ createResult, balanceResult })
   } catch (error) {
-    console.error(error);
-    next(error);
+    console.error(error)
+    next(error)
   }
-};
+}
 
-export const readByAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const readByAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  // if (!req.permissions?.readMovements) {
+  //   res.send({
+  //     success: false,
+  //     message: "No tienes permiso para leer estos Movimientos.",
+  //   });
+  //   return;
+  // }
 
-  if (!req.permissions?.modifyAdmins) {
+  try {
+    const result = await movementServices.readByAccount(req.body._id)
+    res.send(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const readAllMovements = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  if (!req.permissions?.readMovements) {
     res.send({
       success: false,
-      message: "No tienes permiso para crear Movimientos.",
-    });
-    return;
+      message: "No tienes permiso para leer los Movimientos.",
+    })
+    return
   }
 
   try {
-    const result = await movementServices.readByAccount(req.body._id);
-    res.send(result);
-  } catch (error) {
-    next(error);
-  }
-};
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+    const sortBy = (req.query.sortBy as string) || "date"
+    const sortOrder = ((req.query.sortOrder as string) === "asc" ? 1 : -1) as
+      | 1
+      | -1
+    const rawFilterType = req.query.type as string | undefined
+    const rawSearchDesc = req.query.search as string | undefined
+      const destinatary = req.query.destinatary as string | undefined
 
-export const readAllMovements = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-
-  if (!req.permissions?.modifyAdmins) {
-    res.send({
-      success: false,
-      message: "No tienes permiso para crear Movimientos.",
-    });
-    return;
-  }
-
-  try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const sortBy = req.query.sortBy as string || 'date';
-    const sortOrder = (req.query.sortOrder as string === 'asc' ? 1 : -1) as 1 | -1;
-    const rawFilterType = req.query.type as string | undefined;
-    const rawSearchDesc = req.query.search as string | undefined;
-
-    let validatedFilterType: 'Depósito' | 'Retiro' | undefined = undefined;
-    if (rawFilterType === 'Depósito' || rawFilterType === 'Retiro') {
-      validatedFilterType = rawFilterType;
+    let validatedFilterType: "Depósito" | "Retiro" | undefined = undefined
+    if (rawFilterType === "Depósito" || rawFilterType === "Retiro") {
+      validatedFilterType = rawFilterType
     }
 
     const options: movementServices.MovementQueryOptions = {
@@ -98,31 +110,35 @@ export const readAllMovements = async (req: Request, res: Response, next: NextFu
       sortOrder,
       filterType: validatedFilterType,
       searchDesc: rawSearchDesc,
-    };
+      destinatary
+    }
 
-    const result = await movementServices.readAllMovements(options);
-    res.send(result);
+    const result = await movementServices.readAllMovements(options)
+    res.send(result)
   } catch (error) {
-    console.error("Error in readAllMovements controller:", error);
-    next(error);
+    console.error("Error in readAllMovements controller:", error)
+    next(error)
   }
-};
+}
 
-export const readById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-
-  if (!req.permissions?.modifyAdmins) {
+export const readById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  if (!req.permissions?.readMovements) {
     res.send({
       success: false,
-      message: "No tienes permiso para crear Movimientos.",
-    });
-    return;
+      message: "No tienes permiso para leer Movimientos.",
+    })
+    return
   }
 
   try {
-    const result = await movementServices.readById(req.params.id);
-    res.send(result);
+    const result = await movementServices.readById(req.params.id)
+    res.send(result)
   } catch (error) {
-    console.error(error);
-    next(error);
+    console.error(error)
+    next(error)
   }
-};
+}

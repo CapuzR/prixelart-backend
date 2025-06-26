@@ -169,7 +169,7 @@ interface Address {
   address: BasicAddress;
 }
 
-interface Tax {
+export interface Tax {
   id?: string;
   name: string;
   value: number;

@@ -1,6 +1,6 @@
 import { Art } from "./artModel.ts";
 import { Collection, ObjectId } from "mongodb";
-import { PrixResponse } from "../types/responseModel.ts";
+import { GalleryResult, PrixResponse } from "../types/responseModel.ts";
 import { getDb } from "../mongo.ts";
 
 function artCollection(): Collection<Art> {
@@ -102,7 +102,6 @@ export const readAllArts = async (): Promise<PrixResponse> => {
   }
 };
 
-// Read gallery with optional filters
 export const readGallery = async (filters: any): Promise<PrixResponse> => {
   try {
     const art = artCollection();
@@ -126,14 +125,21 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
     const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.find(q).skip(skip).limit(limit).toArray();
+    const arts = await art.find(q).skip(skip).limit(limit + 1).toArray();
 
-    const total = await art.countDocuments(q);
+    const hasMore = arts.length > limit;
+
+    const resultsToSend = hasMore ? arts.slice(0, limit) : arts;
+
+    const result: GalleryResult = {
+      arts: resultsToSend,
+      hasMore: hasMore,
+    };
 
     return {
       success: true,
       message: "Galería cargada.",
-      result: { arts, length: total },
+      result: result,
     };
   } catch (e: unknown) {
     console.error("‼ Error in readGallery:", e);

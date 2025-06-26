@@ -159,32 +159,32 @@ export const resetPassword = async (token: string, newPassword: string): Promise
   }
 };
 
-export const resetByAdmin = async (id: string, newPassword: string): Promise<PrixResponse> => {
-  try {
-    const admins = adminCollection();
-    const salt = await bcrypt.genSalt(2);
-    const hash = await bcrypt.hash(newPassword, salt);
-    const admin = await admins.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: { password: hash } }, { returnDocument: 'after' });
-    if (!admin) {
-      throw new Error("Admin not found");
-    }
+// export const resetByAdmin = async (id: string, newPassword: string): Promise<PrixResponse> => {
+//   try {
+//     const admins = adminCollection();
+//     const salt = await bcrypt.genSalt(2);
+//     const hash = await bcrypt.hash(newPassword, salt);
+//     const admin = await admins.findOneAndUpdate({ _id: new ObjectId(id) }, { $set: { password: hash } }, { returnDocument: 'after' });
+//     if (!admin) {
+//       throw new Error("Admin not found");
+//     }
 
-    if (admin) {
-      return {
-        success: true,
-        message: "Contraseña modificada correctamente.",
-      };
-    } else {
-      return {
-        success: false,
-        message: "No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.",
-      };
-    }
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
+//     if (admin) {
+//       return {
+//         success: true,
+//         message: "Contraseña modificada correctamente.",
+//       };
+//     } else {
+//       return {
+//         success: false,
+//         message: "No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.",
+//       };
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+// };
 
 export const checkPasswordToken = async (token: string): Promise<PrixResponse> => {
   try {

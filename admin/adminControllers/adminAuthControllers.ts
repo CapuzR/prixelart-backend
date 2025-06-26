@@ -3,8 +3,9 @@ import * as adminAuthServices from "../adminServices/adminAuthServices.ts";
 import * as adminServices from "../adminServices/adminServices.ts";
 import { Admin, Login } from "../adminModel.ts";
 import jwt from "jsonwebtoken";
-import { isProduction } from "../../server.ts";
-import {Permissions} from "../permissionsModel.ts"
+
+const isProduction = true;
+
 declare global {
   namespace Express {
     interface Request {
@@ -25,10 +26,10 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
     }
 
     res.cookie("adminToken", auth.result! as string, {
-      secure: true,
+      secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain: ".prixelart.com",
+      domain:".prixelart.com",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -104,9 +105,9 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
       message: "Logged Out Successfully",
     };
     res.clearCookie("adminToken", {
-      secure: true,
+      secure: isProduction,
       httpOnly: true,
-      sameSite:  "none" ,
+      sameSite: "none",
       domain: ".prixelart.com",
       path: "/",
     });

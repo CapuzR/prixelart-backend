@@ -103,7 +103,7 @@ export const readAllOrders = async (req: Request, res: Response, next: NextFunct
 
 export const addVoucher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!req.permissions?.orderStatus) {
+        if (!req.permissions?.createOrder) {
             res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
             return;
         }

@@ -69,7 +69,7 @@ export const createSurcharge = async (req: Request, res: Response, next: NextFun
 
 export const updateSurcharge = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.deleteDiscount) {
+    if (!req.permissions?.createDiscount) {
       res.status(403).send({
         success: false,
         message: "No tienes permiso para actualizar recargos.",

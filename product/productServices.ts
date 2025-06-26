@@ -268,27 +268,27 @@ export const getVariantPrice = async (
 
     const productIdString = product._id.toHexString()
 
-    // 1. Apply Surcharges to get originalPriceWithSurcharges
-    ;(activeSurcharges.result as Surcharge[]).forEach((surcharge) => {
-      if (!surcharge._id || !isDateActive(surcharge.dateRange)) return
+      // 1. Apply Surcharges to get originalPriceWithSurcharges
+      ; (activeSurcharges.result as Surcharge[]).forEach((surcharge) => {
+        if (!surcharge._id || !isDateActive(surcharge.dateRange)) return
 
-      const isApplicable =
-        surcharge.appliesToAllProducts ||
-        surcharge.applicableProducts?.some(
-          ([pId, vId]) => pId === productIdString && (!vId || vId === variantId)
-        )
+        const isApplicable =
+          surcharge.appliesToAllProducts ||
+          surcharge.applicableProducts?.some(
+            ([pId, vId]) => pId === productIdString && (!vId || vId === variantId)
+          )
 
-      if (isApplicable) {
-        const { value, method } = getAdjustmentValue(surcharge, user)
-        let surchargeAmount = 0
-        if (method === "percentage") {
-          surchargeAmount = (basePrice * value) / 100
-        } else {
-          surchargeAmount = value
+        if (isApplicable) {
+          const { value, method } = getAdjustmentValue(surcharge, user)
+          let surchargeAmount = 0
+          if (method === "percentage") {
+            surchargeAmount = (basePrice * value) / 100
+          } else {
+            surchargeAmount = value
+          }
+          priceAfterSurcharges += surchargeAmount
         }
-        priceAfterSurcharges += surchargeAmount
-      }
-    })
+      })
 
     const originalPriceWithSurcharges = priceAfterSurcharges
 
@@ -297,24 +297,24 @@ export const getVariantPrice = async (
     const applicablePercentageDiscounts: Discount[] = []
     const applicableAbsoluteDiscounts: Discount[] = []
 
-    ;(activeDiscounts.result as Discount[]).forEach((discount) => {
-      if (!discount._id || !isDateActive(discount.dateRange)) return
+      ; (activeDiscounts.result as Discount[]).forEach((discount) => {
+        if (!discount._id || !isDateActive(discount.dateRange)) return
 
-      const isApplicable =
-        discount.appliesToAllProducts ||
-        discount.applicableProducts?.some(
-          ([pId, vId]) => pId === productIdString && (!vId || vId === variantId)
-        )
+        const isApplicable =
+          discount.appliesToAllProducts ||
+          discount.applicableProducts?.some(
+            ([pId, vId]) => pId === productIdString && (!vId || vId === variantId)
+          )
 
-      if (isApplicable) {
-        const { method } = getAdjustmentValue(discount, user)
-        if (method === "percentage") {
-          applicablePercentageDiscounts.push(discount)
-        } else {
-          applicableAbsoluteDiscounts.push(discount)
+        if (isApplicable) {
+          const { method } = getAdjustmentValue(discount, user)
+          if (method === "percentage") {
+            applicablePercentageDiscounts.push(discount)
+          } else {
+            applicableAbsoluteDiscounts.push(discount)
+          }
         }
-      }
-    })
+      })
 
     // Apply Percentage Discounts First
     applicablePercentageDiscounts.forEach((discount) => {
@@ -542,9 +542,8 @@ export const readBestSellers = async (): Promise<PrixResponse> => {
     console.error("Error in readBestSellers:", e)
     return {
       success: false,
-      message: `Error calculating best sellers: ${
-        e instanceof Error ? e.message : String(e)
-      }`,
+      message: `Error calculating best sellers: ${e instanceof Error ? e.message : String(e)
+        }`,
     }
   }
 }
@@ -608,6 +607,25 @@ export const deleteVariant = async (data: {
       result: result!,
     }
   } catch (e: unknown) {
+    return { success: false, message: `Error: ${(e as Error).message}` }
+  }
+}
+
+export const getUniqueProductionLines = async (): Promise<PrixResponse> => {
+  try {
+    const products = productCollection()
+    const uniqueLines = await products.distinct("productionLines")
+    // Filter out any null or undefined values that might be stored in the DB
+    const filteredLines = uniqueLines.filter(
+      (line) => line !== null && line !== undefined
+    )
+    return {
+      success: true,
+      message: "Líneas de producción únicas obtenidas.",
+      result: filteredLines as string[],
+    }
+  } catch (e: unknown) {
+    console.error("Error in getUniqueProductionLines:", e)
     return { success: false, message: `Error: ${(e as Error).message}` }
   }
 }

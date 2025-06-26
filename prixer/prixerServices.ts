@@ -33,6 +33,57 @@ const prixerUpdate = (data: Partial<Prixer>): UpdateFilter<User> => {
 
 const excludePasswordProjection: FindOptions<User>['projection'] = { password: 0 };
 
+export const promoteUserToPrixer = async (userId: string): Promise<PrixResponse> => {
+  try {
+    const users = usersCollection();
+    const userObjectId = new ObjectId(userId);
+
+    const user = await users.findOne({ _id: userObjectId });
+    if (!user) {
+      return { success: false, message: "User not found." };
+    }
+
+    if (user.prixer) {
+      return { success: false, message: "User is already a Prixer." };
+    }
+
+    const defaultPrixerProfile: Prixer = {
+      specialty: [],
+      description: 'Bienvenido a mi perfil de Prixer!',
+      avatar: user.avatar || '',
+      status: true,
+      termsAgree: false,
+      bio: {}
+    };
+
+    const updateResult = await users.updateOne(
+      { _id: userObjectId },
+      { $set: { prixer: defaultPrixerProfile } }
+    );
+
+    if (updateResult.modifiedCount === 1) {
+      const updatedUser = await users.findOne(
+        { _id: userObjectId },
+        { projection: excludePasswordProjection }
+      );
+      return {
+        success: true,
+        message: "User successfully promoted to Prixer.",
+        result: updatedUser!,
+      };
+    } else {
+      return { success: false, message: "Failed to promote user to Prixer." };
+    }
+
+  } catch (e: any) {
+    console.error("Error promoting user to Prixer:", e);
+    if (e.message.includes("Argument passed in must be a single String")) {
+      return { success: false, message: "Invalid userId format provided." };
+    }
+    return { success: false, message: `Error promoting user: ${e.message}` };
+  }
+};
+
 export const createPrixer = async (data: Prixer & { userId: string }): Promise<PrixResponse> => {
   try {
     const users = usersCollection();

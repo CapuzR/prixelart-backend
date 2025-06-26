@@ -8,6 +8,7 @@ import { Movement } from "../movements/movementModel.ts"
 import { Order, PaymentMethod, ShippingMethod } from "../order/orderModel.ts"
 import {
   GlobalDashboardStatsData,
+  PerformanceData,
   TopPerformingItemData,
 } from "../order/orderService.ts"
 import { OrderArchive } from "../orderArchive/orderArchiveModel.ts"
@@ -26,6 +27,11 @@ import { User } from "../user/userModel.ts"
 type DiscountValues = number[]
 type Gallery = { arts: Art[]; length: number }
 
+export interface GalleryResult {
+  arts: Art[];
+  hasMore: boolean;
+}
+
 interface email {
   success: boolean
   message: string
@@ -33,7 +39,9 @@ interface email {
 }
 type PrixResult =
   | GlobalDashboardStatsData
+  | GalleryResult
   | TopPerformingItemData[]
+  | PerformanceData[]
   | Gallery
   | CarouselItem
   | CarouselItem[]
