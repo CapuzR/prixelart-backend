@@ -154,13 +154,13 @@ export const readAllPrixers = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.prixerBan) {
-    //   res.send({
-    //     success: false,
-    //     message: "No tienes permiso para editar un Prixer.",
-    //   })
-    //   return
-    // }
+    if (!req.permissions?.createOrder) {
+      res.send({
+        success: false,
+        message: "No tienes permiso para editar un Prixer.",
+      })
+      return
+    }
 
     const result = await prixerServices.readAllPrixers()
 

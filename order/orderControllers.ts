@@ -591,15 +591,15 @@ export const readPaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.createPaymentMethod) {
-    //   res
-    //     .status(403)
-    //     .send({
-    //       success: false,
-    //       message: "No tienes autorización para crear métodos de pago.",
-    //     })
-    //   return
-    // }
+    if (!req.permissions?.createPaymentMethod) {
+      res
+        .status(403)
+        .send({
+          success: false,
+          message: "No tienes autorización para leer métodos de pago.",
+        })
+      return
+    }
 
     const resultPaymentMethod = await orderServices.readPaymentMethodById(
       req.params.id
@@ -616,10 +616,10 @@ export const readAllPaymentMethods = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.createPaymentMethod) {
-    //   res.status(403).send({ success: false, message: "No tienes autorización para crear métodos de pago." });
-    //   return;
-    // }
+    if (!req.permissions?.createPaymentMethod) {
+      res.status(403).send({ success: false, message: "No tienes autorización para leer métodos de pago." });
+      return;
+    }
 
     const resultPaymentMethods = await orderServices.readAllPaymentMethods()
     res.send(resultPaymentMethods)
@@ -756,10 +756,13 @@ export const readAllShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.modifyAdmins) {
-    //   res.send({ success: false, message: "No tienes autorización para realizar esta acción." });
-    //   return;
-    // }
+    if (!req.permissions?.createShippingMethod) {
+      res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      })
+      return
+    }
 
     const resultShippingMethods = await orderServices.readAllShippingMethod()
     res.send(resultShippingMethods)
@@ -788,13 +791,13 @@ export const readShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.modifyAdmins) {
-    //   res.send({
-    //     success: false,
-    //     message: "No tienes autorización para realizar esta acción.",
-    //   })
-    //   return
-    // }
+    if (!req.permissions?.createShippingMethod) {
+      res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      })
+      return
+    }
 
     const resultShippingMethod = await orderServices.readShippingMethodById(
       req.params.id

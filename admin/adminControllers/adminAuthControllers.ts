@@ -29,7 +29,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain: "localhost",
+      domain:".prixelart.com",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -107,8 +107,8 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
     res.clearCookie("adminToken", {
       secure: isProduction,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      ...(isProduction ? { domain: ".prixelart.com" } : {}),
+      sameSite: "none",
+      domain: ".prixelart.com",
       path: "/",
     });
     res.send(response);
