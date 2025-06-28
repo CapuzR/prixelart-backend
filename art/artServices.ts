@@ -112,7 +112,22 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
     if (filters.text) {
       const searchText = filters.text.trim();
       if (searchText.length > 0) {
-        q.title = { $regex: `^${searchText}`, $options: 'i' };
+        const escapedSearchText = searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+        const fieldsToSearch = [
+          'title',
+          'description',
+          'category',
+          'prixerUsername',
+          'tags',
+          'artType',
+          'artLocation',
+          'artId'
+        ];
+
+        q.$or = fieldsToSearch.map(field => ({
+          [field]: { $regex: escapedSearchText, $options: 'i' }
+        }));
       }
     }
     if (filters.category) {
@@ -125,10 +140,13 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
     const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.find(q).skip(skip).limit(limit + 1).toArray();
+    const arts = await art.find(q)
+    .collation({ locale: 'es', strength: 1 })
+    .skip(skip)
+    .limit(limit + 1)
+    .toArray();
 
     const hasMore = arts.length > limit;
-
     const resultsToSend = hasMore ? arts.slice(0, limit) : arts;
 
     const result: GalleryResult = {
