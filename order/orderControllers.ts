@@ -93,13 +93,13 @@ export const readAllOrders = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.createOrder) {
-    res.send({
-      success: false,
-      message: "No tienes autorización para leer todos los pedidos.",
-    })
-    return
-  }
+  // if (!req.permissions?.createOrder) {
+  //   res.send({
+  //     success: false,
+  //     message: "No tienes autorización para leer todos los pedidos.",
+  //   })
+  //   return
+  // }
 
   try {
     const results = await orderServices.readAllOrders()
