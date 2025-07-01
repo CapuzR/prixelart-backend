@@ -32,7 +32,7 @@ router.post("/payment-method/create", adminControllers.ensureAuthenticated, orde
 router.get("/payment-method/read/:id", adminControllers.ensureAuthenticated, orderControllers.readPaymentMethod);
 router.get("/payment-method/read-all", adminControllers.ensureAuthenticated, orderControllers.readAllPaymentMethods);
 router.get("/payment-method/read-all-active", orderControllers.readAllActivePaymentMethods);
-router.put("/payment-method/update", adminControllers.ensureAuthenticated, orderControllers.updatePaymentMethod);
+router.put("/payment-method/update/:id", adminControllers.ensureAuthenticated, orderControllers.updatePaymentMethod);
 router.delete("/payment-method/delete/:id", adminControllers.ensureAuthenticated, orderControllers.deletePaymentMethod);
 
 // Shipping Method Routes
@@ -40,7 +40,7 @@ router.post("/shipping-method/create", adminControllers.ensureAuthenticated, ord
 router.get("/shipping-method/read/:id", adminControllers.ensureAuthenticated, orderControllers.readShippingMethod);
 router.get("/shipping-method/read-all", adminControllers.ensureAuthenticated, orderControllers.readAllShippingMethod);
 router.get("/shipping-method/read-all-active", orderControllers.readAllActiveShippingMethod);
-router.put("/shipping-method/update", adminControllers.ensureAuthenticated, orderControllers.updateShippingMethod);
+router.put("/shipping-method/update/:id", adminControllers.ensureAuthenticated, orderControllers.updateShippingMethod);
 router.delete("/shipping-method/delete/:id", adminControllers.ensureAuthenticated, orderControllers.deleteShippingMethod);
 
 export default router;
