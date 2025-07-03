@@ -29,7 +29,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain:".prixelart.com",
+      domain:"localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -108,7 +108,7 @@ export const adminLogout = async (req: Request, res: Response, next: NextFunctio
       secure: isProduction,
       httpOnly: true,
       sameSite: "none",
-      domain: ".prixelart.com",
+      domain: "localhost",
       path: "/",
     });
     res.send(response);
