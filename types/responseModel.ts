@@ -38,55 +38,55 @@ interface email {
   data?: any
 }
 type PrixResult =
-  | GlobalDashboardStatsData
-  | GalleryResult
-  | TopPerformingItemData[]
-  | PerformanceData[]
-  | Gallery
-  | CarouselItem
-  | CarouselItem[]
   | Account
   | Account[]
-  | User
-  | User[]
-  | Testimonial
-  | Testimonial[]
   | Admin
   | Admin[]
-  | Permissions
-  | Permissions[]
-  | string
-  | string[]
-  | DiscountValues
-  | Discount
-  | Discount[]
-  | Surcharge
-  | Surcharge[]
-  | Service
-  | Service[]
-  | Product
-  | Product[]
-  | Prixer
-  | Prixer[]
-  | Record<string, string[]>
-  | Organization
-  | Organization[]
-  | Movement
-  | Movement[]
   | Art
   | Art[]
+  | CarouselItem
+  | CarouselItem[]
+  | Discount
+  | Discount[]
+  | DiscountValues
+  | email
+  | Gallery
+  | GalleryResult
+  | GlobalDashboardStatsData
   | Manufacturer
   | Manufacturer[]
+  | Movement
+  | Movement[]
   | Order
   | Order[]
   | OrderArchive
   | OrderArchive[]
+  | Organization
+  | Organization[]
   | PaymentMethod
   | PaymentMethod[]
+  | PerformanceData[]
+  | Permissions
+  | Permissions[]
+  | Prixer
+  | Prixer[]
+  | Product
+  | Product[]
+  | Record<string, string[]>
+  | Service
+  | Service[]
   | ShippingMethod
   | ShippingMethod[]
+  | string
+  | string[]
+  | Surcharge
+  | Surcharge[]
   | TermsAndConditions
-  | email
+  | Testimonial
+  | Testimonial[]
+  | TopPerformingItemData[]
+  | User
+  | User[]
 
 export interface PrixResponse {
   success: boolean
