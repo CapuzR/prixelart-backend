@@ -28,6 +28,7 @@ dotenv.config()
 // const __dirname = path.dirname(__filename)
 
 const app = express()
+app.set('trust proxy', 1)
 
 export const isProduction = process.env.NODE_ENV === "production"
 app.use(
@@ -192,6 +193,7 @@ const genericS3Client = new S3Client({
 const tusServer = new Server({
   path: tusFilesPath,
   datastore: new S3Store(s3StoreOptions),
+  respectForwardedHeaders: true,
 
   async onUploadCreate(req: any, upload: Upload) {
     const originalFilename =

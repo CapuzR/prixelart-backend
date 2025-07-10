@@ -47,6 +47,12 @@ router.put(
   productControllers.updateProduct
 )
 
+router.put(
+  "/product/update-many-products",
+  adminControllers.ensureAuthenticated,
+  productControllers.updateManyProducts
+)
+
 router.get("/product/bestSellers", productControllers.readBestSellers)
 
 router.delete(
