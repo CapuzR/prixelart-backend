@@ -168,7 +168,8 @@ export const updateOrder = async (
 
     delete updateData._id
     delete updateData.createdOn
-    const result = await orderServices.updateOrder(orderId, updateData)
+    
+    const result = await orderServices.updateOrder(orderId, updateData, req.adminUsername)
     res.send(result)
   } catch (err) {
     console.error("Error in updateOrder controller:", err)
