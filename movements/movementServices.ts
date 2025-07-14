@@ -101,7 +101,7 @@ export interface MovementQueryOptions {
   sortOrder: 1 | -1;
   filterType?: 'Depósito' | 'Retiro';
   searchDesc?: string;
-  destinatary?: string;
+  destinatary?: string | undefined;
 }
 
 interface PaginatedMovementResponse extends Omit<PrixResponse, 'result'> {

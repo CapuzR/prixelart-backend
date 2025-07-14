@@ -8,13 +8,13 @@ export const createMovement = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-  if (!req.permissions?.readMovements) {
-    res.send({
-      success: false,
-      message: "No tienes permiso para leer estos Movimientos.",
-    });
-    return;
-  }
+    if (!req.permissions?.readMovements) {
+      res.send({
+        success: false,
+        message: "No tienes permiso para leer estos Movimientos.",
+      })
+      return
+    }
     const movementFile =
       req.session?.uploadResults?.item?.find(
         (f: { purpose: string; url: string }) => f.purpose === "MovementItem"
@@ -96,8 +96,10 @@ export const readAllMovements = async (
       | -1
     const rawFilterType = req.query.type as string | undefined
     const rawSearchDesc = req.query.search as string | undefined
-      const destinatary = req.query.destinatary as string | undefined
-
+    const destinatary =
+      req.query.destinatary === "undefined"
+        ? undefined
+        : (req.query.destinatary as string | undefined)
     let validatedFilterType: "Depósito" | "Retiro" | undefined = undefined
     if (rawFilterType === "Depósito" || rawFilterType === "Retiro") {
       validatedFilterType = rawFilterType
@@ -110,7 +112,7 @@ export const readAllMovements = async (
       sortOrder,
       filterType: validatedFilterType,
       searchDesc: rawSearchDesc,
-      destinatary
+      destinatary,
     }
 
     const result = await movementServices.readAllMovements(options)
