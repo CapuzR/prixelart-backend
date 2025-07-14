@@ -18,6 +18,12 @@ import { readActiveSurcharge } from "../surcharge/surchargeServices.ts"
 import { Discount } from "../discount/discountModel.ts"
 import { Surcharge } from "../surcharge/surchargeModel.ts"
 
+export interface VariantPriceResult {
+  variantId: string;
+  originalPrice: number;
+  finalPrice: number;
+}
+
 function productCollection(): Collection<Product> {
   return getDb().collection<Product>("products")
 }
@@ -355,6 +361,145 @@ export const getVariantPrice = async (
     }
   }
 }
+
+export const getAllVariantPricesForProduct = async (
+  productId: string,
+  user?: User | null,
+  isPrixer?: boolean
+): Promise<{ success: boolean; message: string; result?: VariantPriceResult[] | null }> => {
+  try {
+    const products = productCollection();
+    let productObjectId: ObjectId;
+    try {
+      productObjectId = new ObjectId(productId);
+    } catch (error) {
+      console.error(
+        `[getAllVariantPricesForProduct] Formato de ID de producto inválido: ${productId}`,
+        error
+      );
+      return { success: false, message: "Formato de ID de producto inválido." };
+    }
+
+    const product = await products.findOne({ _id: productObjectId });
+
+    if (!product?.variants?.length) {
+      console.warn(
+        `[getAllVariantPricesForProduct] Producto o variantes no encontradas para productId: ${productId}`
+      );
+      return { success: false, message: "Producto o variantes no encontradas." };
+    }
+
+    const [activeDiscountsResult, activeSurchargesResult] = await Promise.all([
+      readAllDiscounts(),
+      readActiveSurcharge(),
+    ]);
+
+    const activeDiscounts = (activeDiscountsResult.result as Discount[]) || [];
+    const activeSurcharges = (activeSurchargesResult.result as Surcharge[]) || [];
+
+
+    const productPrices: VariantPriceResult[] = [];
+    const productIdString = product._id.toHexString();
+
+    for (const variant of product.variants) {
+      const priceSourceKey = isPrixer ? "prixerPrice" : "publicPrice";
+      const priceStringToParse = variant[
+        priceSourceKey as keyof Pick<Variant, "publicPrice" | "prixerPrice">
+      ] as string;
+
+      const basePrice = parseFloat(priceStringToParse);
+
+      if (isNaN(basePrice)) {
+        console.warn(`[getAllVariantPricesForProduct] Precio base inválido para variante ${variant._id}`);
+        continue;
+      }
+
+      let priceAfterSurcharges = basePrice;
+
+      activeSurcharges.forEach((surcharge) => {
+        if (!surcharge._id || !isDateActive(surcharge.dateRange)) return;
+
+        const isApplicable =
+          surcharge.appliesToAllProducts ||
+          surcharge.applicableProducts?.some(
+            ([pId, vId]) => pId === productIdString && (!vId || vId === variant._id)
+          );
+
+        if (isApplicable) {
+          const { value, method } = getAdjustmentValue(surcharge, user);
+          let surchargeAmount = 0;
+          if (method === "percentage") {
+            surchargeAmount = (basePrice * value) / 100;
+          } else {
+            surchargeAmount = value;
+          }
+          priceAfterSurcharges += surchargeAmount;
+        }
+      });
+
+      const originalPriceWithSurcharges = priceAfterSurcharges;
+      let priceAfterDiscounts = originalPriceWithSurcharges;
+
+      const applicablePercentageDiscounts: Discount[] = [];
+      const applicableAbsoluteDiscounts: Discount[] = [];
+
+      activeDiscounts.forEach((discount) => {
+        if (!discount._id || !isDateActive(discount.dateRange)) return;
+
+        const isApplicable =
+          discount.appliesToAllProducts ||
+          discount.applicableProducts?.some(
+            ([pId, vId]) => pId === productIdString && (!vId || vId === variant._id)
+          );
+
+        if (isApplicable) {
+          const { method } = getAdjustmentValue(discount, user);
+          if (method === "percentage") {
+            applicablePercentageDiscounts.push(discount);
+          } else {
+            applicableAbsoluteDiscounts.push(discount);
+          }
+        }
+      });
+
+      applicablePercentageDiscounts.forEach((discount) => {
+        const { value } = getAdjustmentValue(discount, user);
+        const discountAmount = (priceAfterDiscounts * value) / 100;
+        priceAfterDiscounts -= discountAmount;
+      });
+
+      applicableAbsoluteDiscounts.forEach((discount) => {
+        const { value } = getAdjustmentValue(discount, user);
+        priceAfterDiscounts -= value;
+      });
+
+      priceAfterDiscounts = Math.max(0, priceAfterDiscounts);
+
+      productPrices.push({
+        variantId: variant._id!,
+        originalPrice: parseFloat(originalPriceWithSurcharges.toFixed(2)),
+        finalPrice: parseFloat(priceAfterDiscounts.toFixed(2)),
+      });
+    }
+
+    return {
+      success: true,
+      message: "Precios de todas las variantes calculados.",
+      result: productPrices,
+    };
+
+  } catch (e: unknown) {
+    console.error(
+      `[getAllVariantPricesForProduct] Error general al calcular precios para productId: ${productId}`,
+      e
+    );
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    return {
+      success: false,
+      message: `Error al calcular precios de variantes: ${errorMessage}`,
+    };
+  }
+};
 
 export const readAllProducts = async (): Promise<PrixResponse> => {
   try {
