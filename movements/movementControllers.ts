@@ -144,3 +144,25 @@ export const readById = async (
     next(error)
   }
 }
+
+export const reverseMovement = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  if (req.permissions?.area !== "Master") {
+    res.send({
+      success: false,
+      message: "No tienes permiso para revertir Movimientos.",
+    })
+    return
+  }
+
+  try {
+    const result = await movementServices.reverseMovement(req.params.id)
+    res.send(result)
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
+}
