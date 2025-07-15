@@ -31,4 +31,10 @@ router.get(
   movementControllers.readById
 )
 
+router.put(
+  "/movement/reverse/:id",
+  adminControllers.ensureAuthenticated,
+  movementControllers.reverseMovement
+)
+
 export default router

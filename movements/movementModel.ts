@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export interface Movement {
-  _id?: string;
+  _id?: string | ObjectId;
   date: Date;
   destinatary?: string;
   description: string;
