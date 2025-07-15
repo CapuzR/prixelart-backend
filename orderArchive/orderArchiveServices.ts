@@ -283,11 +283,11 @@ export const updateOrder = async (
               destinatary: (prixer.result as User).account,
               description: `Commission for order ${updatedOrder.orderId} - Art: ${request.art.title}`,
               type: "Depósito",
-              value: parseFloat(paymentAmount.toFixed(2)), // Ensure correct precision
+              value: parseFloat(paymentAmount.toFixed(2)),
               order: updatedOrder._id.toString(),
               createdOn: new Date(),
               createdBy: adminUsername,
-              item: {}, // Empty as per requirement
+              item: {},
             }
             await updateBalance(movement)
             await createMovement(movement)
