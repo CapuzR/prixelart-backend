@@ -260,9 +260,9 @@ export const updateOrder = async (
       }
     }
 
-    const updatedOrderStatus = updatedOrder.status?.[0]?.[0]
-    const updatedPaymentStatus = updatedOrder.payment?.status?.[0]?.[0]
-
+    const updatedOrderStatus = updatedOrder.status?.[updatedOrder.status.length - 1]?.[0];
+    const updatedPaymentStatus = updatedOrder.payment?.status?.[updatedOrder.payment.status.length - 1]?.[0]
+        
     const shouldProcessCommissions =
       updatedOrderStatus === OrderStatus.Finished &&
       updatedPaymentStatus === GlobalPaymentStatus.Paid
