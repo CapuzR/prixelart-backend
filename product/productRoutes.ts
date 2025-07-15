@@ -20,9 +20,14 @@ router.get("/product/read-active/:id", productControllers.readActiveById)
 
 router.get(
   "/product/getVariantPrice",
-  userAuthControllers.ensureAuthenticated,
   productControllers.getVariantPrice
 )
+
+router.get(
+  "/product/getAllVariantPrices",
+  productControllers.getAllVariantPricesForProductController
+)
+
 router.delete(
   "/product/delete/:id",
   adminControllers.ensureAuthenticated,

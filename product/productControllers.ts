@@ -112,6 +112,46 @@ export const readActiveById = async (
   }
 }
 
+export const getAllVariantPricesForProductController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { productId } = req.query;
+
+    if (!productId || typeof productId !== 'string') {
+      res.status(400).send({
+        success: false,
+        message: "El parámetro 'productId' es requerido y debe ser una cadena.",
+      });
+      return;
+    }
+
+    let validUser: User | null = null;
+    if (req.userId) {
+      const userResult = await authServices.readUserById(req.userId);
+      if (userResult.success && userResult.result) {
+        validUser = userResult.result as User;
+      } else {
+        console.warn(`[getAllVariantPricesForProductController] Usuario no encontrado para userId: ${req.userId}`);
+      }
+    }
+    const isPrixer = req.isPrixer ? true : false;
+
+    const resp = await productServices.getAllVariantPricesForProduct(
+      productId,
+      validUser,
+      isPrixer
+    );
+
+    res.send(resp);
+  } catch (err: unknown) {
+    console.error("[getAllVariantPricesForProductController] Error en el controlador:", err);
+    next(err);
+  }
+};
+
 export const getVariantPrice = async (
   req: Request,
   res: Response,

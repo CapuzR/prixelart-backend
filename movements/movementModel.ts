@@ -8,5 +8,5 @@ export interface Movement {
   order?: string;
   createdOn: Date;
   createdBy: string;
-  item?: Record<string, File>;
+  item?: Record<string, File>; //TODO: discuss this, why string or file?
 }

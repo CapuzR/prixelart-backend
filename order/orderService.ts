@@ -2,11 +2,10 @@ import {
   Order,
   OrderLine,
   OrderStatus,
+  GlobalPaymentStatus,
   PaymentMethod,
   ShippingMethod,
 } from "./orderModel.ts"
-// import { sendEmail as sendEmailUtil } from "../utils/emailSender.ts"
-import sgMail from "@sendgrid/mail"
 import { Collection, FindOneAndUpdateOptions, ObjectId } from "mongodb"
 import { PrixResponse } from "../types/responseModel.ts"
 import { getDb } from "../mongo.ts"
@@ -15,8 +14,11 @@ import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
 import { Admin } from "../admin/adminModel.ts"
-
-// Order Service
+import { readUserByUsername } from '../user/userServices/userServices.ts'
+import { updateBalance, createMovement } from '../movements/movementServices.ts';
+import { readOneByObjId } from '../art/artServices.ts'; 
+import { Art } from "../art/artModel.ts"
+import { Movement } from "../movements/movementModel.ts"
 
 function orderCollection(): Collection<Order> {
   return getDb().collection<Order>("order")
@@ -235,15 +237,117 @@ export const addVoucher = async (
 
 export const updateOrder = async (
   id: string,
-  update: Partial<Order>
+  update: Partial<Order>,
+  adminUsername: string
 ): Promise<PrixResponse> => {
   try {
     const order = orderCollection()
+    const orderObjectId = new ObjectId(id)
+    const currentOrder = await order.findOne({ _id: orderObjectId })
+
+    if (!currentOrder) {
+      return { success: false, message: "Orden no encontrada." }
+    }
+
     const updatedOrder = await order.findOneAndUpdate(
       { _id: new ObjectId(id) },
       { $set: update },
       { returnDocument: "after" }
     )
+
+    if (updatedOrder === null) {
+      return { success: false, message: "Orden no encontrada o no se pudo actualizar." };
+    }
+
+    const updatedOrderStatus = updatedOrder.status?.[0]?.[0]; 
+    const updatedPaymentStatus = updatedOrder.payment?.status?.[0]?.[0];
+
+    const shouldProcessCommissions =
+    (updatedOrderStatus === OrderStatus.Finished) &&
+    (updatedPaymentStatus === GlobalPaymentStatus.Paid);
+
+
+    if (shouldProcessCommissions) {
+      console.log(`Status de la orden ${updatedOrder._id || updatedOrder.number} Concretado y pagado. Procesando comisiones.`)
+    }
+    for (const line of updatedOrder.lines) {
+      if (
+        !line.item?.art ||
+        !('artId' in line.item.art) ||
+        !line.item.art._id ||
+        !line.item.product
+      ) {
+        console.warn(`Skipping commission for line in order ${updatedOrder.number || updatedOrder._id} due to missing art _id, product data, or being a CustomImage.`);
+        continue;
+      }
+
+      const pickedArt = line.item.art
+      const artResult = await readOneByObjId(pickedArt._id!.toString())
+      let fullArt: Art
+      if (artResult.success && artResult.result) {
+        fullArt = artResult.result as Art;
+      } else {
+        console.warn(`Art with ID ${pickedArt._id} not found in DB. Skipping commission for this line.`);
+        continue;
+      }
+
+      let commissionRate: number;
+      const artSpecificCommission = fullArt.comission
+
+      if (artSpecificCommission !== undefined && artSpecificCommission !== null) {
+        const parsedArtCommission = parseFloat(String(artSpecificCommission));
+        if (!isNaN(parsedArtCommission) && parsedArtCommission > 0) {
+          commissionRate = parsedArtCommission / 100;
+          console.log(`Using specific commission rate ${parsedArtCommission}% for art '${line.item.art.title}' by ${line.item.art.prixerUsername}.`);
+        } else {
+          commissionRate = 0.10
+          console.warn(`Invalid art commission ('${artSpecificCommission}') for art '${line.item.art.title}'. Defaulting to 10%.`);
+        }
+      } else {
+        commissionRate = 0.10
+        console.log(`No specific commission for art '${line.item.art.title}'. Using default 10% for ${line.item.art.prixerUsername}.`);
+      }
+
+      let lineSubtotal = 0;
+      const pricePerUnit = parseFloat(String(line.pricePerUnit));
+      const quantity = line.quantity;
+
+      if (!isNaN(pricePerUnit) && !isNaN(quantity) && pricePerUnit > 0 && quantity > 0) {
+        lineSubtotal = pricePerUnit * quantity;
+      } else {
+        console.warn(`Cannot calculate subtotal for line (Art: '${line.item.art.title}'). Invalid pricePerUnit ('${line.pricePerUnit}') or quantity ('${line.quantity}'). Skipping.`);
+        continue;
+      }
+
+      const paymentAmount = lineSubtotal * commissionRate;
+
+      if (paymentAmount > 0 && line.item.art.prixerUsername) {
+        const prixerResult = await readUserByUsername(line.item.art.prixerUsername);
+
+        if (prixerResult.success && prixerResult.result) {
+          const prixerUser = prixerResult.result as User;
+          const movement: Movement = {
+            date: new Date(),
+            createdOn: new Date(),
+            destinatary: prixerUser.account,
+            description: `Comisión por orden ${updatedOrder._id || updatedOrder.number} - Arte: ${line.item.art.artId}`,
+            type: 'Depósito',
+            value: parseFloat(paymentAmount.toFixed(2)),
+            order: updatedOrder._id.toString(),
+            createdBy: adminUsername,
+            item: {
+              //  productId: line.item.product?._id?.toString() || 'unknown',
+              //  variantId: line.item.product?.selection?.[0]?.value || undefined,
+            },
+          };
+          await updateBalance(movement);
+          await createMovement(movement);
+          console.log(`Comisión de ${paymentAmount.toFixed(2)} procesada para ${line.item.art.prixerUsername} (Orden ${updatedOrder.number || updatedOrder._id}).`);
+        } else {
+          console.warn(`Prixer user not found for username: ${line.item.art.prixerUsername}. Skipping commission.`);
+        }
+      }
+    }
     return updatedOrder
       ? {
         success: true,
