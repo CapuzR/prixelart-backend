@@ -12,6 +12,7 @@ declare global {
       admin?: { id: string };
       permissions?: any;
       adminUsername: string;
+      adminFullname?: string
     }
   }
 }
@@ -29,7 +30,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain:".prixelart.com",
+      domain:"localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -91,7 +92,7 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
     req.admin = decoded;
     req.permissions = permissionsResponse.result;
     req.adminUsername = adminObject.username;
-
+    req.adminFullname = `${adminObject.firstname} ${adminObject.lastname}`
     next();
   } catch (err) {
     next(err);
