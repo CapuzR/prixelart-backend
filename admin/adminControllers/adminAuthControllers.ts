@@ -30,7 +30,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain:"localhost",
+      domain:".prixelart.com",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })

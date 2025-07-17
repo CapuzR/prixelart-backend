@@ -7,7 +7,10 @@
   "scripts": {
     "start": "ts-node --loader start.ts",
     "dev": "nodemon start.ts",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "ts-node-execute": "ts-node",
+    "migrate:orders": "node --loader ts-node/esm scripts/migrateOrders.ts",
+    "run:migrate": "yarn migrate:orders"
   },
   "jest": {
     "collectCoverage": true,
