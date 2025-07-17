@@ -18,6 +18,7 @@ export const createOrder = async (
     }
 
     const orderData = req.body
+    orderData.seller = req.adminFullname
     const creation = await orderServices.createOrder(orderData)
 
     res.send(creation)
