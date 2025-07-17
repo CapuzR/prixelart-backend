@@ -260,19 +260,30 @@ export const updateOrder = async (
       }
     }
 
-    const updatedOrderStatus = updatedOrder.status?.[updatedOrder.status.length - 1]?.[0];
-    const updatedPaymentStatus = updatedOrder.payment?.status?.[updatedOrder.payment.status.length - 1]?.[0]
-        
+    const updatedOrderStatus =
+      updatedOrder.status?.[updatedOrder.status.length - 1]?.[0]
+    const updatedPaymentStatus =
+      updatedOrder.payment?.status?.[
+        updatedOrder.payment.status.length - 1
+      ]?.[0]
+
+    const previousOrderStatus =
+      currentOrder.status?.[currentOrder.status.length - 1]?.[0]
+    const previousPaymentStatus =
+      currentOrder.payment?.status?.[
+        currentOrder.payment.status.length - 1
+      ]?.[0]
+
     const shouldProcessCommissions =
       updatedOrderStatus === OrderStatus.Finished &&
-      updatedPaymentStatus === GlobalPaymentStatus.Paid
-
-
+      updatedPaymentStatus === GlobalPaymentStatus.Paid &&
+      (updatedOrderStatus !== previousOrderStatus ||
+        updatedPaymentStatus !== previousPaymentStatus)
     if (shouldProcessCommissions) {
       console.log(
         `Status de la orden ${updatedOrder._id || updatedOrder.number} Concretado y pagado. Procesando comisiones.`
       )
-      
+
       for (const line of updatedOrder.lines) {
         if (
           !line.item?.art ||
@@ -285,7 +296,7 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         const pickedArt = line.item.art
         const artResult = await readOneByObjId(pickedArt._id!.toString())
         let fullArt: Art
@@ -297,10 +308,10 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         let commissionRate: number
         const artSpecificCommission = fullArt.comission
-  
+
         if (
           artSpecificCommission !== undefined &&
           artSpecificCommission !== null
@@ -323,11 +334,11 @@ export const updateOrder = async (
             `No specific commission for art '${line.item.art.title}'. Using default 10% for ${line.item.art.prixerUsername}.`
           )
         }
-  
+
         let lineSubtotal = 0
         const pricePerUnit = parseFloat(String(line.pricePerUnit))
         const quantity = line.quantity
-  
+
         if (
           !isNaN(pricePerUnit) &&
           !isNaN(quantity) &&
@@ -341,14 +352,14 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         const paymentAmount = lineSubtotal * commissionRate
-  
+
         if (paymentAmount > 0 && line.item.art.prixerUsername) {
           const prixerResult = await readUserByUsername(
             line.item.art.prixerUsername
           )
-  
+
           if (prixerResult.success && prixerResult.result) {
             const prixerUser = prixerResult.result as User
             const movement: Movement = {
