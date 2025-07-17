@@ -29,6 +29,7 @@ export interface Order {
 
   seller?: string;
   observations?: string;
+  commissionsProcessed?: boolean;
 }
 
 interface PickedArt
