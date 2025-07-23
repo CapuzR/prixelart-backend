@@ -8,7 +8,7 @@ export const createMovement = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.readMovements) {
+    if (!req.permissions?.movements.createMovement) {
       res.send({
         success: false,
         message: "No tienes permiso para leer estos Movimientos.",
@@ -58,13 +58,13 @@ export const readByAccount = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // if (!req.permissions?.readMovements) {
-  //   res.send({
-  //     success: false,
-  //     message: "No tienes permiso para leer estos Movimientos.",
-  //   });
-  //   return;
-  // }
+  if (!req.permissions?.movements.readMovementsByPrixer) {
+    res.send({
+      success: false,
+      message: "No tienes permiso para leer estos Movimientos.",
+    });
+    return;
+  }
 
   try {
     const result = await movementServices.readByAccount(req.body._id)
@@ -79,7 +79,7 @@ export const readAllMovements = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.readMovements) {
+  if (!req.permissions?.movements.readAllMovements) {
     res.send({
       success: false,
       message: "No tienes permiso para leer los Movimientos.",
@@ -128,7 +128,7 @@ export const readById = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.readMovements) {
+  if (!req.permissions?.movements.readAllMovements) {
     res.send({
       success: false,
       message: "No tienes permiso para leer Movimientos.",
@@ -150,7 +150,7 @@ export const reverseMovement = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (req.permissions?.area !== "Master") {
+  if (!req.permissions?.movements.reverseMovement) {
     res.send({
       success: false,
       message: "No tienes permiso para revertir Movimientos.",

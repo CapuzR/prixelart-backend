@@ -28,7 +28,7 @@ export const createCarouselItem = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyBanners) {
+    if (!req.permissions?.preferences.createBanner) {
       return
     }
 
@@ -62,7 +62,7 @@ export const createCarouselItem = async (
 
 export const deleteCarouselItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.modifyBanners) {
+    if (!req.permissions?.preferences.deleteBanner) {
       return;
     }
 
@@ -86,7 +86,7 @@ export const deleteCarouselItem = async (req: Request, res: Response, next: Next
 
 export const updateCarouselOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.modifyBanners) {
+    if (!req.permissions?.preferences.updateBanner) {
       return;
     }
 
@@ -122,7 +122,7 @@ export const readTermsAndConditions = async (_req: Request, res: Response, next:
 
 export const updateTermsAndConditions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.updateTermsAndConditions) {
+    if (!req.permissions?.preferences.updateTermsAndCo) {
       res.status(403).json({
         success: false,
         message: "No tienes permiso para actualizar términos y condiciones.",

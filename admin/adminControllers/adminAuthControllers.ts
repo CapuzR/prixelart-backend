@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as adminAuthServices from "../adminServices/adminAuthServices.ts";
 import * as adminServices from "../adminServices/adminServices.ts";
 import { Admin, Login } from "../adminModel.ts";
+import { PermissionsV2 } from "../permissionsModel.ts";
 import jwt from "jsonwebtoken";
 
 const isProduction = true;
@@ -30,7 +31,7 @@ export const adminLogin = async (req: Request, res: Response, next: NextFunction
       secure: isProduction,
       httpOnly: true,
       sameSite:  "none",
-      domain:".prixelart.com",
+      domain:"localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })

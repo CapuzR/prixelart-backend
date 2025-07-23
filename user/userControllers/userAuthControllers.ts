@@ -50,8 +50,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     res.cookie("token", auth.result! as string, {
       secure: isProduction,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      domain: isProduction ? ".prixelart.com" : "localhost",
+      sameSite: "lax",
+      domain:  "localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })

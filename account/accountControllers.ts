@@ -24,10 +24,10 @@ export const readAll = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.users.readPrixerBalance) {
       res.send({
         success: false,
-        message: "No tienes permiso para leer Accounts.",
+        message: "No tienes permiso para leer Billeteras.",
       })
       return
     }
