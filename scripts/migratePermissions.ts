@@ -12,6 +12,7 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
       createAdmin: false,
       createAdminRole: false,
       deleteAdmin: oldPerms.modifyAdmins,
+      deleteAdminRole: false,
       readAdmins: oldPerms.modifyAdmins || oldPerms.updateAdmins,
       readAdminRoles: false,
       updateAdmin: oldPerms.modifyAdmins || oldPerms.updateAdmins,
@@ -32,6 +33,7 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
       useDiscount: false,
     },
     movements: {
+      createWallet: false,
       createMovement: false,
       deleteMovement: false,
       reverseMovement: false,
@@ -117,11 +119,15 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
       banConsumer: oldPerms.prixerBan,
       banPrixer: oldPerms.prixerBan,
       banUser: oldPerms.prixerBan,
+      promoteToPrixer: false,
       createConsumer: oldPerms.createConsumer,
       deleteConsumer: oldPerms.deleteConsumer,
+      deleteUser: false,
       readAllUsers: oldPerms.readConsumers || oldPerms.prixerBan, // Suponemos que leer consumidores o banear implica ver usuarios
       readPrixerBalance: oldPerms.setPrixerBalance,
       setPrixerBalance: oldPerms.setPrixerBalance,
+      updatePrixer: false,
+      updateUser: false
     },
   }
 
