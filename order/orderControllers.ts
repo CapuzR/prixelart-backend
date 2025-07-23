@@ -221,13 +221,13 @@ export const getGlobalOrders = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.orderStatus) {
-      res.send({
-        success: false,
-        message: "No tienes autorización para realizar esta acción.",
-      })
-      return
-    }
+    // if (!req.permissions?.orders.readAllOrders) {
+    //   res.send({
+    //     success: false,
+    //     message: "No tienes autorización para realizar esta acción.",
+    //   })
+    //   return
+    // }
 
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
