@@ -9,6 +9,7 @@ export interface Order {
   lines: OrderLine[]; // requests
   createdOn: Date;
   createdBy: string;
+  history?: HistoryEntry[];
   updates?: [Date, string][]; // updates when and by whom
   consumerDetails?: ConsumerDetails;
   payment: PaymentDetails;
@@ -29,6 +30,12 @@ export interface Order {
 
   seller?: string;
   observations?: string;
+}
+
+export interface HistoryEntry {
+  timestamp: Date;
+  user: string;
+  description: string;
 }
 
 interface PickedArt
