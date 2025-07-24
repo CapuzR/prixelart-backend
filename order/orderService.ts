@@ -3,6 +3,7 @@ import {
   OrderLine,
   OrderStatus,
   GlobalPaymentStatus,
+  HistoryEntry,
   PaymentMethod,
   ShippingMethod,
 } from "./orderModel.ts"
@@ -116,12 +117,20 @@ export const createOrder = async (
     //     .toFixed(2)
     // );
 
+    
     // 4) Insert into MongoDB
     const orders = orderCollection()
     const { acknowledged, insertedId } = await orders.insertOne({
       ...order,
       lines: validatedLines,
       totalUnits,
+      history: [
+        {
+          timestamp: order.createdOn,
+          user: order.seller ||  order.createdBy,
+          description: "Pedido creado.",
+        }
+      ],
       // subTotal,
       createdOn: new Date(),
     })
@@ -233,6 +242,184 @@ export const addVoucher = async (
   }
 }
 
+const fieldMappings: Record<string, string> = {
+  status: "Estado general del pedido",
+  seller: "Vendedor",
+  observations: "Observaciones",
+
+  "consumerDetails.basic.name": "Nombre del cliente",
+  "consumerDetails.basic.lastName": "Apellido del cliente",
+  "consumerDetails.basic.email": "Email del cliente",
+  "consumerDetails.basic.phone": "Teléfono del cliente",
+  "consumerDetails.selectedAddress": "Dirección del cliente",
+
+  "shipping.method": "Método de envío",
+  "shipping.address.city": "Dirección de envío",
+  "shipping.preferredDeliveryDate": "Fecha aproximada para entrega",
+
+  "billing.billTo": "Datos básicos de facturación",
+  "billing.address": "Dirección de facturación",
+
+  // Estado del Pago (PaymentDetails)
+  "payment.status": "Estado del pago",
+  "payment.payment": "Cuota(s) de pago",
+
+  subTotal: "Subtotal",
+  shippingCost: "Costo de envío",
+  // tax: "Impuestos",
+  totalWithoutTax: "Total sin impuestos",
+  total: "Total",
+
+  "lines.status": "Estado del item",
+  "lines.item": "Item",
+  "lines.quantity": "Cantidad del item",
+  "lines.pricePerUnit": "Estado del item",
+  "lines.subtotal": "Subtotal del item",
+}
+
+function getNestedValue(obj: any, path: string): any {
+  return path
+    .split(".")
+    .reduce((o, key) => (o && o[key] !== "undefined" ? o[key] : undefined), obj)
+}
+
+function compareOrderLines(
+  oldLines: OrderLine[],
+  newLines: OrderLine[],
+  adminUsername: string,
+  timestamp: Date
+): HistoryEntry[] {
+  const entries: HistoryEntry[] = []
+  const oldLinesMap = new Map(oldLines.map((line) => [line.id, line]))
+  const newLinesSet = new Set(newLines.map((line) => line.id))
+
+  for (const newLine of newLines) {
+    const oldLine = oldLinesMap.get(newLine.id)
+    const itemName =
+      newLine.item.product.name || `item con SKU ${newLine.item.sku}`
+
+    if (oldLine) {
+      if (oldLine.quantity !== newLine.quantity) {
+        entries.push({
+          timestamp,
+          user: adminUsername,
+          description: `Para el item "${itemName}", la cantidad cambió de ${oldLine.quantity} a ${newLine.quantity}.`,
+        })
+      }
+
+      const oldStatus = oldLine.status?.[oldLine.status.length - 1]?.[0]
+      const newStatus = newLine.status?.[newLine.status.length - 1]?.[0]
+      if (oldStatus !== newStatus) {
+        entries.push({
+          timestamp,
+          user: adminUsername,
+          description: `El estado del item "${itemName}" cambió de "${OrderStatus[oldStatus]}" a "${OrderStatus[newStatus]}".`,
+        })
+      }
+    } else {
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description: `Se añadió el item "${itemName}" al pedido.`,
+      })
+    }
+  }
+
+  for (const oldLine of oldLines) {
+    if (!newLinesSet.has(oldLine.id)) {
+      const itemName =
+        oldLine.item.product.name || `item con SKU ${oldLine.item.sku}`
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description: `Se eliminó el item "${itemName}" del pedido.`,
+      })
+    }
+  }
+
+  return entries
+}
+const orderStatusTranslations: { [key: string]: string } = {
+  Pending: "Pendiente",
+  Impression: "En Impresión",
+  Production: "En Producción",
+  ReadyToShip: "Listo para Enviar",
+  Delivered: "Entregado",
+  Finished: "Concretado",
+  Paused: "Pausado",
+  Canceled: "Cancelado",
+}
+
+const globalPaymentStatusTranslations: { [key: string]: string } = {
+  Pending: "Pendiente",
+  Credited: "Abonado",
+  Paid: "Pagado",
+  Cancelled: "Cancelado",
+}
+
+export function generateHistoryEntries(
+  oldOrder: Order,
+  updatePayload: Partial<Order>,
+  adminUsername: string
+): HistoryEntry[] {
+  let entries: HistoryEntry[] = []
+  const timestamp = new Date()
+
+  for (const path in fieldMappings) {
+    const oldValue = getNestedValue(oldOrder, path)
+    const newValue = getNestedValue(updatePayload, path)
+    const fieldName = fieldMappings[path]
+
+    if (
+      newValue !== undefined &&
+      JSON.stringify(oldValue) !== JSON.stringify(newValue)
+    ) {
+      let description = `Se actualizó ${fieldName} de **${oldValue}** a **${newValue}**.`
+
+      if (
+        path === "lines" &&
+        Array.isArray(oldValue) &&
+        Array.isArray(newValue)
+      ) {
+        const lineEntries = compareOrderLines(
+          oldValue,
+          newValue,
+          adminUsername,
+          timestamp
+        )
+        entries = [...entries, ...lineEntries]
+      }
+
+      if (path === "status" || path === "payment.status") {
+        const oldStatus = oldValue?.[oldValue.length - 1]?.[0]
+        const newStatus = newValue?.[newValue.length - 1]?.[0]
+        const statusEnum = path === "status" ? OrderStatus : GlobalPaymentStatus
+        const translations =
+          path === "status"
+            ? orderStatusTranslations
+            : globalPaymentStatusTranslations
+
+        const oldStatusText =
+          translations[statusEnum[oldStatus]] ?? statusEnum[oldStatus]
+        const newStatusText =
+          translations[statusEnum[newStatus]] ?? statusEnum[newStatus]
+
+        if (oldStatus !== newStatus) {
+          description = `${fieldName} cambió de **${oldStatusText}** a **${newStatusText}**.`
+        }
+      }
+
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description,
+      })
+    }
+  }
+
+  return entries
+}
+
 export const updateOrder = async (
   id: string,
   update: Partial<Order>,
@@ -241,15 +428,43 @@ export const updateOrder = async (
   try {
     const order = orderCollection()
     const orderObjectId = new ObjectId(id)
-    const currentOrder = await order.findOne({ _id: orderObjectId })
+    let currentOrder = await order.findOne({ _id: orderObjectId })
 
     if (!currentOrder) {
       return { success: false, message: "Orden no encontrada." }
     }
 
+    if (!currentOrder.history || currentOrder.history.length === 0) {
+      const initialEntry: HistoryEntry = {
+        timestamp: currentOrder.createdOn,
+        user: currentOrder.createdBy || currentOrder.seller || "Sistema",
+        description: "Pedido creado.",
+      }
+
+      await order.updateOne(
+        { _id: orderObjectId },
+        { $set: { history: [initialEntry] } }
+      )
+
+      currentOrder = await order.findOne({ _id: orderObjectId })
+    }
+
+    const historyEntries = generateHistoryEntries(
+      currentOrder!,
+      update,
+      adminUsername
+    )
+
+    const updateOperation: any = { $set: update }
+    if (historyEntries.length > 0) {
+      updateOperation.$push = {
+        history: { $each: historyEntries },
+      }
+    }
+
     const updatedOrder = await order.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: update },
+      updateOperation,
       { returnDocument: "after" }
     )
 
@@ -268,10 +483,10 @@ export const updateOrder = async (
       ]?.[0]
 
     const previousOrderStatus =
-      currentOrder.status?.[currentOrder.status.length - 1]?.[0]
+      currentOrder!.status?.[currentOrder!.status.length - 1]?.[0]
     const previousPaymentStatus =
-      currentOrder.payment?.status?.[
-        currentOrder.payment.status.length - 1
+      currentOrder!.payment?.status?.[
+        currentOrder!.payment.status.length - 1
       ]?.[0]
 
     const shouldProcessCommissions =
