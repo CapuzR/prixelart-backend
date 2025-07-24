@@ -186,37 +186,8 @@ export const updatePermissions = async (req: Request, res: Response, next: NextF
     }
 
     const idToUpdate = req.params.id;
-    const updateRole = {
-      area: req.body.area,
-      createConsumer: req.body.createConsumer,
-      createDiscount: req.body.createDiscount,
-      createOrder: req.body.createOrder,
-      createPaymentMethod: req.body.createPaymentMethod,
-      createProduct: req.body.createProduct,
-      createShippingMethod: req.body.createShippingMethod,
-      createTestimonial: req.body.createTestimonial,
-      deleteConsumer: req.body.deleteConsumer,
-      deleteDiscount: req.body.deleteDiscount,
-      deletePaymentMethod: req.body.deletePaymentMethod,
-      deleteProduct: req.body.deleteProduct,
-      deleteShippingMethod: req.body.deleteShippingMethod,
-      deleteTestimonial: req.body.deleteTestimonial,
-      detailOrder: req.body.detailOrder,
-      detailPay: req.body.detailPay,
-      modifyAdmins: req.body.modifyAdmins,
-      modifyBanners: req.body.modifyBanners,
-      modifyDollar: req.body.modifyDollar,
-      modifyTermsAndCo: req.body.modifyTermsAndCo,
-      orderStatus: req.body.orderStatus,
-      prixerBan: req.body.prixerBan,
-      readConsumers: req.body.readConsumers,
-      readMovements: req.body.readMovements,
-      setPrixerBalance: req.body.setPrixerBalance,
-      artBan: req.body.artBan,
-      modifyBestSellers: req.body.modifyBestSellers,
-      modifyArtBestSellers: req.body.modifyArtBestSellers,
-    };
-    const updatedPermissions = await adminServices.updatePermissions(idToUpdate, updateRole);
+    const permissionsPayload = req.body;
+    const updatedPermissions = await adminServices.updatePermissions(idToUpdate, permissionsPayload);
     res.send(updatedPermissions);
     return;
   } catch (err) {

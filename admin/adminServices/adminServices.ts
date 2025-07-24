@@ -1,5 +1,5 @@
 import { Admin } from "../adminModel.ts"
-import { Permissions } from "../permissionsModel.ts"
+import { PermissionsV2 } from "../permissionsModel.ts"
 import bcrypt from "bcrypt"
 import { PrixResponse } from "../../types/responseModel.ts"
 import { getDb } from "../../mongo.ts"
@@ -9,8 +9,8 @@ function adminCollection(): Collection<Admin> {
   return getDb().collection<Admin>("admin")
 }
 
-function permissionsCollection(): Collection<Permissions> {
-  return getDb().collection<Permissions>("permissions")
+function permissionsCollection(): Collection<PermissionsV2> {
+  return getDb().collection<PermissionsV2>("permissions")
 }
 
 // Admin CRUD
@@ -418,7 +418,7 @@ export const readPermissionsById = async (
 
 export const updatePermissions = async (
   id: string,
-  role: Partial<Permissions>
+  role: Partial<PermissionsV2>
 ): Promise<PrixResponse> => {
   try {
     const permissiondb = permissionsCollection()
