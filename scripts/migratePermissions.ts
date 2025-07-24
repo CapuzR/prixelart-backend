@@ -9,14 +9,14 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
     _id: oldPerms._id,
     area: oldPerms.area,
     admins: {
-      createAdmin: false,
-      createAdminRole: false,
+      createAdmin: oldPerms.modifyAdmins,
+      createAdminRole: oldPerms.modifyAdmins,
       deleteAdmin: oldPerms.modifyAdmins,
-      deleteAdminRole: false,
+      deleteAdminRole: oldPerms.modifyAdmins,
       readAdmins: oldPerms.modifyAdmins || oldPerms.updateAdmins,
-      readAdminRoles: false,
+      readAdminRoles: oldPerms.modifyAdmins || oldPerms.updateAdmins,
       updateAdmin: oldPerms.modifyAdmins || oldPerms.updateAdmins,
-      updateAdminRole: false,
+      updateAdminRole: oldPerms.modifyAdmins || oldPerms.updateAdmins,
     },
     art: {
       artBan: oldPerms.artBan,
@@ -127,7 +127,7 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
       readPrixerBalance: oldPerms.setPrixerBalance,
       setPrixerBalance: oldPerms.setPrixerBalance,
       updatePrixer: false,
-      updateUser: false
+      updateUser: false,
     },
   }
 
