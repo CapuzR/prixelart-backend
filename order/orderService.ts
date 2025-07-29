@@ -8,8 +8,9 @@ import {
 } from "./orderModel.ts"
 import { Collection, FindOneAndUpdateOptions, ObjectId } from "mongodb"
 import { PrixResponse } from "../types/responseModel.ts"
-import { getDb } from "../mongo.ts"
+import { getDb, getMongoClient } from "../mongo.ts"
 import { User } from "../user/userModel.ts"
+import { Account } from "../account/accountModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
@@ -33,6 +34,14 @@ function shippingMethodCollection(): Collection<ShippingMethod> {
 
 function adminCollection(): Collection<Admin> {
   return getDb().collection<Admin>("admin")
+}
+
+function movementCollection(): Collection<Movement> {
+  return getDb().collection<Movement>("movements")
+}
+
+function accountCollection(): Collection<Account> {
+  return getDb().collection<Account>("account")
 }
 
 export const createOrder = async (
@@ -233,55 +242,44 @@ export const addVoucher = async (
   }
 }
 
-export const updateOrder = async (
+export const updateOrderAndProcessCommissions = async (
   id: string,
   update: Partial<Order>,
   adminUsername: string
 ): Promise<PrixResponse> => {
+  const client = getMongoClient()
+  const session = client.startSession()
+  let response: PrixResponse = {
+    success: false,
+    message: "La operación no se completó.",
+  }
   try {
-    const order = orderCollection()
+    session.startTransaction()
+
+    const orders = orderCollection()
+    const movements = movementCollection()
+    const accounts = accountCollection()
     const orderObjectId = new ObjectId(id)
-    const currentOrder = await order.findOne({ _id: orderObjectId })
 
-    if (!currentOrder) {
-      return { success: false, message: "Orden no encontrada." }
-    }
-
-    const updatedOrder = await order.findOneAndUpdate(
-      { _id: new ObjectId(id) },
+    const updatedOrder = await orders.findOneAndUpdate(
+      { _id: orderObjectId },
       { $set: update },
-      { returnDocument: "after" }
+      { returnDocument: "after", session }
     )
 
-    if (updatedOrder === null) {
-      return {
-        success: false,
-        message: "Orden no encontrada o no se pudo actualizar.",
-      }
+    if (!updatedOrder) {
+      throw new Error("Orden no encontrada o no se pudo actualizar.")
     }
 
-    const updatedOrderStatus =
-      updatedOrder.status?.[updatedOrder.status.length - 1]?.[0]
-    const updatedPaymentStatus =
-      updatedOrder.payment?.status?.[
-        updatedOrder.payment.status.length - 1
-      ]?.[0]
-
-    const previousOrderStatus =
-      currentOrder.status?.[currentOrder.status.length - 1]?.[0]
-    const previousPaymentStatus =
-      currentOrder.payment?.status?.[
-        currentOrder.payment.status.length - 1
-      ]?.[0]
-
     const shouldProcessCommissions =
-      updatedOrderStatus === OrderStatus.Finished &&
-      updatedPaymentStatus === GlobalPaymentStatus.Paid &&
-      (updatedOrderStatus !== previousOrderStatus ||
-        updatedPaymentStatus !== previousPaymentStatus)
+      updatedOrder.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
+      updatedOrder.payment?.status?.slice(-1)[0]?.[0] ===
+        GlobalPaymentStatus.Paid
+    // && !updatedOrder.commissionsProcessed;
+
     if (shouldProcessCommissions) {
       console.log(
-        `Status de la orden ${updatedOrder._id || updatedOrder.number} Concretado y pagado. Procesando comisiones.`
+        `Procesando comisiones para la orden ${updatedOrder.number}...`
       )
 
       for (const line of updatedOrder.lines) {
@@ -359,10 +357,10 @@ export const updateOrder = async (
           const prixerResult = await readUserByUsername(
             line.item.art.prixerUsername
           )
+          const prixerUser = prixerResult.result as User
 
-          if (prixerResult.success && prixerResult.result) {
-            const prixerUser = prixerResult.result as User
-            const movement: Movement = {
+          if (paymentAmount > 0 && prixerUser?.account) {
+            const commissionMovement: Movement = {
               date: new Date(),
               createdOn: new Date(),
               destinatary: prixerUser.account,
@@ -371,35 +369,48 @@ export const updateOrder = async (
               value: parseFloat(paymentAmount.toFixed(2)),
               order: updatedOrder._id.toString(),
               createdBy: adminUsername,
-              item: {
-                //  productId: line.item.product?._id?.toString() || 'unknown',
-                //  variantId: line.item.product?.selection?.[0]?.value || undefined,
-              },
             }
-            await updateBalance(movement)
-            await createMovement(movement)
-            console.log(
-              `Comisión de ${paymentAmount.toFixed(2)} procesada para ${line.item.art.prixerUsername} (Orden ${updatedOrder.number || updatedOrder._id}).`
+
+            await movements.insertOne(commissionMovement, { session })
+
+            await accounts.updateOne(
+              { _id: prixerUser.account },
+              { $inc: { balance: commissionMovement.value } },
+              { session }
             )
-          } else {
-            console.warn(
-              `Prixer user not found for username: ${line.item.art.prixerUsername}. Skipping commission.`
+            console.log(
+              `Comisión para ${prixerUser.username} encolada en la transacción.`
             )
           }
         }
+
+        await orders.updateOne(
+          { _id: orderObjectId },
+          { $set: { commissionsProcessed: true } },
+          { session }
+        )
+        console.log(`Orden ${updatedOrder.number} marcada como procesada.`)
+      }
+
+      await session.commitTransaction()
+
+      response = {
+        success: true,
+        message: "Orden actualizada y comisiones procesadas exitosamente.",
+        result: updatedOrder,
       }
     }
-
-    return updatedOrder
-      ? {
-          success: true,
-          message: "Órden actualizada con éxito",
-          result: updatedOrder,
-        }
-      : { success: false, message: "Orden no encontrada." }
-  } catch (e) {
-    return { success: false, message: `Error: ${e}` }
+  } catch (e: unknown) {
+    if (session.inTransaction()) {
+      await session.abortTransaction()
+    }
+    console.error("Error en la transacción de actualizar orden:", e)
+    const msg = e instanceof Error ? e.message : String(e)
+    response = { success: false, message: `Error en la transacción: ${msg}` }
+  } finally {
+    await session.endSession()
   }
+  return response
 }
 
 export const deleteOrder = async (orderId: string): Promise<PrixResponse> => {
