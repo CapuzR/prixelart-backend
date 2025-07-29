@@ -2,7 +2,7 @@ import { CarouselItem, TermsAndConditions } from "./preferencesModel.ts";
 import { BulkWriteResult, Collection, ObjectId } from "mongodb";
 import { PrixResponse } from "../types/responseModel.ts";
 import { Prixer } from "../prixer/prixerModel.ts";
-import { getDb } from "../mongo.ts";
+import { getDb, getMongoClient } from "../mongo.ts";
 
 function carouselCollection(): Collection<CarouselItem> {
   return getDb().collection<CarouselItem>("carousel");
@@ -176,37 +176,58 @@ export const updateCarouselOrder = async (type: 'desktop' | 'mobile', orderedIds
 /* ----- Terms and Conditions Operations ----- */
 
 export const updateTermsAndConditions = async (termsText: string): Promise<PrixResponse> => {
+  const client = getMongoClient();
+  const session = client.startSession();
+  
+  let response: PrixResponse = { 
+    success: false, 
+    message: "La operación no se completó." 
+  };
+
   try {
+    session.startTransaction();
+
     const terms = termsCollection();
     const prixers = prixerCollection();
-    await prixers.updateMany({}, { $set: { termsAgree: false } });
 
-    const existing = await terms.findOne({});
-    let doc: { termsAndConditions: string; _id?: ObjectId };
+    await prixers.updateMany({}, { $set: { termsAgree: false } }, { session });
+
+    const existing = await terms.findOne({}, { session });
+    
     if (existing) {
       await terms.updateOne(
         { _id: existing._id },
-        { $set: { termsAndConditions: termsText } }
+        { $set: { termsAndConditions: termsText } },
+        { session }
       );
-      doc = { ...existing, termsAndConditions: termsText };
     } else {
-      const { insertedId } = await terms.insertOne({
-        termsAndConditions: termsText,
-      });
-      doc = { _id: insertedId, termsAndConditions: termsText };
+      await terms.insertOne(
+        { termsAndConditions: termsText },
+        { session }
+      );
     }
 
-    return {
+    await session.commitTransaction();
+    
+    response = {
       success: true,
-      message: "Terms and Conditions updated successfully.",
-      result: doc.termsAndConditions
+      message: "Términos y condiciones actualizados exitosamente.",
+      result: termsText
     };
-  } catch (err) {
-    return {
-      success: false,
-      message: `Error updating terms: ${err}`,
-    };
+
+  } catch (e: unknown) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    console.error("Error en la transacción de actualizar términos:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    response = { success: false, message: `Error en la transacción: ${msg}` };
+    
+  } finally {
+    await session.endSession();
   }
+
+  return response;
 };
 
 export const readTermsAndConditions = async (): Promise<PrixResponse> => {
