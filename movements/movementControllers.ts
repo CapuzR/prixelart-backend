@@ -9,12 +9,13 @@ export const createMovement = async (
 ): Promise<void> => {
   try {
     if (!req.permissions?.movements.createMovement) {
-      res.send({
+      res.status(403).send({
         success: false,
-        message: "No tienes permiso para leer estos Movimientos.",
+        message: "No tienes permiso para crear Movimientos.",
       })
       return
     }
+
     const movementFile =
       req.session?.uploadResults?.item?.find(
         (f: { purpose: string; url: string }) => f.purpose === "MovementItem"
@@ -26,7 +27,7 @@ export const createMovement = async (
       res.status(400).send({
         success: false,
         message:
-          "Missing required fields: destinatary, description, type, and value are required.",
+          "Faltan campos requeridos: destinatary, description, type, y value son obligatorios.",
       })
       return
     }
@@ -43,10 +44,9 @@ export const createMovement = async (
       item: movementFile ? { url: movementFile } : undefined,
     }
 
-    const createResult = await movementServices.createMovement(movementData)
-    const balanceResult = await movementServices.updateBalance(movementData)
-
-    res.send({ createResult, balanceResult })
+    const result =
+      await movementServices.createMovementWithBalanceUpdate(movementData)
+    res.status(result.success ? 201 : 400).send(result)
   } catch (error) {
     console.error(error)
     next(error)
@@ -62,8 +62,8 @@ export const readByAccount = async (
     res.send({
       success: false,
       message: "No tienes permiso para leer estos Movimientos.",
-    });
-    return;
+    })
+    return
   }
 
   try {

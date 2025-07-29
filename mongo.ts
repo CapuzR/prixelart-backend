@@ -19,3 +19,12 @@ export function getDb(): Db {
   }
   return db;
 }
+
+export function getMongoClient(): MongoClient {
+  if (!client) {
+    throw new Error(
+      "Mongo has not been initialized. Did you forget to call connectMongo() first?"
+    );
+  }
+  return client;
+}
