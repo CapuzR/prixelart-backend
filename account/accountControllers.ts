@@ -1,5 +1,29 @@
 import { Request, Response, NextFunction } from "express"
 import * as accountServices from "./accountServices.ts"
+import { nanoid } from "nanoid"
+
+export const createAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const account = {
+      _id: nanoid(24),
+      balance: req.body?.balance || 0,
+    };
+
+    const result = await accountServices.createAndAssignAccount(
+      req.body.email,
+      account
+    );
+
+    res.status(result.success ? 201 : 400).send(result);
+    
+  } catch (e) {
+    next(e);
+  }
+};
 
 export const checkBalance = async (
   req: Request,

@@ -5,6 +5,12 @@ import * as userAuthControllers from "../user/userControllers/userAuthController
 
 const router: Router = Router()
 
+router.post(
+  "/account/create",
+  adminAuthControllers.ensureAuthenticated,
+  accountControllers.createAccount
+);
+
 router.get(
   "/account/readById/:id",
   adminAuthControllers.ensureAuthenticated,
