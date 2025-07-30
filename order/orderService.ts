@@ -249,10 +249,12 @@ export const updateOrderAndProcessCommissions = async (
 ): Promise<PrixResponse> => {
   const client = getMongoClient()
   const session = client.startSession()
+
   let response: PrixResponse = {
     success: false,
     message: "La operación no se completó.",
   }
+
   try {
     session.startTransaction()
 
@@ -391,15 +393,15 @@ export const updateOrderAndProcessCommissions = async (
         )
         console.log(`Orden ${updatedOrder.number} marcada como procesada.`)
       }
-
-      await session.commitTransaction()
-
-      response = {
-        success: true,
-        message: "Orden actualizada y comisiones procesadas exitosamente.",
-        result: updatedOrder,
-      }
     }
+    await session.commitTransaction()
+
+    response = {
+      success: true,
+      message: "Orden actualizada exitosamente.",
+      result: updatedOrder,
+    }
+    console.log("¡Transacción confirmada! Orden actualizada.")
   } catch (e: unknown) {
     if (session.inTransaction()) {
       await session.abortTransaction()
