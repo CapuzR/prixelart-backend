@@ -647,6 +647,9 @@ export interface GlobalDashboardStatsData {
   orderStatusCounts: Record<string, number>
   prevPeriodTotalSales: number
   prevPeriodTotalOrders: number
+  totalOrdersAmount: number
+  totalPaidAmount: number
+  totalFinalizedAmount: number
 }
 
 export const readAllOrdersByDateRange = async (
@@ -690,7 +693,6 @@ export const calculateGlobalDashboardStats = async (
   try {
     const collection = orderCollection()
 
-    // --- Current Period Calculation ---
     const matchQuery = {
       createdOn: { $gte: startDate, $lte: endDate },
     }
@@ -703,6 +705,45 @@ export const calculateGlobalDashboardStats = async (
           totalSales: { $sum: "$total" },
           totalOrders: { $sum: 1 },
           totalUnits: { $sum: "$totalUnits" },
+          totalOrdersAmount: { $sum: "$total" },
+          totalPaidAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: [
+                    { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
+                    GlobalPaymentStatus.Paid,
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
+          totalFinalizedAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $and: [
+                    {
+                      $eq: [
+                        { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] },
+                        OrderStatus.Finished,
+                      ],
+                    },
+                    {
+                      $eq: [
+                        { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
+                        GlobalPaymentStatus.Paid,
+                      ],
+                    },
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
         },
       },
       {
@@ -718,6 +759,9 @@ export const calculateGlobalDashboardStats = async (
               else: 0,
             },
           },
+          totalOrdersAmount: { $ifNull: ["$totalOrdersAmount", 0] },
+          totalPaidAmount: { $ifNull: ["$totalPaidAmount", 0] },
+          totalFinalizedAmount: { $ifNull: ["$totalFinalizedAmount", 0] },
         },
       },
     ]
@@ -727,6 +771,9 @@ export const calculateGlobalDashboardStats = async (
       totalOrders: 0,
       totalUnits: 0,
       averageOrderValue: 0,
+      totalOrdersAmount: 0,
+      totalPaidAmount: 0,
+      totalFinalizedAmount: 0,
     }
 
     // --- Previous Period Calculation ---
@@ -796,6 +843,9 @@ export const calculateGlobalDashboardStats = async (
       orderStatusCounts,
       prevPeriodTotalSales: prevStats.totalSales,
       prevPeriodTotalOrders: prevStats.totalOrders,
+      totalOrdersAmount: mainStats.totalOrdersAmount,
+      totalPaidAmount: mainStats.totalPaidAmount,
+      totalFinalizedAmount: mainStats.totalFinalizedAmount,
     }
 
     return {
