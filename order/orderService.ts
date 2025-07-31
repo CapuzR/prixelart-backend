@@ -3,6 +3,7 @@ import {
   OrderLine,
   OrderStatus,
   GlobalPaymentStatus,
+  HistoryEntry,
   PaymentMethod,
   ShippingMethod,
 } from "./orderModel.ts"
@@ -116,12 +117,20 @@ export const createOrder = async (
     //     .toFixed(2)
     // );
 
+    
     // 4) Insert into MongoDB
     const orders = orderCollection()
     const { acknowledged, insertedId } = await orders.insertOne({
       ...order,
       lines: validatedLines,
       totalUnits,
+      history: [
+        {
+          timestamp: order.createdOn,
+          user: order.seller ||  order.createdBy,
+          description: "Pedido creado.",
+        }
+      ],
       // subTotal,
       createdOn: new Date(),
     })
@@ -233,6 +242,184 @@ export const addVoucher = async (
   }
 }
 
+const fieldMappings: Record<string, string> = {
+  status: "Estado general del pedido",
+  seller: "Vendedor",
+  observations: "Observaciones",
+
+  "consumerDetails.basic.name": "Nombre del cliente",
+  "consumerDetails.basic.lastName": "Apellido del cliente",
+  "consumerDetails.basic.email": "Email del cliente",
+  "consumerDetails.basic.phone": "Teléfono del cliente",
+  "consumerDetails.selectedAddress": "Dirección del cliente",
+
+  "shipping.method": "Método de envío",
+  "shipping.address.city": "Dirección de envío",
+  "shipping.preferredDeliveryDate": "Fecha aproximada para entrega",
+
+  "billing.billTo": "Datos básicos de facturación",
+  "billing.address": "Dirección de facturación",
+
+  // Estado del Pago (PaymentDetails)
+  "payment.status": "Estado del pago",
+  "payment.payment": "Cuota(s) de pago",
+
+  subTotal: "Subtotal",
+  shippingCost: "Costo de envío",
+  // tax: "Impuestos",
+  totalWithoutTax: "Total sin impuestos",
+  total: "Total",
+
+  "lines.status": "Estado del item",
+  "lines.item": "Item",
+  "lines.quantity": "Cantidad del item",
+  "lines.pricePerUnit": "Estado del item",
+  "lines.subtotal": "Subtotal del item",
+}
+
+function getNestedValue(obj: any, path: string): any {
+  return path
+    .split(".")
+    .reduce((o, key) => (o && o[key] !== "undefined" ? o[key] : undefined), obj)
+}
+
+function compareOrderLines(
+  oldLines: OrderLine[],
+  newLines: OrderLine[],
+  adminUsername: string,
+  timestamp: Date
+): HistoryEntry[] {
+  const entries: HistoryEntry[] = []
+  const oldLinesMap = new Map(oldLines.map((line) => [line.id, line]))
+  const newLinesSet = new Set(newLines.map((line) => line.id))
+
+  for (const newLine of newLines) {
+    const oldLine = oldLinesMap.get(newLine.id)
+    const itemName =
+      newLine.item.product.name || `item con SKU ${newLine.item.sku}`
+
+    if (oldLine) {
+      if (oldLine.quantity !== newLine.quantity) {
+        entries.push({
+          timestamp,
+          user: adminUsername,
+          description: `Para el item "${itemName}", la cantidad cambió de ${oldLine.quantity} a ${newLine.quantity}.`,
+        })
+      }
+
+      const oldStatus = oldLine.status?.[oldLine.status.length - 1]?.[0]
+      const newStatus = newLine.status?.[newLine.status.length - 1]?.[0]
+      if (oldStatus !== newStatus) {
+        entries.push({
+          timestamp,
+          user: adminUsername,
+          description: `El estado del item "${itemName}" cambió de "${OrderStatus[oldStatus]}" a "${OrderStatus[newStatus]}".`,
+        })
+      }
+    } else {
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description: `Se añadió el item "${itemName}" al pedido.`,
+      })
+    }
+  }
+
+  for (const oldLine of oldLines) {
+    if (!newLinesSet.has(oldLine.id)) {
+      const itemName =
+        oldLine.item.product.name || `item con SKU ${oldLine.item.sku}`
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description: `Se eliminó el item "${itemName}" del pedido.`,
+      })
+    }
+  }
+
+  return entries
+}
+const orderStatusTranslations: { [key: string]: string } = {
+  Pending: "Pendiente",
+  Impression: "En Impresión",
+  Production: "En Producción",
+  ReadyToShip: "Listo para Enviar",
+  Delivered: "Entregado",
+  Finished: "Concretado",
+  Paused: "Pausado",
+  Canceled: "Cancelado",
+}
+
+const globalPaymentStatusTranslations: { [key: string]: string } = {
+  Pending: "Pendiente",
+  Credited: "Abonado",
+  Paid: "Pagado",
+  Cancelled: "Cancelado",
+}
+
+export function generateHistoryEntries(
+  oldOrder: Order,
+  updatePayload: Partial<Order>,
+  adminUsername: string
+): HistoryEntry[] {
+  let entries: HistoryEntry[] = []
+  const timestamp = new Date()
+
+  for (const path in fieldMappings) {
+    const oldValue = getNestedValue(oldOrder, path)
+    const newValue = getNestedValue(updatePayload, path)
+    const fieldName = fieldMappings[path]
+
+    if (
+      newValue !== undefined &&
+      JSON.stringify(oldValue) !== JSON.stringify(newValue)
+    ) {
+      let description = `Se actualizó ${fieldName} de **${oldValue}** a **${newValue}**.`
+
+      if (
+        path === "lines" &&
+        Array.isArray(oldValue) &&
+        Array.isArray(newValue)
+      ) {
+        const lineEntries = compareOrderLines(
+          oldValue,
+          newValue,
+          adminUsername,
+          timestamp
+        )
+        entries = [...entries, ...lineEntries]
+      }
+
+      if (path === "status" || path === "payment.status") {
+        const oldStatus = oldValue?.[oldValue.length - 1]?.[0]
+        const newStatus = newValue?.[newValue.length - 1]?.[0]
+        const statusEnum = path === "status" ? OrderStatus : GlobalPaymentStatus
+        const translations =
+          path === "status"
+            ? orderStatusTranslations
+            : globalPaymentStatusTranslations
+
+        const oldStatusText =
+          translations[statusEnum[oldStatus]] ?? statusEnum[oldStatus]
+        const newStatusText =
+          translations[statusEnum[newStatus]] ?? statusEnum[newStatus]
+
+        if (oldStatus !== newStatus) {
+          description = `${fieldName} cambió de **${oldStatusText}** a **${newStatusText}**.`
+        }
+      }
+
+      entries.push({
+        timestamp,
+        user: adminUsername,
+        description,
+      })
+    }
+  }
+
+  return entries
+}
+
 export const updateOrder = async (
   id: string,
   update: Partial<Order>,
@@ -241,15 +428,43 @@ export const updateOrder = async (
   try {
     const order = orderCollection()
     const orderObjectId = new ObjectId(id)
-    const currentOrder = await order.findOne({ _id: orderObjectId })
+    let currentOrder = await order.findOne({ _id: orderObjectId })
 
     if (!currentOrder) {
       return { success: false, message: "Orden no encontrada." }
     }
 
+    if (!currentOrder.history || currentOrder.history.length === 0) {
+      const initialEntry: HistoryEntry = {
+        timestamp: currentOrder.createdOn,
+        user: currentOrder.createdBy || currentOrder.seller || "Sistema",
+        description: "Pedido creado.",
+      }
+
+      await order.updateOne(
+        { _id: orderObjectId },
+        { $set: { history: [initialEntry] } }
+      )
+
+      currentOrder = await order.findOne({ _id: orderObjectId })
+    }
+
+    const historyEntries = generateHistoryEntries(
+      currentOrder!,
+      update,
+      adminUsername
+    )
+
+    const updateOperation: any = { $set: update }
+    if (historyEntries.length > 0) {
+      updateOperation.$push = {
+        history: { $each: historyEntries },
+      }
+    }
+
     const updatedOrder = await order.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: update },
+      updateOperation,
       { returnDocument: "after" }
     )
 
@@ -260,19 +475,30 @@ export const updateOrder = async (
       }
     }
 
-    const updatedOrderStatus = updatedOrder.status?.[updatedOrder.status.length - 1]?.[0];
-    const updatedPaymentStatus = updatedOrder.payment?.status?.[updatedOrder.payment.status.length - 1]?.[0]
-        
+    const updatedOrderStatus =
+      updatedOrder.status?.[updatedOrder.status.length - 1]?.[0]
+    const updatedPaymentStatus =
+      updatedOrder.payment?.status?.[
+        updatedOrder.payment.status.length - 1
+      ]?.[0]
+
+    const previousOrderStatus =
+      currentOrder!.status?.[currentOrder!.status.length - 1]?.[0]
+    const previousPaymentStatus =
+      currentOrder!.payment?.status?.[
+        currentOrder!.payment.status.length - 1
+      ]?.[0]
+
     const shouldProcessCommissions =
       updatedOrderStatus === OrderStatus.Finished &&
-      updatedPaymentStatus === GlobalPaymentStatus.Paid
-
-
+      updatedPaymentStatus === GlobalPaymentStatus.Paid &&
+      (updatedOrderStatus !== previousOrderStatus ||
+        updatedPaymentStatus !== previousPaymentStatus)
     if (shouldProcessCommissions) {
       console.log(
         `Status de la orden ${updatedOrder._id || updatedOrder.number} Concretado y pagado. Procesando comisiones.`
       )
-      
+
       for (const line of updatedOrder.lines) {
         if (
           !line.item?.art ||
@@ -285,7 +511,7 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         const pickedArt = line.item.art
         const artResult = await readOneByObjId(pickedArt._id!.toString())
         let fullArt: Art
@@ -297,10 +523,10 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         let commissionRate: number
         const artSpecificCommission = fullArt.comission
-  
+
         if (
           artSpecificCommission !== undefined &&
           artSpecificCommission !== null
@@ -323,11 +549,11 @@ export const updateOrder = async (
             `No specific commission for art '${line.item.art.title}'. Using default 10% for ${line.item.art.prixerUsername}.`
           )
         }
-  
+
         let lineSubtotal = 0
         const pricePerUnit = parseFloat(String(line.pricePerUnit))
         const quantity = line.quantity
-  
+
         if (
           !isNaN(pricePerUnit) &&
           !isNaN(quantity) &&
@@ -341,14 +567,14 @@ export const updateOrder = async (
           )
           continue
         }
-  
+
         const paymentAmount = lineSubtotal * commissionRate
-  
+
         if (paymentAmount > 0 && line.item.art.prixerUsername) {
           const prixerResult = await readUserByUsername(
             line.item.art.prixerUsername
           )
-  
+
           if (prixerResult.success && prixerResult.result) {
             const prixerUser = prixerResult.result as User
             const movement: Movement = {
@@ -421,6 +647,9 @@ export interface GlobalDashboardStatsData {
   orderStatusCounts: Record<string, number>
   prevPeriodTotalSales: number
   prevPeriodTotalOrders: number
+  totalOrdersAmount: number
+  totalPaidAmount: number
+  totalFinalizedAmount: number
 }
 
 export const readAllOrdersByDateRange = async (
@@ -464,7 +693,6 @@ export const calculateGlobalDashboardStats = async (
   try {
     const collection = orderCollection()
 
-    // --- Current Period Calculation ---
     const matchQuery = {
       createdOn: { $gte: startDate, $lte: endDate },
     }
@@ -477,6 +705,45 @@ export const calculateGlobalDashboardStats = async (
           totalSales: { $sum: "$total" },
           totalOrders: { $sum: 1 },
           totalUnits: { $sum: "$totalUnits" },
+          totalOrdersAmount: { $sum: "$total" },
+          totalPaidAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $eq: [
+                    { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
+                    GlobalPaymentStatus.Paid,
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
+          totalFinalizedAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $and: [
+                    {
+                      $eq: [
+                        { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] },
+                        OrderStatus.Finished,
+                      ],
+                    },
+                    {
+                      $eq: [
+                        { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
+                        GlobalPaymentStatus.Paid,
+                      ],
+                    },
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
         },
       },
       {
@@ -492,6 +759,9 @@ export const calculateGlobalDashboardStats = async (
               else: 0,
             },
           },
+          totalOrdersAmount: { $ifNull: ["$totalOrdersAmount", 0] },
+          totalPaidAmount: { $ifNull: ["$totalPaidAmount", 0] },
+          totalFinalizedAmount: { $ifNull: ["$totalFinalizedAmount", 0] },
         },
       },
     ]
@@ -501,6 +771,9 @@ export const calculateGlobalDashboardStats = async (
       totalOrders: 0,
       totalUnits: 0,
       averageOrderValue: 0,
+      totalOrdersAmount: 0,
+      totalPaidAmount: 0,
+      totalFinalizedAmount: 0,
     }
 
     // --- Previous Period Calculation ---
@@ -570,6 +843,9 @@ export const calculateGlobalDashboardStats = async (
       orderStatusCounts,
       prevPeriodTotalSales: prevStats.totalSales,
       prevPeriodTotalOrders: prevStats.totalOrders,
+      totalOrdersAmount: mainStats.totalOrdersAmount,
+      totalPaidAmount: mainStats.totalPaidAmount,
+      totalFinalizedAmount: mainStats.totalFinalizedAmount,
     }
 
     return {

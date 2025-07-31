@@ -12,6 +12,7 @@ declare global {
       admin?: { id: string };
       permissions?: any;
       adminUsername: string;
+      adminFullname?: string
     }
   }
 }
@@ -91,7 +92,7 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
     req.admin = decoded;
     req.permissions = permissionsResponse.result;
     req.adminUsername = adminObject.username;
-
+    req.adminFullname = `${adminObject.firstname} ${adminObject.lastname}`
     next();
   } catch (err) {
     next(err);
