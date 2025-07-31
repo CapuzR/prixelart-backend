@@ -25,6 +25,14 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
       updateArt: oldPerms.modifyArtBestSellers || oldPerms.updateArtBestSellers,
       deleteArt: false,
     },
+    announcement: {
+      createAnnouncement: false,
+      readAnnouncements: false,
+      updateAnnouncement: false,
+      deleteAnnouncement: false,
+      archiveAnnouncement: false,
+      enableAnnouncement: false 
+    },
     discounts: {
       createDiscount: oldPerms.createDiscount,
       deleteDiscount: oldPerms.deleteDiscount,

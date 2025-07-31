@@ -51,6 +51,14 @@ export interface PermissionsV2 {
     updateAdmin: boolean
     updateAdminRole: boolean
   }
+  announcement: {
+    createAnnouncement: boolean
+    readAnnouncements: boolean
+    updateAnnouncement: boolean
+    deleteAnnouncement: boolean
+    archiveAnnouncement: boolean
+    enableAnnouncement: boolean 
+  } 
   art: {
     artBan: boolean
     createArt: boolean
