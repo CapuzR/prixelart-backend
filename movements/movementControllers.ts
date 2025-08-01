@@ -58,13 +58,13 @@ export const readByAccount = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.movements.readMovementsByPrixer) {
-    res.send({
-      success: false,
-      message: "No tienes permiso para leer estos Movimientos.",
-    })
-    return
-  }
+  // if (!req.permissions?.movements.readMovementsByPrixer) {
+  //   res.send({
+  //     success: false,
+  //     message: "No tienes permiso para leer estos Movimientos.",
+  //   })
+  //   return
+  // }
 
   try {
     const result = await movementServices.readByAccount(req.body._id)

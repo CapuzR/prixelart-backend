@@ -13,7 +13,7 @@ router.post(
 )
 router.post(
   "/order/createv2",
-  userAuthControllers.ensureAuthenticated,
+  // userAuthControllers.ensureAuthenticated,
   orderControllers.createOrder4Client
 )
 router.get("/order/read/:id", orderControllers.readOrder)
@@ -22,7 +22,11 @@ router.get(
   adminControllers.ensureAuthenticated,
   orderControllers.readAllOrders
 )
-router.post("/order/byEmail", orderControllers.readOrdersByEmail)
+router.post(
+  "/order/byEmail",
+  userAuthControllers.ensureAuthenticated,
+  orderControllers.readOrdersByEmail
+)
 
 router.get(
   "/orders",

@@ -17,8 +17,8 @@ router.get(
   accountControllers.checkBalance
 )
 
-router.post(
-    "/account/readById",
+router.get(
+    "/account/readMyAccount/:id",
     userAuthControllers.ensureAuthenticated,
     accountControllers.checkBalance
   )
