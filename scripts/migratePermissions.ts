@@ -52,7 +52,7 @@ function transformPermissionsToV2(oldPerms: Permissions): PermissionsV2 {
     orders: {
       archiveOrder: false,
       create: oldPerms.createOrder,
-      deleteOrder: oldPerms.deleteProduct, // Asumo que deleteProduct era el permiso genérico de eliminación más cercano
+      deleteOrder: false, // Asumo que deleteProduct era el permiso genérico de eliminación más cercano
       downloadData: false,
       readHistory: oldPerms.detailOrder,
       readAllOrders: true,

@@ -199,7 +199,7 @@ export const updatePermissions = async (req: Request, res: Response, next: NextF
 export const deletePermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.permissions.deleteAdminRole) {
+    if (!req.permissions?.admins.deleteAdminRole) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
