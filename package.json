@@ -7,7 +7,9 @@
   "scripts": {
     "start": "ts-node --loader start.ts",
     "dev": "nodemon start.ts",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "run:migration": "yarn migrate:permissions",
+    "migrate:permissions": "node --loader ts-node/esm scripts/migratePermissions.ts"
   },
   "jest": {
     "collectCoverage": true,
