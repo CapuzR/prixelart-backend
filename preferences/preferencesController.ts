@@ -43,10 +43,9 @@ export const createCarouselItem = async (
     }
     const spacesUrl = `${process.env.PUBLIC_BUCKET_URL}/${fileId}`;
 
-    // Now hand off to your service using the public‑facing URL:
     const result = await preferenceService.createCarouselItem({
       type,
-      imageURL: spacesUrl,
+      imageURL: imageURL,
     });
 
     if (result.success) {

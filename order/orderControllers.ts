@@ -230,7 +230,6 @@ export const getGlobalOrders = async (
       })
       return
     }
-
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
     thirtyDaysAgo.setHours(0, 0, 0, 0)
