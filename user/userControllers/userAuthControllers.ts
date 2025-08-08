@@ -25,8 +25,8 @@ export const register = async (req: Request, res: Response, next: NextFunction):
       res.cookie("token", token, {
         secure: isProduction,
         httpOnly: true,
-        sameSite: isProduction ? "none" : "lax",
-        domain: isProduction ? ".prixelart.com" : "localhost",
+        sameSite: "none",
+        domain: ".prixelart.com",
         path: "/",
         maxAge: 240 * 60 * 1000,
       }).send(result);
@@ -105,8 +105,8 @@ export const logout = async (req: Request, res: Response, next: NextFunction): P
     res.clearCookie("token", {
       secure: isProduction,
       httpOnly: true,
-      sameSite: isProduction ? "none" : "lax",
-      domain: isProduction ? ".prixelart.com" : "localhost",
+      sameSite: "none",
+      domain: ".prixelart.com",
       path: "/",
     });
     res.send(response);
