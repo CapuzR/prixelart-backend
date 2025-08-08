@@ -7,10 +7,6 @@ export const createService = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // if (!req.permissions?.createService) {
-  //   res.status(403).send({ success: false, message: "No autorizado." });
-  //   return;
-  // }
   // const sessionImgs = req.session?.uploadResults?.serviceImages || [];
   // const imageUrls = sessionImgs
   //   .filter((f: any) => f.purpose === "ServiceImage")
@@ -156,14 +152,6 @@ export const updateMyService = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.updateMyService) {
-    res.status(403).send({
-      success: false,
-      message: "No tienes permiso para actualizar servicios.",
-    })
-    return
-  }
-
   try {
     const sessionImgs = req.session?.uploadResults?.serviceImages || []
     const newImageUrls = sessionImgs
@@ -228,7 +216,7 @@ export const disableService = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.prixerBan) {
+  if (!req.permissions?.art.artBan) {
     res.status(403).send({
       success: false,
       message: "No tienes permiso para actualizar servicios.",
@@ -250,14 +238,6 @@ export const deleteService = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.updateMyService) {
-    res.status(403).send({
-      success: false,
-      message: "No tienes permiso para actualizar servicios.",
-    })
-    return
-  }
-
   try {
     const serviceToDelete = await serviceServices.deleteService(req.params.id)
     res.send(serviceToDelete)

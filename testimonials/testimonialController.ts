@@ -4,7 +4,7 @@ import { Testimonial } from "./testimonialModel.ts";
 
 export const createTestimonial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createTestimonial) {
+    if (!req.permissions?.testimonials.createTestimonial) {
       res.send({
         success: false,
         message: "No tienes permiso para cargar Testimonials.",
@@ -69,7 +69,7 @@ export const readById = async (req: Request, res: Response, next: NextFunction):
 
 export const updateTestimonial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createTestimonial) {
+    if (!req.permissions?.testimonials.updateTestimonial) {
       res.send({
         success: false,
         message: "No tienes permiso para cargar Testimonials.",
@@ -103,7 +103,7 @@ export const updateTestimonial = async (req: Request, res: Response, next: NextF
 export const updateTestimonialOrderController = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.createTestimonial) {
+    if (!req.permissions?.testimonials.updateTestimonial) {
       res.status(403).send({
         success: false,
         message: "No tienes permiso para reordenar Testimonials.",
@@ -132,7 +132,7 @@ export const updateTestimonialOrderController = async (req: Request, res: Respon
 
 export const deleteTestimonial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.deleteTestimonial) {
+    if (!req.permissions?.testimonials.deleteTestimonial) {
       res.send({
         success: false,
         message: "No tienes permiso para eliminar Testimonials.",

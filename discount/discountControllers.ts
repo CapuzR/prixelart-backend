@@ -6,7 +6,7 @@ import { Discount } from "./discountModel.ts";
 
 export const createDiscount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createDiscount) {
+    if (!req.permissions?.discounts.createDiscount) {
       res.send({ success: false, message: "No tienes permiso para crear descuentos." });
       return;
     }
@@ -68,7 +68,7 @@ export const createDiscount = async (req: Request, res: Response, next: NextFunc
 
 export const updateDiscount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createDiscount) {
+    if (!req.permissions?.discounts.updateDiscount) {
       res.send({ success: false, message: "No tienes permiso para actualizar descuentos." });
       return;
     }
@@ -132,7 +132,7 @@ export const readAllDiscountsAdmin = async (req: Request, res: Response, next: N
 
 export const deleteDiscount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.deleteDiscount) {
+    if (!req.permissions?.discounts.deleteDiscount) {
       res.send({ success: false, message: "No tienes permiso para eliminar descuentos." });
       return;
     }

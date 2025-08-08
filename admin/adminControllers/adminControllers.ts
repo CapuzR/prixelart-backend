@@ -7,7 +7,7 @@ import { PrixResponse } from "../../types/responseModel.ts";
 export const createAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.createAdmin) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -36,7 +36,7 @@ export const getSellers = async (req: Request, res: Response, next: NextFunction
 export const readAllAdmins = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.readAdmins) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -79,7 +79,7 @@ export const readByUsername = async (req: Request, res: Response, next: NextFunc
 export const updateAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.updateAdmin) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -102,7 +102,7 @@ export const updateAdmin = async (req: Request, res: Response, next: NextFunctio
 export const deleteAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.deleteAdmin) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -124,7 +124,7 @@ export const deleteAdmin = async (req: Request, res: Response, next: NextFunctio
 export const createPermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.createAdminRole) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -177,7 +177,7 @@ export const readPermissionsById = async (req: Request, res: Response, next: Nex
 export const updatePermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.updateAdminRole) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",
@@ -186,37 +186,8 @@ export const updatePermissions = async (req: Request, res: Response, next: NextF
     }
 
     const idToUpdate = req.params.id;
-    const updateRole = {
-      area: req.body.area,
-      createConsumer: req.body.createConsumer,
-      createDiscount: req.body.createDiscount,
-      createOrder: req.body.createOrder,
-      createPaymentMethod: req.body.createPaymentMethod,
-      createProduct: req.body.createProduct,
-      createShippingMethod: req.body.createShippingMethod,
-      createTestimonial: req.body.createTestimonial,
-      deleteConsumer: req.body.deleteConsumer,
-      deleteDiscount: req.body.deleteDiscount,
-      deletePaymentMethod: req.body.deletePaymentMethod,
-      deleteProduct: req.body.deleteProduct,
-      deleteShippingMethod: req.body.deleteShippingMethod,
-      deleteTestimonial: req.body.deleteTestimonial,
-      detailOrder: req.body.detailOrder,
-      detailPay: req.body.detailPay,
-      modifyAdmins: req.body.modifyAdmins,
-      modifyBanners: req.body.modifyBanners,
-      modifyDollar: req.body.modifyDollar,
-      modifyTermsAndCo: req.body.modifyTermsAndCo,
-      orderStatus: req.body.orderStatus,
-      prixerBan: req.body.prixerBan,
-      readConsumers: req.body.readConsumers,
-      readMovements: req.body.readMovements,
-      setPrixerBalance: req.body.setPrixerBalance,
-      artBan: req.body.artBan,
-      modifyBestSellers: req.body.modifyBestSellers,
-      modifyArtBestSellers: req.body.modifyArtBestSellers,
-    };
-    const updatedPermissions = await adminServices.updatePermissions(idToUpdate, updateRole);
+    const permissionsPayload = req.body;
+    const updatedPermissions = await adminServices.updatePermissions(idToUpdate, permissionsPayload);
     res.send(updatedPermissions);
     return;
   } catch (err) {
@@ -228,7 +199,7 @@ export const updatePermissions = async (req: Request, res: Response, next: NextF
 export const deletePermissions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    if (!req.permissions?.modifyAdmins) {
+    if (!req.permissions?.admins.deleteAdminRole) {
       res.send({
         success: false,
         message: "No tienes permiso para modificar administradores.",

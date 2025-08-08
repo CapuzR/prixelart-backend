@@ -9,7 +9,7 @@ export const createOrder = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createOrder) {
+    if (!req.permissions?.orders.create) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -49,7 +49,7 @@ export const addVoucher = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createOrder) {
+    if (!req.permissions?.orders.updatePayDetails) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -94,13 +94,13 @@ export const readAllOrders = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // if (!req.permissions?.createOrder) {
-  //   res.send({
-  //     success: false,
-  //     message: "No tienes autorización para leer todos los pedidos.",
-  //   })
-  //   return
-  // }
+  if (!req.permissions?.orders.readAllOrders) {
+    res.send({
+      success: false,
+      message: "No tienes autorización para leer todos los pedidos.",
+    })
+    return
+  }
 
   try {
     const results = await orderServices.readAllOrders()
@@ -123,7 +123,7 @@ export const readOrdersByEmail = async (
   //   })
   //   return
   // }
-  // TODO: apply a validation for users
+  // TODO: apply a validation for users !
 
   try {
     const results = await orderServices.readOrdersByEmail(req.body)
@@ -139,7 +139,7 @@ export const updateOrder = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.createOrder) {
+  if (!req.permissions?.orders.updateDetails) {
     res.send({
       success: false,
       message: "No tienes autorización para realizar esta acción.",
@@ -158,20 +158,22 @@ export const updateOrder = async (
       return
     }
     if (Object.keys(updateData).length === 0) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "No se proporcionaron datos para actualizar.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "No se proporcionaron datos para actualizar.",
+      })
       return
     }
 
     delete updateData._id
     delete updateData.createdOn
-    
-    const result = await orderServices.updateOrder(orderId, updateData, req.adminUsername)
-    res.send(result)
+
+    const result = await orderServices.updateOrderAndProcessCommissions(
+      orderId,
+      updateData,
+      req.adminUsername
+    )
+    res.status(result.success ? 200 : 400).send(result)
   } catch (err) {
     console.error("Error in updateOrder controller:", err)
     next(err)
@@ -184,7 +186,7 @@ export const deleteOrder = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createOrder) {
+    if (!req.permissions?.orders.deleteOrder) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -221,14 +223,13 @@ export const getGlobalOrders = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.orders.readAllOrders) {
-    //   res.send({
-    //     success: false,
-    //     message: "No tienes autorización para realizar esta acción.",
-    //   })
-    //   return
-    // }
-
+    if (!req.permissions?.orders.readAllOrders) {
+      res.send({
+        success: false,
+        message: "No tienes autorización para realizar esta acción.",
+      })
+      return
+    }
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
     thirtyDaysAgo.setHours(0, 0, 0, 0)
@@ -238,12 +239,10 @@ export const getGlobalOrders = async (
     endDate.setHours(23, 59, 59, 999)
 
     if (startDate > endDate) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Start date cannot be after end date.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      })
       return
     }
 
@@ -273,12 +272,10 @@ export const getGlobalDashboardStats = async (
     endDate.setHours(23, 59, 59, 999)
 
     if (startDate > endDate) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Start date cannot be after end date.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      })
       return
     }
 
@@ -310,21 +307,17 @@ export const getGlobalTopPerformingItems = async (
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 5
 
     if (startDate > endDate) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Start date cannot be after end date.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Start date cannot be after end date.",
+      })
       return
     }
     if (isNaN(limit) || limit <= 0) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Invalid limit provided. Must be a positive number.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Invalid limit provided. Must be a positive number.",
+      })
       return
     }
 
@@ -357,7 +350,10 @@ export const getSellerPerformance = async (
     if (startDate > endDate) {
       res
         .status(400)
-        .send({ success: false, message: "Start date cannot be after end date." })
+        .send({
+          success: false,
+          message: "Start date cannot be after end date.",
+        })
       return
     }
 
@@ -386,7 +382,10 @@ export const getPrixerPerformance = async (
     if (startDate > endDate) {
       res
         .status(400)
-        .send({ success: false, message: "Start date cannot be after end date." })
+        .send({
+          success: false,
+          message: "Start date cannot be after end date.",
+        })
       return
     }
 
@@ -415,7 +414,10 @@ export const getProductPerformance = async (
     if (startDate > endDate) {
       res
         .status(400)
-        .send({ success: false, message: "Start date cannot be after end date." })
+        .send({
+          success: false,
+          message: "Start date cannot be after end date.",
+        })
       return
     }
 
@@ -466,29 +468,29 @@ export const getArtPerformance = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
-    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
 
-    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
-    const endDate = parseDateQuery(req.query.endDate, new Date());
-    endDate.setHours(23, 59, 59, 999);
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
 
     if (startDate > endDate) {
       res.status(400).send({
         success: false,
         message: "Start date cannot be after end date.",
-      });
-      return;
+      })
+      return
     }
 
-    const result = await orderServices.getArtPerformance(startDate, endDate);
-    res.send(result);
+    const result = await orderServices.getArtPerformance(startDate, endDate)
+    res.send(result)
   } catch (err) {
-    console.error("[Controller Error] getArtPerformance:", err);
-    next(err);
+    console.error("[Controller Error] getArtPerformance:", err)
+    next(err)
   }
-};
+}
 
 export const getCustomerAnalytics = async (
   req: Request,
@@ -496,29 +498,29 @@ export const getCustomerAnalytics = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
-    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
 
-    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
-    const endDate = parseDateQuery(req.query.endDate, new Date());
-    endDate.setHours(23, 59, 59, 999);
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
 
     if (startDate > endDate) {
       res.status(400).send({
         success: false,
         message: "Start date cannot be after end date.",
-      });
-      return;
+      })
+      return
     }
 
-    const result = await orderServices.getCustomerAnalytics(startDate, endDate);
-    res.send(result);
+    const result = await orderServices.getCustomerAnalytics(startDate, endDate)
+    res.send(result)
   } catch (err) {
-    console.error("[Controller Error] getCustomerAnalytics:", err);
-    next(err);
+    console.error("[Controller Error] getCustomerAnalytics:", err)
+    next(err)
   }
-};
+}
 
 export const getCycleTimeAnalytics = async (
   req: Request,
@@ -526,29 +528,29 @@ export const getCycleTimeAnalytics = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
-    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+    thirtyDaysAgo.setHours(0, 0, 0, 0)
 
-    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo);
-    const endDate = parseDateQuery(req.query.endDate, new Date());
-    endDate.setHours(23, 59, 59, 999);
+    const startDate = parseDateQuery(req.query.startDate, thirtyDaysAgo)
+    const endDate = parseDateQuery(req.query.endDate, new Date())
+    endDate.setHours(23, 59, 59, 999)
 
     if (startDate > endDate) {
       res.status(400).send({
         success: false,
         message: "Start date cannot be after end date.",
-      });
-      return;
+      })
+      return
     }
 
-    const result = await orderServices.getCycleTimeAnalytics(startDate, endDate);
-    res.send(result);
+    const result = await orderServices.getCycleTimeAnalytics(startDate, endDate)
+    res.send(result)
   } catch (err) {
-    console.error("[Controller Error] getCycleTimeAnalytics:", err);
-    next(err);
+    console.error("[Controller Error] getCycleTimeAnalytics:", err)
+    next(err)
   }
-};
+}
 
 // PaymentMethod
 
@@ -558,24 +560,20 @@ export const createPaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para crear métodos de pago.",
-        })
+    if (!req.permissions.paymentMethods.createPaymentMethod) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes autorización para crear métodos de pago.",
+      })
       return
     }
 
     const methodData = req.body as PaymentMethod
     if (!methodData || !methodData.name) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Datos de método de pago incompletos (se requiere nombre).",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Datos de método de pago incompletos (se requiere nombre).",
+      })
       return
     }
 
@@ -593,13 +591,11 @@ export const readPaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para leer métodos de pago.",
-        })
+    if (!req.permissions?.paymentMethods.readAllPaymentMethod) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes autorización para leer métodos de pago.",
+      })
       return
     }
 
@@ -618,9 +614,14 @@ export const readAllPaymentMethods = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
-      res.status(403).send({ success: false, message: "No tienes autorización para leer métodos de pago." });
-      return;
+    if (!req.permissions?.paymentMethods.readAllPaymentMethod) {
+      res
+        .status(403)
+        .send({
+          success: false,
+          message: "No tienes autorización para leer métodos de pago.",
+        })
+      return
     }
 
     const resultPaymentMethods = await orderServices.readAllPaymentMethods()
@@ -651,13 +652,11 @@ export const updatePaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createPaymentMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para actualizar métodos de pago.",
-        })
+    if (!req.permissions?.paymentMethods.updatePaymentMethod) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes autorización para actualizar métodos de pago.",
+      })
       return
     }
 
@@ -671,12 +670,10 @@ export const updatePaymentMethod = async (
       return
     }
     if (!updateData || Object.keys(updateData).length === 0) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "No se proporcionaron datos para actualizar.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "No se proporcionaron datos para actualizar.",
+      })
       return
     }
 
@@ -694,7 +691,7 @@ export const deletePaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.deletePaymentMethod) {
+    if (!req.permissions?.paymentMethods.deletePaymentMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -725,7 +722,7 @@ export const createShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createShippingMethod) {
+    if (!req.permissions?.shippingMethod.createShippingMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -735,12 +732,10 @@ export const createShippingMethod = async (
 
     const methodData = req.body as ShippingMethod
     if (!methodData || !methodData.name) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "Datos de método de envío incompletos (se requiere nombre).",
-        })
+      res.status(400).send({
+        success: false,
+        message: "Datos de método de envío incompletos (se requiere nombre).",
+      })
       return
     }
 
@@ -758,7 +753,7 @@ export const readAllShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createShippingMethod) {
+    if (!req.permissions?.shippingMethod.readAllShippingMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -793,7 +788,7 @@ export const readShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createShippingMethod) {
+    if (!req.permissions?.shippingMethod.readAllShippingMethod) {
       res.send({
         success: false,
         message: "No tienes autorización para realizar esta acción.",
@@ -816,13 +811,11 @@ export const updateShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createShippingMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para actualizar métodos de envío.",
-        })
+    if (!req.permissions?.shippingMethod.updateShippingMethod) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes autorización para actualizar métodos de envío.",
+      })
       return
     }
 
@@ -836,12 +829,10 @@ export const updateShippingMethod = async (
       return
     }
     if (!updateData || Object.keys(updateData).length === 0) {
-      res
-        .status(400)
-        .send({
-          success: false,
-          message: "No se proporcionaron datos para actualizar.",
-        })
+      res.status(400).send({
+        success: false,
+        message: "No se proporcionaron datos para actualizar.",
+      })
       return
     }
 
@@ -862,13 +853,11 @@ export const deleteShippingMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.deleteShippingMethod) {
-      res
-        .status(403)
-        .send({
-          success: false,
-          message: "No tienes autorización para eliminar métodos de envío.",
-        })
+    if (!req.permissions?.shippingMethod.deleteShippingMethod) {
+      res.status(403).send({
+        success: false,
+        message: "No tienes autorización para eliminar métodos de envío.",
+      })
       return
     }
 

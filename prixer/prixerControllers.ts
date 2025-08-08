@@ -9,7 +9,7 @@ export const promoteToPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
+    if (!req.permissions?.users.promoteToPrixer) {
       res.status(403).send({
         success: false,
         message: "You do not have permission to promote users to Prixers.",
@@ -40,13 +40,7 @@ export const createPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
-      res.status(403).send({
-        success: false,
-        message: "No tienes permiso para crear perfiles de Prixer.",
-      })
-      return
-    }
+    // CAN'T use adminAuth permissions cause this process is users only !
 
     const userId = req.params.userId
     if (!userId) {
@@ -154,7 +148,7 @@ export const readAllPrixers = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createOrder) {
+    if (!req.permissions?.users.readAllUsers) {
       res.send({
         success: false,
         message: "No tienes permiso para editar un Prixer.",
@@ -202,7 +196,7 @@ export const updatePrixer = async (
     }
 
     const isOwner = req.userId && req.userId === idToUpdate;
-    const isAdminWithPermission = req.permissions?.prixerBan;
+    const isAdminWithPermission = req.permissions?.users.updateUser;
 
     if (!isOwner && !isAdminWithPermission) {
       res.status(403).send({
@@ -251,7 +245,7 @@ export const updateVisibility = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
+    if (!req.permissions?.users.prixerBan) {
       res.send({
         success: false,
         message: "No tienes permiso para cambiar visibilidad.",
@@ -273,7 +267,7 @@ export const updateTermsAgreeGeneral = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
+    if (!req.permissions?.preferences.updateTermsAndCo) {
       res.send({
         success: false,
         message: "No tienes permiso para perfiles globales.",
@@ -315,7 +309,7 @@ export const destroyPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.prixerBan) {
+    if (!req.permissions?.users.deleteUser) {
       res.send({
         success: false,
         message: "No tienes permiso para eliminar un Prixer.",

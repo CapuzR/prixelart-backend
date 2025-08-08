@@ -9,8 +9,9 @@ import {
 } from "./orderModel.ts"
 import { Collection, FindOneAndUpdateOptions, ObjectId } from "mongodb"
 import { PrixResponse } from "../types/responseModel.ts"
-import { getDb } from "../mongo.ts"
+import { getDb, getMongoClient } from "../mongo.ts"
 import { User } from "../user/userModel.ts"
+import { Account } from "../account/accountModel.ts"
 import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
@@ -34,6 +35,14 @@ function shippingMethodCollection(): Collection<ShippingMethod> {
 
 function adminCollection(): Collection<Admin> {
   return getDb().collection<Admin>("admin")
+}
+
+function movementCollection(): Collection<Movement> {
+  return getDb().collection<Movement>("movements")
+}
+
+function accountCollection(): Collection<Account> {
+  return getDb().collection<Account>("account")
 }
 
 export const createOrder = async (
@@ -242,261 +251,46 @@ export const addVoucher = async (
   }
 }
 
-const fieldMappings: Record<string, string> = {
-  status: "Estado general del pedido",
-  seller: "Vendedor",
-  observations: "Observaciones",
-
-  "consumerDetails.basic.name": "Nombre del cliente",
-  "consumerDetails.basic.lastName": "Apellido del cliente",
-  "consumerDetails.basic.email": "Email del cliente",
-  "consumerDetails.basic.phone": "Teléfono del cliente",
-  "consumerDetails.selectedAddress": "Dirección del cliente",
-
-  "shipping.method": "Método de envío",
-  "shipping.address.city": "Dirección de envío",
-  "shipping.preferredDeliveryDate": "Fecha aproximada para entrega",
-
-  "billing.billTo": "Datos básicos de facturación",
-  "billing.address": "Dirección de facturación",
-
-  // Estado del Pago (PaymentDetails)
-  "payment.status": "Estado del pago",
-  "payment.payment": "Cuota(s) de pago",
-
-  subTotal: "Subtotal",
-  shippingCost: "Costo de envío",
-  // tax: "Impuestos",
-  totalWithoutTax: "Total sin impuestos",
-  total: "Total",
-
-  "lines.status": "Estado del item",
-  "lines.item": "Item",
-  "lines.quantity": "Cantidad del item",
-  "lines.pricePerUnit": "Estado del item",
-  "lines.subtotal": "Subtotal del item",
-}
-
-function getNestedValue(obj: any, path: string): any {
-  return path
-    .split(".")
-    .reduce((o, key) => (o && o[key] !== "undefined" ? o[key] : undefined), obj)
-}
-
-function compareOrderLines(
-  oldLines: OrderLine[],
-  newLines: OrderLine[],
-  adminUsername: string,
-  timestamp: Date
-): HistoryEntry[] {
-  const entries: HistoryEntry[] = []
-  const oldLinesMap = new Map(oldLines.map((line) => [line.id, line]))
-  const newLinesSet = new Set(newLines.map((line) => line.id))
-
-  for (const newLine of newLines) {
-    const oldLine = oldLinesMap.get(newLine.id)
-    const itemName =
-      newLine.item.product.name || `item con SKU ${newLine.item.sku}`
-
-    if (oldLine) {
-      if (oldLine.quantity !== newLine.quantity) {
-        entries.push({
-          timestamp,
-          user: adminUsername,
-          description: `Para el item "${itemName}", la cantidad cambió de ${oldLine.quantity} a ${newLine.quantity}.`,
-        })
-      }
-
-      const oldStatus = oldLine.status?.[oldLine.status.length - 1]?.[0]
-      const newStatus = newLine.status?.[newLine.status.length - 1]?.[0]
-      if (oldStatus !== newStatus) {
-        entries.push({
-          timestamp,
-          user: adminUsername,
-          description: `El estado del item "${itemName}" cambió de "${OrderStatus[oldStatus]}" a "${OrderStatus[newStatus]}".`,
-        })
-      }
-    } else {
-      entries.push({
-        timestamp,
-        user: adminUsername,
-        description: `Se añadió el item "${itemName}" al pedido.`,
-      })
-    }
-  }
-
-  for (const oldLine of oldLines) {
-    if (!newLinesSet.has(oldLine.id)) {
-      const itemName =
-        oldLine.item.product.name || `item con SKU ${oldLine.item.sku}`
-      entries.push({
-        timestamp,
-        user: adminUsername,
-        description: `Se eliminó el item "${itemName}" del pedido.`,
-      })
-    }
-  }
-
-  return entries
-}
-const orderStatusTranslations: { [key: string]: string } = {
-  Pending: "Pendiente",
-  Impression: "En Impresión",
-  Production: "En Producción",
-  ReadyToShip: "Listo para Enviar",
-  Delivered: "Entregado",
-  Finished: "Concretado",
-  Paused: "Pausado",
-  Canceled: "Cancelado",
-}
-
-const globalPaymentStatusTranslations: { [key: string]: string } = {
-  Pending: "Pendiente",
-  Credited: "Abonado",
-  Paid: "Pagado",
-  Cancelled: "Cancelado",
-}
-
-export function generateHistoryEntries(
-  oldOrder: Order,
-  updatePayload: Partial<Order>,
-  adminUsername: string
-): HistoryEntry[] {
-  let entries: HistoryEntry[] = []
-  const timestamp = new Date()
-
-  for (const path in fieldMappings) {
-    const oldValue = getNestedValue(oldOrder, path)
-    const newValue = getNestedValue(updatePayload, path)
-    const fieldName = fieldMappings[path]
-
-    if (
-      newValue !== undefined &&
-      JSON.stringify(oldValue) !== JSON.stringify(newValue)
-    ) {
-      let description = `Se actualizó ${fieldName} de **${oldValue}** a **${newValue}**.`
-
-      if (
-        path === "lines" &&
-        Array.isArray(oldValue) &&
-        Array.isArray(newValue)
-      ) {
-        const lineEntries = compareOrderLines(
-          oldValue,
-          newValue,
-          adminUsername,
-          timestamp
-        )
-        entries = [...entries, ...lineEntries]
-      }
-
-      if (path === "status" || path === "payment.status") {
-        const oldStatus = oldValue?.[oldValue.length - 1]?.[0]
-        const newStatus = newValue?.[newValue.length - 1]?.[0]
-        const statusEnum = path === "status" ? OrderStatus : GlobalPaymentStatus
-        const translations =
-          path === "status"
-            ? orderStatusTranslations
-            : globalPaymentStatusTranslations
-
-        const oldStatusText =
-          translations[statusEnum[oldStatus]] ?? statusEnum[oldStatus]
-        const newStatusText =
-          translations[statusEnum[newStatus]] ?? statusEnum[newStatus]
-
-        if (oldStatus !== newStatus) {
-          description = `${fieldName} cambió de **${oldStatusText}** a **${newStatusText}**.`
-        }
-      }
-
-      entries.push({
-        timestamp,
-        user: adminUsername,
-        description,
-      })
-    }
-  }
-
-  return entries
-}
-
-export const updateOrder = async (
+export const updateOrderAndProcessCommissions = async (
   id: string,
   update: Partial<Order>,
   adminUsername: string
 ): Promise<PrixResponse> => {
+  const client = getMongoClient()
+  const session = client.startSession()
+
+  let response: PrixResponse = {
+    success: false,
+    message: "La operación no se completó.",
+  }
+
   try {
-    const order = orderCollection()
+    session.startTransaction()
+
+    const orders = orderCollection()
+    const movements = movementCollection()
+    const accounts = accountCollection()
     const orderObjectId = new ObjectId(id)
-    let currentOrder = await order.findOne({ _id: orderObjectId })
 
-    if (!currentOrder) {
-      return { success: false, message: "Orden no encontrada." }
-    }
-
-    if (!currentOrder.history || currentOrder.history.length === 0) {
-      const initialEntry: HistoryEntry = {
-        timestamp: currentOrder.createdOn,
-        user: currentOrder.createdBy || currentOrder.seller || "Sistema",
-        description: "Pedido creado.",
-      }
-
-      await order.updateOne(
-        { _id: orderObjectId },
-        { $set: { history: [initialEntry] } }
-      )
-
-      currentOrder = await order.findOne({ _id: orderObjectId })
-    }
-
-    const historyEntries = generateHistoryEntries(
-      currentOrder!,
-      update,
-      adminUsername
+    const updatedOrder = await orders.findOneAndUpdate(
+      { _id: orderObjectId },
+      { $set: update },
+      { returnDocument: "after", session }
     )
 
-    const updateOperation: any = { $set: update }
-    if (historyEntries.length > 0) {
-      updateOperation.$push = {
-        history: { $each: historyEntries },
-      }
+    if (!updatedOrder) {
+      throw new Error("Orden no encontrada o no se pudo actualizar.")
     }
-
-    const updatedOrder = await order.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      updateOperation,
-      { returnDocument: "after" }
-    )
-
-    if (updatedOrder === null) {
-      return {
-        success: false,
-        message: "Orden no encontrada o no se pudo actualizar.",
-      }
-    }
-
-    const updatedOrderStatus =
-      updatedOrder.status?.[updatedOrder.status.length - 1]?.[0]
-    const updatedPaymentStatus =
-      updatedOrder.payment?.status?.[
-        updatedOrder.payment.status.length - 1
-      ]?.[0]
-
-    const previousOrderStatus =
-      currentOrder!.status?.[currentOrder!.status.length - 1]?.[0]
-    const previousPaymentStatus =
-      currentOrder!.payment?.status?.[
-        currentOrder!.payment.status.length - 1
-      ]?.[0]
 
     const shouldProcessCommissions =
-      updatedOrderStatus === OrderStatus.Finished &&
-      updatedPaymentStatus === GlobalPaymentStatus.Paid &&
-      (updatedOrderStatus !== previousOrderStatus ||
-        updatedPaymentStatus !== previousPaymentStatus)
+      updatedOrder.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
+      updatedOrder.payment?.status?.slice(-1)[0]?.[0] ===
+        GlobalPaymentStatus.Paid
+    // && !updatedOrder.commissionsProcessed;
+
     if (shouldProcessCommissions) {
       console.log(
-        `Status de la orden ${updatedOrder._id || updatedOrder.number} Concretado y pagado. Procesando comisiones.`
+        `Procesando comisiones para la orden ${updatedOrder.number}...`
       )
 
       for (const line of updatedOrder.lines) {
@@ -574,10 +368,10 @@ export const updateOrder = async (
           const prixerResult = await readUserByUsername(
             line.item.art.prixerUsername
           )
+          const prixerUser = prixerResult.result as User
 
-          if (prixerResult.success && prixerResult.result) {
-            const prixerUser = prixerResult.result as User
-            const movement: Movement = {
+          if (paymentAmount > 0 && prixerUser?.account) {
+            const commissionMovement: Movement = {
               date: new Date(),
               createdOn: new Date(),
               destinatary: prixerUser.account,
@@ -586,35 +380,48 @@ export const updateOrder = async (
               value: parseFloat(paymentAmount.toFixed(2)),
               order: updatedOrder._id.toString(),
               createdBy: adminUsername,
-              item: {
-                //  productId: line.item.product?._id?.toString() || 'unknown',
-                //  variantId: line.item.product?.selection?.[0]?.value || undefined,
-              },
             }
-            await updateBalance(movement)
-            await createMovement(movement)
-            console.log(
-              `Comisión de ${paymentAmount.toFixed(2)} procesada para ${line.item.art.prixerUsername} (Orden ${updatedOrder.number || updatedOrder._id}).`
+
+            await movements.insertOne(commissionMovement, { session })
+
+            await accounts.updateOne(
+              { _id: prixerUser.account },
+              { $inc: { balance: commissionMovement.value } },
+              { session }
             )
-          } else {
-            console.warn(
-              `Prixer user not found for username: ${line.item.art.prixerUsername}. Skipping commission.`
+            console.log(
+              `Comisión para ${prixerUser.username} encolada en la transacción.`
             )
           }
         }
+
+        await orders.updateOne(
+          { _id: orderObjectId },
+          { $set: { commissionsProcessed: true } },
+          { session }
+        )
+        console.log(`Orden ${updatedOrder.number} marcada como procesada.`)
       }
     }
+    await session.commitTransaction()
 
-    return updatedOrder
-      ? {
-          success: true,
-          message: "Órden actualizada con éxito",
-          result: updatedOrder,
-        }
-      : { success: false, message: "Orden no encontrada." }
-  } catch (e) {
-    return { success: false, message: `Error: ${e}` }
+    response = {
+      success: true,
+      message: "Orden actualizada exitosamente.",
+      result: updatedOrder,
+    }
+    console.log("¡Transacción confirmada! Orden actualizada.")
+  } catch (e: unknown) {
+    if (session.inTransaction()) {
+      await session.abortTransaction()
+    }
+    console.error("Error en la transacción de actualizar orden:", e)
+    const msg = e instanceof Error ? e.message : String(e)
+    response = { success: false, message: `Error en la transacción: ${msg}` }
+  } finally {
+    await session.endSession()
   }
+  return response
 }
 
 export const deleteOrder = async (orderId: string): Promise<PrixResponse> => {

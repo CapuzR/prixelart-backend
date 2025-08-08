@@ -12,7 +12,7 @@ export const createProduct = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
+    if (!req.permissions?.products.createProduct) {
       res.send({
         success: false,
         message: "No tienes permiso para crear productos.",
@@ -83,7 +83,7 @@ export const readById = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.createProduct) {
+  if (!req.permissions?.products.readAllProducts) {
     res.send({
       success: false,
       message: "No tienes permiso para actualizar productos.",
@@ -191,7 +191,7 @@ export const readAllProducts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
+    if (!req.permissions?.products.readAllProducts) {
       res.send({
         success: false,
         message: "No tienes permiso para actualizar productos.",
@@ -243,7 +243,7 @@ export const updateProduct = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
+    if (!req.permissions?.products.updateProduct) {
       res.send({
         success: false,
         message: "No tienes permiso para actualizar productos.",
@@ -292,7 +292,7 @@ export const updateManyProducts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (req.permissions?.area !== "Master") {
+    if (req.permissions?.products.updateProduct) {
       res.status(403).send({
         success: false,
         message:
@@ -580,7 +580,7 @@ export const deleteProduct = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.deleteProduct) {
+    if (!req.permissions?.products.deleteProduct) {
       res.send({
         success: false,
         message: "No tienes permiso para eliminar productos.",
@@ -601,7 +601,7 @@ export const deleteVariant = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.createProduct) {
+    if (!req.permissions?.products.deleteVariant) {
       res.send({
         success: false,
         message: "No tienes permiso para actualizar productos.",

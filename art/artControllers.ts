@@ -13,10 +13,10 @@ export const createArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    //  if (!req.permissions?.createProduct) {
-    //   res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
-    //   return;
-    // }
+     if (!req.permissions?.products.createProduct) {
+      res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
+      return;
+    }
 
     // TUS-uploaded image stored in session.uploadResults.images
     // const imageUrl =
@@ -62,7 +62,7 @@ export const updateArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyArtBestSellers) {
+    if (!req.permissions?.art.updateArt) {
       res
         .status(403)
         .send({
@@ -100,15 +100,15 @@ export const readAllArts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // if (!req.permissions?.createProduct) {
-    //   res
-    //     .status(403)
-    //     .send({
-    //       success: false,
-    //       message: "No tienes permiso para modificar Artes.",
-    //     })
-    //   return
-    // }
+    if (!req.permissions?.art.readAllArts) {
+      res
+        .status(403)
+        .send({
+          success: false,
+          message: "No tienes permiso para modificar Artes.",
+        })
+      return
+    }
 
     const result = await artSvc.readAllArts()
     res.send(result)
@@ -256,7 +256,7 @@ export const deleteArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyArtBestSellers) {
+    if (!req.permissions?.art.deleteArt) {
       res.send({
         success: false,
         message: "No tienes permiso para eliminar Artes.",
@@ -277,7 +277,7 @@ export const disableArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyArtBestSellers) {
+    if (!req.permissions?.art.artBan) {
       res
         .status(403)
         .send({
@@ -300,7 +300,7 @@ export const rankArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.permissions?.modifyArtBestSellers) {
+    if (!req.permissions?.art.updateArt) {
       res
         .status(403)
         .send({

@@ -4,7 +4,7 @@ import { ApplicableEntity, Surcharge } from "./surchargeModel.ts";
 
 export const createSurcharge = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createDiscount) {
+    if (!req.permissions?.surcharges.createSurcharge) {
       res.status(403).send({
         success: false,
         message: "No tienes permiso para crear recargos.",
@@ -69,7 +69,7 @@ export const createSurcharge = async (req: Request, res: Response, next: NextFun
 
 export const updateSurcharge = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.createDiscount) {
+    if (!req.permissions?.surcharges.updateSurcharge) {
       res.status(403).send({
         success: false,
         message: "No tienes permiso para actualizar recargos.",
@@ -143,7 +143,7 @@ export const readActiveSurcharge = async (req: Request, res: Response, next: Nex
 
 export const deleteSurcharge = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.permissions?.deleteDiscount) {
+    if (!req.permissions?.surcharges.deleteSurcharge) {
       res.status(403).send({
         success: false,
         message: "No tienes permiso para eliminar recargos.",

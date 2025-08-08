@@ -1,8 +1,8 @@
-import { Collection, Filter, ObjectId } from "mongodb"
+import { Collection, Filter, ObjectId, ClientSession } from "mongodb"
 import { PrixResponse } from "../types/responseModel.ts"
 import { Movement } from "./movementModel.ts"
 import { Account } from "../account/accountModel.ts"
-import { getDb } from "../mongo.ts"
+import { getDb, getMongoClient } from "../mongo.ts"
 
 function movementCollection(): Collection<Movement> {
   return getDb().collection<Movement>("movements")
@@ -77,6 +77,75 @@ export const updateBalance = async (
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     return { success: false, message: `An error occurred: ${msg}` }
+  }
+}
+
+export const createMovementWithBalanceUpdate = async (
+  movementData: Movement
+): Promise<PrixResponse> => {
+  movementData.value = Math.abs(movementData.value);
+
+  if (movementData.value === 0) {
+    return {
+      success: false,
+      message: "El valor del movimiento no puede ser cero.",
+    };
+  }
+
+  const client = getMongoClient()
+  const session = client.startSession()
+
+  try {
+    session.startTransaction()
+
+    const movements = movementCollection()
+    const accounts = accountCollection()
+
+    await movements.insertOne(movementData, { session })
+
+    if (!movementData.destinatary) {
+      throw new Error("Destinatario no definido en el movimiento.")
+    }
+
+    const accountToUpdate = await accounts.findOne(
+      { _id: movementData.destinatary },
+      { session }
+    )
+
+    if (!accountToUpdate) {
+      throw new Error("La cuenta del destinatario no fue encontrada.")
+    }
+
+    let newBalance = accountToUpdate.balance
+    if (movementData.type === "Depósito") {
+      newBalance += movementData.value
+    } else if (movementData.type === "Retiro") {
+      newBalance -= movementData.value
+    }
+
+    await accounts.updateOne(
+      { _id: movementData.destinatary },
+      { $set: { balance: newBalance } },
+      { session }
+    )
+
+    await session.commitTransaction()
+
+    return {
+      success: true,
+      message: "Movimiento creado y balance actualizado con éxito.",
+      result: movementData,
+    }
+  } catch (e: unknown) {
+    if (session.inTransaction()) {
+      await session.abortTransaction()
+    }
+
+    console.error("Error en la transacción de crear movimiento:", e)
+    const msg = e instanceof Error ? e.message : String(e)
+    return { success: false, message: `Error en la transacción: ${msg}` }
+  } finally {
+    await session.endSession()
   }
 }
 
@@ -194,45 +263,72 @@ export const readById = async (id: string): Promise<PrixResponse> => {
 }
 
 export const reverseMovement = async (id: string): Promise<PrixResponse> => {
+  const client = getMongoClient();
+  const session = client.startSession();
+
   try {
+    session.startTransaction();
+
+    const movements = movementCollection();
+    const accounts = accountCollection();
     const objectId = new ObjectId(id);
-    const movements = movementCollection()
-    const mov = await movements.findOne({ _id: objectId })
-    if (!mov) {
-      return { success: false, message: "Movimiento no encontrado." }
+
+    const movementToReverse = await movements.findOne({ _id: objectId }, { session });
+
+    if (!movementToReverse) {
+      return { success: false, message: "Movimiento no encontrado." };
     }
 
-    const reverseMov: Movement = {
-      ...mov,
-      type: mov.type === "Depósito" ? "Retiro" : "Depósito",
-      description: `Reversión de: ${mov.description} (ID: ${mov._id})`,
-      value: mov.value,
+    if (!movementToReverse.destinatary) {
+      throw new Error("El movimiento a revertir no tiene un destinatario definido.");
     }
 
-    const balanceUpdateResult = await updateBalance(reverseMov)
+    const accountToUpdate = await accounts.findOne(
+      { _id: movementToReverse.destinatary },
+      { session }
+    );
 
-    if (!balanceUpdateResult.success) {
-      return {
-        success: false,
-        message: `Fallo al revertir el balance: ${balanceUpdateResult.message}`,
-      }
+    if (!accountToUpdate) {
+      throw new Error("La cuenta del destinatario para la reversión no fue encontrada.");
     }
 
-    const deleteResult = await movements.deleteOne({ _id: objectId })
+    let newBalance = accountToUpdate.balance;
+    if (movementToReverse.type === "Depósito") {
+      newBalance -= movementToReverse.value;
+    } else if (movementToReverse.type === "Retiro") {
+      newBalance += movementToReverse.value;
+    }
+
+    await accounts.updateOne(
+      { _id: movementToReverse.destinatary },
+      { $set: { balance: newBalance } },
+      { session }
+    );
+    
+    const deleteResult = await movements.deleteOne({ _id: objectId }, { session });
+
     if (deleteResult.deletedCount === 0) {
-      return {
-        success: false,
-        message: "Movimiento no pudo ser eliminado (quizás ya no existe).",
-      }
+      throw new Error("El movimiento no pudo ser eliminado durante la transacción.");
     }
+
+    await session.commitTransaction();
 
     return {
       success: true,
       message: "Movimiento revertido y eliminado con éxito.",
-      result: mov,
-    }
+      result: movementToReverse,
+    };
+
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e)
-    return { success: false, message: `An error occurred: ${msg}` }
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    
+    console.error("Error en la transacción de revertir movimiento:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    return { success: false, message: `Error en la transacción: ${msg}` };
+
+  } finally {
+    await session.endSession();
   }
-}
+};

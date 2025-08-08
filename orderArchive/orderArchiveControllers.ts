@@ -4,7 +4,7 @@ import { OrderArchive, PayStatus, Status } from "./orderArchiveModel.ts";
 
 export const readOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-    if (!req.permissions?.orderStatus) {
+    if (!req.permissions?.orders.readAllOrders) {
         res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
         return;
     }
@@ -25,10 +25,10 @@ export const readOrder = async (req: Request, res: Response, next: NextFunction)
 
 export const readAllOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-    // if (!req.permissions?.orderStatus) {
-    //     res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
-    //     return;
-    // }
+    if (!req.permissions?.orders.readAllOrders) {
+        res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
+        return;
+    }
 
     try {
         // --- Parse Query Parameters ---
@@ -103,7 +103,7 @@ export const readAllOrders = async (req: Request, res: Response, next: NextFunct
 
 export const addVoucher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!req.permissions?.createOrder) {
+        if (!req.permissions?.orders.updatePayDetails) {
             res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
             return;
         }
@@ -127,7 +127,7 @@ export const addVoucher = async (req: Request, res: Response, next: NextFunction
 
 export const updateOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!req.permissions?.createOrder) {
+        if (!req.permissions?.orders.updateDetails) {
             res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
             return;
         }
@@ -142,7 +142,7 @@ export const updateOrder = async (req: Request, res: Response, next: NextFunctio
 
 export const updateItemStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!req.permissions?.updateOrder) {
+        if (!req.permissions?.orders.updateItemStatus) {
             res.send({ success: false, message: "No tienes permiso para modificar órdenes." });
             return;
         }

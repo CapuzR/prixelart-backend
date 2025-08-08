@@ -1,6 +1,6 @@
 import { Account } from "../account/accountModel.ts"
 import { Admin } from "../admin/adminModel.ts"
-import { Permissions } from "../admin/permissionsModel.ts"
+import { PermissionsV2 } from "../admin/permissionsModel.ts"
 import { Art } from "../art/artModel.ts"
 import { Discount } from "../discount/discountModel.ts"
 import { Manufacturer } from "../manufacturer/manufacturerModel.ts"
@@ -66,13 +66,12 @@ type PrixResult =
   | PaymentMethod
   | PaymentMethod[]
   | PerformanceData[]
-  | Permissions
-  | Permissions[]
+  | PermissionsV2
+  | PermissionsV2[]
   | Prixer
   | Prixer[]
   | Product
   | Product[]
-  | Record<string, string[]>
   | Service
   | Service[]
   | ShippingMethod
@@ -87,10 +86,18 @@ type PrixResult =
   | TopPerformingItemData[]
   | User
   | User[]
+  | Record<string, string[]>
+
 
 export interface PrixResponse {
   success: boolean
   message: string
   result?: PrixResult
   email?: email
+}
+
+export interface PermissionsResponse {
+  success: boolean
+  message: string
+  result?: PermissionsV2
 }

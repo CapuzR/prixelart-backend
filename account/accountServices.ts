@@ -2,7 +2,7 @@ import { Collection, ObjectId } from "mongodb"
 import { PrixResponse } from "../types/responseModel.ts"
 import { Account } from "./accountModel.ts"
 import { User } from "../user/userModel.ts"
-import { getDb } from "../mongo.ts"
+import { getDb, getMongoClient } from "../mongo.ts"
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>("users")
@@ -11,6 +11,62 @@ function usersCollection(): Collection<User> {
 function accountCollection(): Collection<Account> {
   return getDb().collection<Account>("account")
 }
+
+export const createAndAssignAccount = async (
+  email: string,
+  accountData: Account
+): Promise<PrixResponse> => {
+  if (!email) {
+    return { success: false, message: "El email del usuario es requerido." };
+  }
+
+  const client = getMongoClient();
+  const session = client.startSession();
+
+  let response: PrixResponse = { 
+    success: false, 
+    message: "La operación no se completó." 
+  };
+
+  try {
+    session.startTransaction();
+
+    const accounts = accountCollection();
+    const users = usersCollection();
+
+    await accounts.insertOne(accountData, { session });
+
+    const addAccountResult = await users.updateOne(
+      { email: email },
+      { $set: { account: accountData._id } },
+      { session }
+    );
+
+    if (addAccountResult.matchedCount === 0) {
+      throw new Error(`No se encontró ningún usuario con el email: ${email}`);
+    }
+
+    await session.commitTransaction();
+
+    response = {
+      success: true,
+      message: "Wallet creada y asignada al usuario exitosamente.",
+      result: { ...accountData },
+    };
+
+  } catch (e: unknown) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+    const msg = e instanceof Error ? e.message : String(e);
+    response = { success: false, message: `Error en la transacción: ${msg}` };
+    
+  } finally {
+    await session.endSession();
+  }
+
+  return response;
+};
 
 export const createAccount = async (
   account: Account
@@ -22,13 +78,13 @@ export const createAccount = async (
     if (result.acknowledged && result.insertedId) {
       return {
         success: true,
-        message: "Carousel created successfully.",
+        message: "Wallet creada satisfactoriamente.",
         result: { ...account, _id: result.insertedId },
       }
     } else {
       return {
         success: false,
-        message: "Failed to create carousel.",
+        message: "Creación de wallet fallida.",
       }
     }
   } catch (error) {
@@ -40,6 +96,21 @@ export const createAccount = async (
   }
 }
 
+export const addAccount = async (email: string, id: string) => {
+  try {
+    const users = usersCollection()
+
+    const userToUpdate = await users.findOneAndUpdate(
+      { email: email },
+      { $set: { account: id } }
+    );
+    return userToUpdate
+  } catch (e) {
+    console.log(e)
+    return e
+  }
+}
+
 export const checkBalance = async (id: string): Promise<PrixResponse> => {
   try {
     const accounts = accountCollection()
@@ -47,13 +118,13 @@ export const checkBalance = async (id: string): Promise<PrixResponse> => {
     if (account) {
       return {
         success: true,
-        message: "Account found. Balance: " + account.balance,
+        message: "Wallet encontrada. Balance: " + account.balance,
         result: account,
       }
     } else {
       return {
         success: false,
-        message: "Account not found.",
+        message: "Wallet no encontrada.",
       }
     }
   } catch (error) {
