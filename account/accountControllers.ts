@@ -8,6 +8,13 @@ export const createAccount = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (!req.permissions?.movement.createWallet) {
+      res.send({
+        success: false,
+        message: "No tienes permiso para leer Billeteras.",
+      })
+      return
+    }
     const account = {
       _id: nanoid(24),
       balance: req.body?.balance || 0,
