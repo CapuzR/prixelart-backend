@@ -292,7 +292,7 @@ export const updateManyProducts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (req.permissions?.products.updateProduct) {
+    if (!req.permissions?.products.updateProduct) {
       res.status(403).send({
         success: false,
         message:
