@@ -29,6 +29,11 @@ router.put(
   adminAuthControllers.ensureAuthenticated,
   artControllers.updateArt
 )
+router.put(
+  "/art/update/:id",
+  userAuthControllers.ensureAuthenticated,
+  artControllers.updateArtAsPrixer
+)
 router.delete(
   "/art/delete/:id",
   adminAuthControllers.ensureAuthenticated,
