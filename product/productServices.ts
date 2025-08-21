@@ -713,6 +713,149 @@ export const updateProduct = async (
   }
 }
 
+export const processBulkProductUpdate = async (
+  productsToProcess: Product[]
+): Promise<PrixResponse> => {
+
+  const existingProductsResponse = await readAllProducts()
+  if (!existingProductsResponse.success || !existingProductsResponse.result) {
+    return {
+      success: false,
+      message: 'No se pudieron obtener los productos existentes para la actualización.',
+    }
+  }
+  const existingProducts: Product[] = existingProductsResponse.result as Product[]
+
+  const existingProductsMap = new Map<string, Product>()
+  existingProducts.forEach((p) => {
+    if (p._id) {
+      existingProductsMap.set(p._id.toString(), p)
+    }
+  })
+
+  const results: {
+    productId?: string
+    variantId?: string
+    success: boolean
+    message: string
+    productName?: string
+    variantName?: string
+  }[] = []
+
+  for (const productDataFromFrontend of productsToProcess) {
+    const { _id: productId, variants: variantsFromFrontend, ...productFields } = productDataFromFrontend
+
+    if (!productId) {
+      results.push({
+        success: false,
+        message: 'Producto recibido sin ID, no se puede actualizar.',
+        productName: productFields.name || 'N/A',
+      })
+      continue
+    }
+
+    const existingProduct = existingProductsMap.get(productId.toString())
+    if (!existingProduct) {
+      results.push({
+        productId: productId.toString(),
+        success: false,
+        message: `Producto con ID ${productId.toString()} no encontrado en la base de datos.`,
+        productName: productFields.name || 'N/A',
+      })
+      continue
+    }
+
+    const updateProductData: Partial<Product> = {}
+    if (productFields.name !== undefined) updateProductData.name = productFields.name
+    if (productFields.cost !== undefined) updateProductData.cost = String(productFields.cost)
+    if (productFields.productionTime !== undefined) updateProductData.productionTime = String(productFields.productionTime)
+    if (productFields.productionLines !== undefined) {
+      updateProductData.productionLines = Array.isArray(productFields.productionLines)
+        ? productFields.productionLines.map((s) => String(s).trim()).filter((s) => s !== '')
+        : undefined
+    }
+
+    if (Object.keys(updateProductData).length > 0) {
+      const updateResponse = await updateProduct(productId.toString(), updateProductData)
+      results.push({
+        productId: productId.toString(),
+        success: updateResponse.success,
+        message: updateResponse.success ? 'Producto padre actualizado.' : updateResponse.message,
+        productName: existingProduct.name,
+      })
+    }
+
+    if (variantsFromFrontend && variantsFromFrontend.length > 0) {
+        const variantsMap = new Map<string, Variant>(
+            existingProduct.variants?.map(v => [v._id!.toString(), v]) || []
+        );
+
+        for (const variantData of variantsFromFrontend) {
+            const { _id: variantId, attributes, ...variantFields } = variantData;
+            
+            const updateVariantData: Partial<Variant> = {};
+            if (variantFields.name !== undefined) updateVariantData.name = variantFields.name;
+            if (variantFields.publicPrice !== undefined) updateVariantData.publicPrice = String(variantFields.publicPrice);
+            if (variantFields.prixerPrice !== undefined) updateVariantData.prixerPrice = String(variantFields.prixerPrice);
+            if (attributes !== undefined) {
+                updateVariantData.attributes = Array.isArray(attributes)
+                    ? attributes.map(attr => ({ name: String(attr.name).trim(), value: String(attr.value).trim() }))
+                    : [];
+            }
+
+            if (variantId && variantsMap.has(variantId.toString())) {
+                const existingVariant = variantsMap.get(variantId.toString())!;
+                const updatedVariant = { ...existingVariant, ...updateVariantData };
+                variantsMap.set(variantId.toString(), updatedVariant);
+                results.push({
+                    productId: productId.toString(),
+                    variantId: variantId.toString(),
+                    success: true,
+                    message: `Variante '${variantFields.name}' actualizada.`,
+                    productName: existingProduct.name,
+                    variantName: variantFields.name,
+                });
+            } else if (Object.keys(updateVariantData).length > 0) {
+                const newVariant: Variant = {
+                    _id: new ObjectId().toString(),
+                    name: updateVariantData.name || "Nueva Variante",
+                    attributes: updateVariantData.attributes || [],
+                    publicPrice: updateVariantData.publicPrice || "0.00",
+                    prixerPrice: updateVariantData.prixerPrice || "0.00",
+                };
+                variantsMap.set(newVariant._id!, newVariant);
+                results.push({
+                    productId: productId.toString(),
+                    variantId: newVariant._id,
+                    success: true,
+                    message: `Nueva variante '${newVariant.name}' creada.`,
+                    productName: existingProduct.name,
+                    variantName: newVariant.name,
+                });
+            }
+        }
+        
+        const finalVariants = Array.from(variantsMap.values());
+        const variantUpdateResponse = await updateProduct(productId.toString(), { variants: finalVariants });
+
+        if (!variantUpdateResponse.success) {
+            results.push({
+                productId: productId.toString(),
+                success: false,
+                message: `Error al guardar los cambios de variantes: ${variantUpdateResponse.message}`,
+                productName: existingProduct.name,
+            });
+        }
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Proceso de actualización masiva completado.',
+    result: results,
+  }
+}
+
 export const deleteProduct = async (id: string): Promise<PrixResponse> => {
   try {
     const products = productCollection()

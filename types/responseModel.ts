@@ -37,6 +37,16 @@ interface email {
   message: string
   data?: any
 }
+
+interface UpdatedProduct {
+  productId?: string
+  variantId?: string
+  success: boolean
+  message: string
+  productName?: string
+  variantName?: string
+}
+
 type PrixResult =
   | Account
   | Account[]
@@ -72,6 +82,7 @@ type PrixResult =
   | Prixer[]
   | Product
   | Product[]
+  | Record<string, string[]>
   | Service
   | Service[]
   | ShippingMethod
@@ -84,9 +95,9 @@ type PrixResult =
   | Testimonial
   | Testimonial[]
   | TopPerformingItemData[]
+  | UpdatedProduct[]
   | User
   | User[]
-  | Record<string, string[]>
 
 
 export interface PrixResponse {

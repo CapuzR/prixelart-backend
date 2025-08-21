@@ -295,8 +295,7 @@ export const updateManyProducts = async (
     if (!req.permissions?.products.updateProduct) {
       res.status(403).send({
         success: false,
-        message:
-          "No tienes permiso para realizar una actualización masiva de productos.",
+        message: 'No tienes permiso para realizar una actualización masiva de productos.',
       })
       return
     }
@@ -305,244 +304,20 @@ export const updateManyProducts = async (
     if (!Array.isArray(productsToProcess)) {
       res.status(400).send({
         success: false,
-        message: "El cuerpo de la solicitud debe ser un array de productos.",
+        message: 'El cuerpo de la solicitud debe ser un array de productos.',
       })
       return
     }
 
-    const existingProductsResponse: PrixResponse =
-      await productServices.readAllProducts()
+    const serviceResponse = await productServices.processBulkProductUpdate(
+      productsToProcess
+    )
 
-    if (!existingProductsResponse.success || !existingProductsResponse.result) {
-      res.status(500).send({
-        success: false,
-        message:
-          "No se pudieron obtener los productos existentes para la actualización.",
-      })
-      return
-    }
-    const existingProducts: Product[] =
-      existingProductsResponse.result as Product[]
-
-    const existingProductsMap = new Map<string, Product>()
-    existingProducts.forEach((p) => {
-      if (p._id) {
-        existingProductsMap.set(p._id.toString(), p)
-      }
-    })
-
-    const results: {
-      productId?: string
-      variantId?: string
-      success: boolean
-      message: string
-      productName?: string
-      variantName?: string
-    }[] = []
-    let currentProductIdInExcel: string | undefined = undefined
-
-    for (const productDataFromFrontend of productsToProcess) {
-      const {
-        _id: productId,
-        variants: variantsFromFrontend,
-        ...productFieldsFromFrontend
-      } = productDataFromFrontend
-
-      if (!productId) {
-        results.push({
-          success: false,
-          message: "Producto recibido sin ID, no se puede actualizar.",
-          productName: productFieldsFromFrontend.name || "N/A",
-        })
-        continue
-      }
-
-      const existingProduct = existingProductsMap.get(productId.toString())
-
-      if (!existingProduct) {
-        results.push({
-          productId: productId.toString(),
-          success: false,
-          message: `Producto con ID ${productId.toString()} no encontrado en la base de datos.`,
-          productName: productFieldsFromFrontend.name || "N/A",
-        })
-        continue
-      }
-
-      const updateProductData: Partial<Product> = {}
-
-      if (productFieldsFromFrontend.name !== undefined)
-        updateProductData.name = productFieldsFromFrontend.name
-      if (productFieldsFromFrontend.cost !== undefined)
-        updateProductData.cost = String(productFieldsFromFrontend.cost)
-      if (productFieldsFromFrontend.productionTime !== undefined)
-        updateProductData.productionTime = String(
-          productFieldsFromFrontend.productionTime
-        )
-      if (productFieldsFromFrontend.productionLines !== undefined) {
-        updateProductData.productionLines = Array.isArray(
-          productFieldsFromFrontend.productionLines
-        )
-          ? productFieldsFromFrontend.productionLines
-              .map((s) => String(s).trim())
-              .filter((s) => s !== "")
-          : undefined
-      }
-
-      if (Object.keys(updateProductData).length > 0) {
-        try {
-          const updateResponse: PrixResponse =
-            await productServices.updateProduct(
-              productId.toString(),
-              updateProductData
-            )
-          results.push({
-            productId: productId.toString(),
-            success: updateResponse.success,
-            message: updateResponse.message,
-            productName: existingProduct.name,
-          })
-        } catch (err: any) {
-          results.push({
-            productId: productId.toString(),
-            success: false,
-            message: `Error al actualizar el producto: ${err.message || "Error desconocido"}`,
-            productName: existingProduct.name,
-          })
-        }
-      } else {
-        results.push({
-          productId: productId.toString(),
-          success: true,
-          message: "No hay propiedades del producto padre para actualizar.",
-          productName: existingProduct.name,
-        })
-      }
-
-      const updatedVariantsForProduct: Variant[] = [
-        ...(existingProduct.variants || []),
-      ]
-
-      if (variantsFromFrontend && variantsFromFrontend.length > 0) {
-        for (const variantDataFromFrontend of variantsFromFrontend) {
-          const {
-            _id: variantId,
-            attributes,
-            ...variantFields
-          } = variantDataFromFrontend
-
-          const updateVariantData: Partial<Variant> = {}
-
-          if (variantFields.name !== undefined)
-            updateVariantData.name = variantFields.name
-          if (variantFields.publicPrice !== undefined)
-            updateVariantData.publicPrice = String(variantFields.publicPrice)
-          if (variantFields.prixerPrice !== undefined)
-            updateVariantData.prixerPrice = String(variantFields.prixerPrice)
-          if (attributes !== undefined) {
-            updateVariantData.attributes = Array.isArray(attributes)
-              ? attributes.map((attr) => ({
-                  name: String(attr.name).trim(),
-                  value: String(attr.value).trim(),
-                }))
-              : []
-          }
-
-          let variantFound = false
-          if (variantId) {
-            for (let i = 0; i < updatedVariantsForProduct.length; i++) {
-              if (
-                updatedVariantsForProduct[i]._id?.toString() ===
-                variantId.toString()
-              ) {
-                updatedVariantsForProduct[i] = {
-                  ...updatedVariantsForProduct[i],
-                  ...updateVariantData,
-                }
-                variantFound = true
-                results.push({
-                  productId: productId.toString(),
-                  variantId: variantId.toString(),
-                  success: true,
-                  message: `Variante '${variantFields.name}' actualizada para el producto '${existingProduct.name}'.`,
-                  productName: existingProduct.name,
-                  variantName: variantFields.name,
-                })
-                break
-              }
-            }
-          }
-
-          if (!variantFound && Object.keys(updateVariantData).length > 0) {
-            const newVariant: Variant = {
-              _id: new ObjectId().toString(),
-              ...(updateVariantData as Variant),
-              attributes: updateVariantData.attributes || [],
-              publicPrice: updateVariantData.publicPrice || "0.00",
-              prixerPrice: updateVariantData.prixerPrice || "0.00",
-            }
-            updatedVariantsForProduct.push(newVariant)
-            results.push({
-              productId: productId.toString(),
-              variantId: newVariant._id,
-              success: true,
-              message: `Nueva variante '${newVariant.name}' creada para el producto '${existingProduct.name}'.`,
-              productName: existingProduct.name,
-              variantName: newVariant.name,
-            })
-          } else if (
-            !variantFound &&
-            Object.keys(updateVariantData).length === 0
-          ) {
-            results.push({
-              productId: productId.toString(),
-              variantId: variantId?.toString() || "N/A",
-              success: true,
-              message: `Variante '${variantFields.name || "sin nombre"}' no encontrada o sin datos de actualización, se ignora.`,
-              productName: existingProduct.name,
-              variantName: variantFields.name || "N/A",
-            })
-          }
-        }
-      }
-
-      if (
-        updatedVariantsForProduct.length > 0 ||
-        (existingProduct.variants || []).length !==
-          updatedVariantsForProduct.length
-      ) {
-        try {
-          const updateProductVariantsResponse: PrixResponse =
-            await productServices.updateProduct(productId.toString(), {
-              variants: updatedVariantsForProduct,
-            })
-          if (!updateProductVariantsResponse.success) {
-            results.push({
-              productId: productId.toString(),
-              success: false,
-              message: `Error al guardar los cambios de variantes para el producto: ${updateProductVariantsResponse.message}`,
-              productName: existingProduct.name,
-            })
-          }
-        } catch (err: any) {
-          results.push({
-            productId: productId.toString(),
-            success: false,
-            message: `Error al guardar los cambios de variantes para el producto: ${err.message || "Error desconocido"}`,
-            productName: existingProduct.name,
-          })
-        }
-      }
-    }
-
-    console.log("Resultados finales de la actualización masiva:", results)
-    res.status(200).send({
-      success: true,
-      message: "Proceso de actualización masiva completado.",
-      details: results,
-    })
+    const statusCode = serviceResponse.success ? 200 : 500
+    res.status(statusCode).send(serviceResponse)
+    
   } catch (err) {
-    console.error("Error general en bulkUpdateProducts:", err)
+    console.error("Error general en updateManyProducts controller:", err)
     next(err)
   }
 }
