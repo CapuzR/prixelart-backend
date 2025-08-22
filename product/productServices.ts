@@ -28,6 +28,10 @@ function productCollection(): Collection<Product> {
   return getDb().collection<Product>("products")
 }
 
+function artCollection(): Collection<Art> {
+  return getDb().collection<Art>("arts");
+}
+
 export const createProduct = async (p: Product): Promise<PrixResponse> => {
   try {
     const products = productCollection()
@@ -216,6 +220,7 @@ export const readActiveById = async (id: string): Promise<PrixResponse> => {
 export const getVariantPrice = async (
   variantId: string,
   productId: string,
+  artId?: string,
   user?: User | null,
   isPrixer?: boolean
 ): Promise<PrixResponse> => {
@@ -230,6 +235,19 @@ export const getVariantPrice = async (
         error
       )
       return { success: false, message: "Formato de ID de producto inválido." }
+    }
+
+    let commissionRate = 10;
+    if (artId) {
+      try {
+        const arts = artCollection();
+        const art = await arts.findOne({ _id: new ObjectId(artId) });
+        if (art && typeof art.comission === 'number') {
+          commissionRate = art.comission;
+        }
+      } catch (error) {
+        console.warn(`Could not fetch art or commission for artId: ${artId}. Using default 10%.`);
+      }
     }
 
     const product = await products.findOne({ _id: productObjectId })
@@ -255,14 +273,16 @@ export const getVariantPrice = async (
       priceSourceKey as keyof Pick<Variant, "publicPrice" | "prixerPrice">
     ] as string
 
-    const basePrice = parseFloat(priceStringToParse)
+    const netPrice = parseFloat(priceStringToParse) * 0.9;
 
-    if (isNaN(basePrice)) {
+    if (isNaN(netPrice)) {
       return {
         success: false,
         message: "Precio base inválido para esta variante.",
       }
     }
+
+    const basePrice = netPrice / (1 - commissionRate / 100);
 
     // --- Price Calculation ---
     let priceAfterSurcharges = basePrice
@@ -272,10 +292,10 @@ export const getVariantPrice = async (
       readActiveSurcharge(),
     ])
 
-    const productIdString = product._id.toHexString()
+    const productIdString = product._id.toHexString();
 
       // 1. Apply Surcharges to get originalPriceWithSurcharges
-      ; (activeSurcharges.result as Surcharge[]).forEach((surcharge) => {
+      (activeSurcharges.result as Surcharge[]).forEach((surcharge) => {
         if (!surcharge._id || !isDateActive(surcharge.dateRange)) return
 
         const isApplicable =
@@ -288,7 +308,7 @@ export const getVariantPrice = async (
           const { value, method } = getAdjustmentValue(surcharge, user)
           let surchargeAmount = 0
           if (method === "percentage") {
-            surchargeAmount = (basePrice * value) / 100
+            surchargeAmount = (netPrice * value) / 100
           } else {
             surchargeAmount = value
           }
@@ -301,9 +321,9 @@ export const getVariantPrice = async (
     // 2. Prepare and Apply Discounts
     let priceAfterDiscounts = originalPriceWithSurcharges
     const applicablePercentageDiscounts: Discount[] = []
-    const applicableAbsoluteDiscounts: Discount[] = []
+    const applicableAbsoluteDiscounts: Discount[] = [];
 
-      ; (activeDiscounts.result as Discount[]).forEach((discount) => {
+    (activeDiscounts.result as Discount[]).forEach((discount) => {
         if (!discount._id || !isDateActive(discount.dateRange)) return
 
         const isApplicable =

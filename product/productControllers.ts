@@ -158,7 +158,7 @@ export const getVariantPrice = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { variantId, productId } = req.query
+    const {artId, variantId, productId } = req.query
     if (!variantId || !productId) {
       res.status(400).send({
         success: false,
@@ -175,6 +175,7 @@ export const getVariantPrice = async (
     const resp = await productServices.getVariantPrice(
       variantId as string,
       productId as string,
+      artId as string,
       validUser,
       isPrixer
     )
