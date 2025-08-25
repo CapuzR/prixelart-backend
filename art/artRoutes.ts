@@ -49,6 +49,11 @@ router.put(
   adminAuthControllers.ensureAuthenticated,
   artControllers.rankArt
 )
+router.get(
+  "/art/update/:id",
+  userAuthControllers.ensureAuthenticated,
+  artControllers.updateArtAsPrixer
+)
 
 router.get("/art/bestSellers", artControllers.readBestSellers)
 
