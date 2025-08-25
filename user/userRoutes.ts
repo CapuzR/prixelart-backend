@@ -62,6 +62,11 @@ router.post(
   adminControllers.ensureAuthenticated,
   userControllers.readUserByAccount
 )
+router.get(
+  "/prixer/readStats/:username",
+  userAuthControllers.ensureAuthenticated,
+  userControllers.readStats
+)
 // router.post(
 //   "/emergency-reset",
 //   adminControllers.ensureAuthenticated,

@@ -156,6 +156,21 @@ export const getUsersByIds = async (
   }
 }
 
+export const readStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+
+  try {
+    const prixer: string = req.params.username
+    const data = await userService.getMyStats(prixer)
+    res.send(data)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const updateUser = async (
   req: Request,
   res: Response,

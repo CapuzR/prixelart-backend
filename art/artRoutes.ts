@@ -9,6 +9,7 @@ router.post(
   userAuthControllers.ensureAuthenticated,
   artControllers.createArt
 )
+
 router.get("/art/read-by-prixer/:username", artControllers.readAllByUsername)
 router.get(
   "/art/read-all",
@@ -29,6 +30,11 @@ router.put(
   adminAuthControllers.ensureAuthenticated,
   artControllers.updateArt
 )
+router.put(
+  "/art/update/:id",
+  userAuthControllers.ensureAuthenticated,
+  artControllers.updateArtAsPrixer
+)
 router.delete(
   "/art/delete/:id",
   adminAuthControllers.ensureAuthenticated,
@@ -43,6 +49,11 @@ router.put(
   "/art/rank/:id",
   adminAuthControllers.ensureAuthenticated,
   artControllers.rankArt
+)
+router.get(
+  "/art/update/:id",
+  userAuthControllers.ensureAuthenticated,
+  artControllers.updateArtAsPrixer
 )
 
 router.get("/art/bestSellers", artControllers.readBestSellers)

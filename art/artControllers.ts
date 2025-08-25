@@ -13,10 +13,10 @@ export const createArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-     if (!req.permissions?.products.createProduct) {
-      res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
-      return;
-    }
+    //  if (!req.permissions?.products.createProduct) {
+    //   res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
+    //   return;
+    // }
 
     // TUS-uploaded image stored in session.uploadResults.images
     // const imageUrl =
@@ -94,6 +94,32 @@ export const updateArt = async (
   }
 }
 
+export const updateArtAsPrixer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const imageUrl = req.session?.uploadResults?.images?.find(
+      (i: any) => i.purpose === "ArtImage"
+    )?.url
+
+    const artData: Partial<Art> = { ...req.body }
+    if (imageUrl) {
+      artData.artLocation = imageUrl
+      artData.imageUrl = imageUrl
+      artData.smallThumbUrl = imageUrl
+      artData.mediumThumbUrl = imageUrl
+      artData.largeThumbUrl = imageUrl
+      artData.squareThumbUrl = imageUrl
+    }
+
+    const result = await artSvc.updateArt(req.params.id, artData)
+    sendResult(res, result)
+  } catch (e) {
+    next(e)
+  }
+}
 export const readAllArts = async (
   req: Request,
   res: Response,

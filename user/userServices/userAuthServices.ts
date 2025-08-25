@@ -196,7 +196,7 @@ export const checkPasswordToken = async (token: string): Promise<PrixResponse> =
   } catch (err) {
     return {
       success: false,
-      message: "Token inválido, por favor cambia tu contraseña en prixelart.com/olvido-contraseña",
+      message: "Token inválido o caducado, por favor vuelve a prixelart.com/olvido-contraseña y repite el proceso para cambiar tu contraseña.",
     };
   }
 };
