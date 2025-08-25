@@ -1,14 +1,19 @@
-import { Collection, FindOptions, ObjectId } from "mongodb";
-import { PrixResponse } from "../../types/responseModel.ts";
-import { User } from "../userModel.ts";
-import bcrypt from "bcrypt";
-import { getDb } from "../../mongo.ts";
+import { Collection, FindOptions, ObjectId } from 'mongodb';
+import { PrixResponse } from '../../types/responseModel.ts';
+import { User } from '../userModel.ts';
+import bcrypt from 'bcrypt';
+import { getDb } from '../../mongo.ts';
+import { Art } from '../../art/artModel.ts';
+import { Order } from '../../order/orderModel.ts';
+import { OrderArchive } from '../../orderArchive/orderArchiveModel.ts';
 
 function usersCollection(): Collection<User> {
-  return getDb().collection<User>("users");
+  return getDb().collection<User>('users');
 }
 
-const excludePasswordProjection: FindOptions<User>['projection'] = { password: 0 };
+const excludePasswordProjection: FindOptions<User>['projection'] = {
+  password: 0,
+};
 
 export const createUser = async (userData: User): Promise<PrixResponse> => {
   try {
@@ -18,37 +23,36 @@ export const createUser = async (userData: User): Promise<PrixResponse> => {
     if (existingUserByUsername.success) {
       return {
         success: false,
-        message: "Disculpa, el nombre de usuario ya está registrado.",
+        message: 'Disculpa, el nombre de usuario ya está registrado.',
       };
     }
     if (existingUserByEmail) {
       return {
         success: false,
-        message: "Disculpa, el correo del usuario ya está registrado.",
+        message: 'Disculpa, el correo del usuario ya está registrado.',
       };
     }
-    let newUserData
+    let newUserData;
 
-if (userData.role?.includes("Prixer"))
-  {
-    const salt = await bcrypt.genSalt(2);
-    const hash = await bcrypt.hash(userData.password!, salt);
-    newUserData = { ...userData, password: hash }
-  } else {
-    newUserData = { ...userData }
-  }
+    if (userData.role?.includes('Prixer')) {
+      const salt = await bcrypt.genSalt(2);
+      const hash = await bcrypt.hash(userData.password!, salt);
+      newUserData = { ...userData, password: hash };
+    } else {
+      newUserData = { ...userData };
+    }
     const result = await users.insertOne(newUserData);
     if (result.insertedId) {
       const newUser = await users.findOne({ _id: result.insertedId });
       return {
         success: true,
-        message: "Éxito",
+        message: 'Éxito',
         result: newUser!,
       };
     } else {
       return {
         success: false,
-        message: "No se pudo insertar el usuario.",
+        message: 'No se pudo insertar el usuario.',
       };
     }
   } catch (error: unknown) {
@@ -60,20 +64,24 @@ if (userData.role?.includes("Prixer"))
   }
 };
 
-export const changePassword = async (username: string, oldPassword: string, newPassword: string): Promise<PrixResponse> => {
+export const changePassword = async (
+  username: string,
+  oldPassword: string,
+  newPassword: string
+): Promise<PrixResponse> => {
   try {
     const users = usersCollection();
     const userRecord = await users.findOne({ username: username });
     if (!userRecord) {
       return {
         success: false,
-        message: "Nombre de usuario incorrecto.",
+        message: 'Nombre de usuario incorrecto.',
       };
     }
     if (userRecord.password && !bcrypt.compareSync(oldPassword, userRecord.password)) {
       return {
         success: false,
-        message: "Inténtalo de nuevo, contraseña incorrecta.",
+        message: 'Inténtalo de nuevo, contraseña incorrecta.',
       };
     } else {
       const salt = await bcrypt.genSalt(2);
@@ -81,30 +89,39 @@ export const changePassword = async (username: string, oldPassword: string, newP
       const updateResult = await users.findOneAndUpdate(
         { username: username },
         { $set: { password: hash } },
-        { returnDocument: "after" }
+        { returnDocument: 'after' }
       );
       if (updateResult) {
-        return { success: true, message: "Contraseña actualizada correctamente." };
+        return {
+          success: true,
+          message: 'Contraseña actualizada correctamente.',
+        };
       } else {
-        return { success: false, message: "No se pudo actualizar la contraseña." };
+        return {
+          success: false,
+          message: 'No se pudo actualizar la contraseña.',
+        };
       }
     }
   } catch (e) {
     return {
       success: false,
-      message: "Unable to change the password.",
+      message: 'Unable to change the password.',
     };
   }
 };
 
-export const changePasswordFromAdmin = async (username: string, newPassword: string): Promise<PrixResponse> => {
+export const changePasswordFromAdmin = async (
+  username: string,
+  newPassword: string
+): Promise<PrixResponse> => {
   try {
     const users = usersCollection();
     const userRecord = await users.findOne({ username: username });
     if (!userRecord) {
       return {
         success: false,
-        message: "Nombre de usuario incorrecto.",
+        message: 'Nombre de usuario incorrecto.',
       };
     }
     // if (userRecord.password && !bcrypt.compareSync(oldPassword, userRecord.password)) {
@@ -113,26 +130,26 @@ export const changePasswordFromAdmin = async (username: string, newPassword: str
     //     message: "Inténtalo de nuevo, contraseña incorrecta.",
     //   };
     // } else {
-      const salt = await bcrypt.genSalt(2);
-      const hash = await bcrypt.hash(newPassword, salt);
-      const updateResult = await users.findOneAndUpdate(
-        { username: username },
-        { $set: { password: hash } },
-        { returnDocument: "after" }
-      );
-      if (updateResult) {
-        return { success: true, message: "Contraseña actualizada correctamente." };
-      } else {
-        return { success: false, message: "No se pudo actualizar la contraseña." };
-      }
+    const salt = await bcrypt.genSalt(2);
+    const hash = await bcrypt.hash(newPassword, salt);
+    const updateResult = await users.findOneAndUpdate(
+      { username: username },
+      { $set: { password: hash } },
+      { returnDocument: 'after' }
+    );
+    if (updateResult) {
+      return { success: true, message: 'Contraseña actualizada correctamente.' };
+    } else {
+      return { success: false, message: 'No se pudo actualizar la contraseña.' };
+    }
     // }
   } catch (e) {
     return {
       success: false,
-      message: "Unable to change the password.",
+      message: 'Unable to change the password.',
     };
   }
-}
+};
 
 export const resetPassword = async (newPassword: string, user: User): Promise<PrixResponse> => {
   try {
@@ -142,23 +159,23 @@ export const resetPassword = async (newPassword: string, user: User): Promise<Pr
     const updateResult = await users.findOneAndUpdate(
       { _id: new ObjectId(user._id) },
       { $set: { password: hash } },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     );
     if (updateResult) {
       return {
         success: true,
-        message: "Contraseña modificada correctamente. Por favor inicia sesión.",
+        message: 'Contraseña modificada correctamente. Por favor inicia sesión.',
       };
     } else {
       return {
         success: false,
-        message: "No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.",
+        message: 'No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.',
       };
     }
   } catch (e) {
     return {
       success: false,
-      message: "No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.",
+      message: 'No pudimos actualizar tu contraseña, por favor inténtalo de nuevo.',
     };
   }
 };
@@ -174,12 +191,12 @@ export const readUserById = async (id: string): Promise<PrixResponse> => {
     if (!user) {
       return {
         success: false,
-        message: "User not found",
+        message: 'User not found',
       };
     }
     return {
       success: true,
-      message: "User found successfully.",
+      message: 'User found successfully.',
       result: user,
     };
   } catch (error: unknown) {
@@ -199,7 +216,7 @@ export const readAllUsers = async (): Promise<PrixResponse> => {
     return {
       success: true,
       message: 'Users found.',
-      result: userList
+      result: userList,
     };
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error);
@@ -227,7 +244,7 @@ export const readUserByUsername = async (username: string): Promise<PrixResponse
 
     return {
       success: true,
-      message: "User found successfully.",
+      message: 'User found successfully.',
       result: user,
     };
   } catch (error: unknown) {
@@ -260,7 +277,7 @@ export const readUserByAccount = async (account: string): Promise<PrixResponse> 
 
     return {
       success: true,
-      message: "User found successfully.",
+      message: 'User found successfully.',
       result: found,
     };
   } catch (error: unknown) {
@@ -274,18 +291,17 @@ export const readUserByAccount = async (account: string): Promise<PrixResponse> 
 
 export const getUsersByIds = async (ids: string[]): Promise<PrixResponse> => {
   try {
-
     if (!Array.isArray(ids)) {
       return {
         success: false,
-        message: "Input must be an array of user IDs.",
+        message: 'Input must be an array of user IDs.',
       };
     }
 
     if (ids.length === 0) {
       return {
         success: true,
-        message: "Successfully retrieved 0 users.",
+        message: 'Successfully retrieved 0 users.',
         result: [],
       };
     }
@@ -294,10 +310,11 @@ export const getUsersByIds = async (ids: string[]): Promise<PrixResponse> => {
     let objectIds: ObjectId[];
 
     try {
-      objectIds = ids.map(id => new ObjectId(id));
+      objectIds = ids.map((id) => new ObjectId(id));
     } catch (validationError: unknown) {
-      const errorMsg = validationError instanceof Error ? validationError.message : String(validationError);
-      console.error("Invalid ObjectId format detected:", validationError);
+      const errorMsg =
+        validationError instanceof Error ? validationError.message : String(validationError);
+      console.error('Invalid ObjectId format detected:', validationError);
       return {
         success: false,
         message: `One or more provided IDs have an invalid format: ${errorMsg}`,
@@ -313,13 +330,95 @@ export const getUsersByIds = async (ids: string[]): Promise<PrixResponse> => {
       message: `Successfully retrieved ${foundUsers.length} out of ${ids.length} requested users.`,
       result: foundUsers,
     };
-
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("Error fetching users by IDs:", error);
+    console.error('Error fetching users by IDs:', error);
     return {
       success: false,
       message: `An error occurred while retrieving users: ${errorMsg}`,
+    };
+  }
+};
+
+export const getMyStats = async (username: string): Promise<PrixResponse> => {
+  try {
+    const artsCollection = getDb().collection<Art>('arts');
+    const orderCollection = getDb().collection<Order>('orders');
+    const archiveCollection = getDb().collection<OrderArchive>('orderarchives');
+
+    const myArts = await artsCollection.find({ prixerUsername: username }).toArray();
+    if (!myArts || myArts.length === 0) {
+      return {
+        success: true,
+        message: `El Prixer ${username} no tiene obras de arte.`,
+        result: [],
+      };
+    }
+
+    const artIds = myArts.map((art) => art.artId);
+
+    const activeSales = await orderCollection
+      .aggregate([
+        {
+          $match: {
+            $expr: {
+              $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5],
+            },
+          },
+        },
+        { $unwind: '$lines' },
+        { $match: { 'lines.item.art.artId': { $in: artIds } } },
+        {
+          $group: {
+            _id: '$lines.item.art.artId',
+            totalSold: { $sum: '$lines.quantity' },
+          },
+        },
+      ])
+      .toArray();
+
+    const archivedSales = await archiveCollection
+      .aggregate([
+        { $match: { status: 'Concretado' } },
+        { $unwind: '$requests' },
+        { $match: { 'requests.art.artId': { $in: artIds } } },
+        {
+          $group: {
+            _id: '$requests.art.artId',
+            totalSold: { $sum: { $toInt: '$requests.quantity' } },
+          },
+        },
+      ])
+      .toArray();
+
+    const salesCountMap = new Map<string, number>();
+    for (const sale of activeSales) {
+      salesCountMap.set(sale._id, sale.totalSold);
+    }
+    for (const sale of archivedSales) {
+      const currentCount = salesCountMap.get(sale._id) || 0;
+      salesCountMap.set(sale._id, currentCount + sale.totalSold);
+    }
+    const result = myArts.map((art) => ({
+      id: art._id,
+      artId: art.artId,
+      title: art.title,
+      comission: art.comission,
+      selled: salesCountMap.get(art.artId) || 0,
+    }));
+
+    result.sort((a, b) => b.selled - a.selled);
+
+    return {
+      success: true,
+      message: `Estadísticas recopiladas para ${username}`,
+      result: result,
+    };
+  } catch (error: unknown) {
+    console.error('Error fetching data by Prixer:', error);
+    return {
+      success: false,
+      message: `Ha ocurrido un error leyendo la data para este Prixer`,
     };
   }
 };
@@ -340,7 +439,7 @@ export const updateUser = async (id: string, userData: Partial<User>): Promise<P
     if (Object.keys(updatePayload).length === 0) {
       return {
         success: false,
-        message: "No se proporcionaron datos para actualizar.",
+        message: 'No se proporcionaron datos para actualizar.',
       };
     }
 
@@ -348,25 +447,25 @@ export const updateUser = async (id: string, userData: Partial<User>): Promise<P
       { _id: new ObjectId(id) },
       { $set: updatePayload },
       {
-        returnDocument: "after",
-        projection: { password: 0 }
+        returnDocument: 'after',
+        projection: { password: 0 },
       }
     );
 
     if (!result) {
       return {
         success: false,
-        message: "User no encontrado o error al actualizar.",
+        message: 'User no encontrado o error al actualizar.',
       };
     }
 
     return {
       success: true,
-      message: "User actualizado exitosamente.",
+      message: 'User actualizado exitosamente.',
       result: result,
     };
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error('Error updating user:', error);
     const errorMsg = error instanceof Error ? error.message : String(error);
     return {
       success: false,
@@ -382,13 +481,13 @@ export const deleteUser = async (userUsername: string): Promise<PrixResponse> =>
     if (result) {
       return {
         success: true,
-        message: "User eliminado exitosamente.",
-        result: result
+        message: 'User eliminado exitosamente.',
+        result: result,
       };
     } else {
       return {
         success: false,
-        message: "Error al eliminar el user."
+        message: 'Error al eliminar el user.',
       };
     }
   } catch (error) {

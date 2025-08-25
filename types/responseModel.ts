@@ -1,7 +1,7 @@
 import { Account } from "../account/accountModel.ts"
 import { Admin } from "../admin/adminModel.ts"
 import { PermissionsV2 } from "../admin/permissionsModel.ts"
-import { Art } from "../art/artModel.ts"
+import { Art, ArtStatTemporary } from "../art/artModel.ts"
 import { Discount } from "../discount/discountModel.ts"
 import { Manufacturer } from "../manufacturer/manufacturerModel.ts"
 import { Movement } from "../movements/movementModel.ts"
@@ -54,6 +54,8 @@ type PrixResult =
   | Admin[]
   | Art
   | Art[]
+  | ArtStatTemporary
+  | ArtStatTemporary[]
   | CarouselItem
   | CarouselItem[]
   | Discount
