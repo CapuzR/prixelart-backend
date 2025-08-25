@@ -342,77 +342,17 @@ export const getUsersByIds = async (ids: string[]): Promise<PrixResponse> => {
 
 export const getMyStats = async (username: string): Promise<PrixResponse> => {
   try {
-    const artsCollection = getDb().collection<Art>('arts');
-    const orderCollection = getDb().collection<Order>('orders');
-    const archiveCollection = getDb().collection<OrderArchive>('orderarchives');
-
-    const myArts = await artsCollection.find({ prixerUsername: username }).toArray();
-    if (!myArts || myArts.length === 0) {
-      return {
-        success: true,
-        message: `El Prixer ${username} no tiene obras de arte.`,
-        result: [],
-      };
-    }
-
-    const artIds = myArts.map((art) => art.artId);
-
-    const activeSales = await orderCollection
-      .aggregate([
-        {
-          $match: {
-            $expr: {
-              $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5],
-            },
-          },
-        },
-        { $unwind: '$lines' },
-        { $match: { 'lines.item.art.artId': { $in: artIds } } },
-        {
-          $group: {
-            _id: '$lines.item.art.artId',
-            totalSold: { $sum: '$lines.quantity' },
-          },
-        },
-      ])
-      .toArray();
-
-    const archivedSales = await archiveCollection
-      .aggregate([
-        { $match: { status: 'Concretado' } },
-        { $unwind: '$requests' },
-        { $match: { 'requests.art.artId': { $in: artIds } } },
-        {
-          $group: {
-            _id: '$requests.art.artId',
-            totalSold: { $sum: { $toInt: '$requests.quantity' } },
-          },
-        },
-      ])
-      .toArray();
-
-    const salesCountMap = new Map<string, number>();
-    for (const sale of activeSales) {
-      salesCountMap.set(sale._id, sale.totalSold);
-    }
-    for (const sale of archivedSales) {
-      const currentCount = salesCountMap.get(sale._id) || 0;
-      salesCountMap.set(sale._id, currentCount + sale.totalSold);
-    }
-    const result = myArts.map((art) => ({
-      id: art._id,
-      artId: art.artId,
-      title: art.title,
-      comission: art.comission,
-      selled: salesCountMap.get(art.artId) || 0,
-    }));
-
-    result.sort((a, b) => b.selled - a.selled);
+    const [myArtStats, topCategories, topProducts, myProductStats] = await Promise.all([
+      getUserArtStats(username),
+      getTopArtCategories(),
+      getTopSoldProducts(),
+      getProductsSoldWithUserArt(username)
+    ]);
 
     return {
       success: true,
       message: `Estadísticas recopiladas para ${username}`,
-      result: result,
+      result: { myArtStats, topCategories, topProducts, myProductStats },
     };
   } catch (error: unknown) {
     console.error('Error fetching data by Prixer:', error);
@@ -422,6 +362,255 @@ export const getMyStats = async (username: string): Promise<PrixResponse> => {
     };
   }
 };
+
+async function getUserArtStats(username: string): Promise<Partial<Art>[]> {
+  const artsCollection = getDb().collection<Art>('arts');
+  const orderCollection = getDb().collection<Order>('orders');
+  const archiveCollection = getDb().collection<OrderArchive>('orderarchives');
+
+  const myArts = await artsCollection.find({ prixerUsername: username }).toArray();
+  if (!myArts || myArts.length === 0) {
+    return [];
+  }
+
+  const artIds = myArts.map((art) => art.artId);
+
+  const activeSales = await orderCollection
+    .aggregate([
+      {
+        $match: {
+          $expr: {
+            $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5],
+          },
+        },
+      },
+      { $unwind: '$lines' },
+      { $match: { 'lines.item.art.artId': { $in: artIds } } },
+      {
+        $group: {
+          _id: '$lines.item.art.artId',
+          totalSold: { $sum: '$lines.quantity' },
+        },
+      },
+    ])
+    .toArray();
+
+  const archivedSales = await archiveCollection
+    .aggregate([
+      { $match: { status: 'Concretado' } },
+      { $unwind: '$requests' },
+      { $match: { 'requests.art.artId': { $in: artIds } } },
+      {
+        $group: {
+          _id: '$requests.art.artId',
+          totalSold: { $sum: { $toInt: '$requests.quantity' } },
+        },
+      },
+    ])
+    .toArray();
+
+  const salesCountMap = new Map<string, number>();
+  for (const sale of activeSales) {
+    salesCountMap.set(sale._id, sale.totalSold);
+  }
+  for (const sale of archivedSales) {
+    const currentCount = salesCountMap.get(sale._id) || 0;
+    salesCountMap.set(sale._id, currentCount + sale.totalSold);
+  }
+  const result = myArts.map((art) => ({
+    id: art._id,
+    artId: art.artId,
+    title: art.title,
+    comission: art.comission,
+    selled: salesCountMap.get(art.artId) || 0,
+  }));
+
+  result.sort((a, b) => b.selled - a.selled);
+  return result;
+}
+
+async function getTopArtCategories(): Promise<{ category: string; count: number }[]> {
+  const orderCollection = getDb().collection<Order>('order');
+  const archiveCollection = getDb().collection<OrderArchive>('orderArchive');
+  const artCollection = getDb().collection<Art>('arts');
+
+  const activeCategorySales = await orderCollection
+    .aggregate([
+      {
+        $match: {
+          $expr: {
+            $eq: [
+              { $arrayElemAt: [{ $last: '$status' }, 0] },
+              5,
+            ],
+          },
+        },
+      },
+      { $unwind: '$lines' },
+      {
+        $lookup: {
+          from: 'arts',
+          localField: 'lines.item.art.artId',
+          foreignField: 'artId',
+          as: 'artDetails',
+        },
+      },
+      { $unwind: '$artDetails' },
+      {
+        $group: {
+          _id: '$artDetails.category',
+          totalSold: { $sum: '$lines.quantity' },
+        },
+      },
+    ])
+    .toArray();
+
+  const archivedCategorySales = await archiveCollection
+    .aggregate([
+      { $match: { status: 'Concretado' } },
+      { $unwind: '$requests' },
+      {
+        $lookup: {
+          from: 'arts',
+          localField: 'requests.art.artId',
+          foreignField: 'artId',
+          as: 'artDetails',
+        },
+      },
+      { $unwind: '$artDetails' },
+      {
+        $group: {
+          _id: '$artDetails.category',
+          totalSold: { $sum: { $toInt: '$requests.quantity' } },
+        },
+      },
+    ])
+    .toArray();
+
+    const categoryCounts = new Map<string, number>();
+  [...activeCategorySales, ...archivedCategorySales].forEach((sale) => {
+    if (sale._id) {
+      const currentCount = categoryCounts.get(sale._id) || 0;
+      categoryCounts.set(sale._id, currentCount + sale.totalSold);
+    }
+  });
+  const sortedCategories = Array.from(categoryCounts.entries())
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  return sortedCategories;
+}
+
+async function getTopSoldProducts(): Promise<{ product: string; count: number }[]> {
+  const orderCollection = getDb().collection<Order>('order');
+  const archiveCollection = getDb().collection<OrderArchive>('orderArchive');
+
+  const activeProductSales = await orderCollection
+    .aggregate([
+      { $match: {
+        $expr: {
+          $eq: [
+            { $arrayElemAt: [{ $last: '$status' }, 0] },
+            5
+          ]
+        }
+      } },
+      { $unwind: '$lines' },
+      {
+        $group: {
+          _id: '$lines.item.product.name',
+          totalSold: { $sum: '$lines.quantity' },
+        },
+      },
+    ])
+    .toArray();
+
+  const archivedProductSales = await archiveCollection
+    .aggregate([
+      { $match: { status: 'Concretado' } },
+      { $unwind: '$requests' },
+      {
+        $group: {
+          _id: '$requests.product.name',
+          totalSold: { $sum: { $toInt: '$requests.quantity' } },
+        },
+      },
+    ])
+    .toArray();
+
+  const productCounts = new Map<string, number>();
+  [...activeProductSales, ...archivedProductSales].forEach((sale) => {
+    if (sale._id) {
+      const currentCount = productCounts.get(sale._id) || 0;
+      productCounts.set(sale._id, currentCount + sale.totalSold);
+    }
+  });
+
+  const sortedProducts = Array.from(productCounts.entries())
+    .map(([product, count]) => ({ product, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  return sortedProducts;
+}
+
+async function getProductsSoldWithUserArt(username: string): Promise<{ product: string; count: number }[]> {
+  const orderCollection = getDb().collection<Order>('order');
+  const archiveCollection = getDb().collection<OrderArchive>('orderArchive');
+
+  const activeSales = await orderCollection.aggregate([
+    { $match: { $expr: { $eq: [ { $arrayElemAt: [{ $last: '$status' }, 0] }, 5 ] } } },
+    { $unwind: '$lines' },
+    { $lookup: {
+        from: 'arts',
+        localField: 'lines.item.art.artId',
+        foreignField: 'artId',
+        as: 'artDetails'
+      }
+    },
+    { $unwind: '$artDetails' },
+    { $match: { 'artDetails.prixerUsername': username } },
+    { $group: {
+        _id: '$lines.item.product.name',
+        totalSold: { $sum: '$lines.quantity' }
+      }
+    }
+  ]).toArray();
+
+  const archivedSales = await archiveCollection.aggregate([
+    { $match: { status: 'Concretado' } },
+    { $unwind: '$requests' },
+    { $lookup: {
+        from: 'arts',
+        localField: 'requests.art.artId',
+        foreignField: 'artId',
+        as: 'artDetails'
+      }
+    },
+    { $unwind: '$artDetails' },
+    { $match: { 'artDetails.prixerUsername': username } },
+    { $group: {
+        _id: '$requests.product.name',
+        totalSold: { $sum: { $toInt: '$requests.quantity' } }
+      }
+    }
+  ]).toArray();
+
+  const productCounts = new Map<string, number>();
+  [...activeSales, ...archivedSales].forEach(sale => {
+    if (sale._id) {
+      const currentCount = productCounts.get(sale._id) || 0;
+      productCounts.set(sale._id, currentCount + sale.totalSold);
+    }
+  });
+
+  const sortedProducts = Array.from(productCounts.entries())
+    .map(([product, count]) => ({ product, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return sortedProducts;
+}
 
 export const updateUser = async (id: string, userData: Partial<User>): Promise<PrixResponse> => {
   try {

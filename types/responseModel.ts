@@ -47,6 +47,22 @@ interface UpdatedProduct {
   variantName?: string
 }
 
+export interface TopCategoryStat {
+  category: string;
+  count: number;
+}
+
+export interface TopProductStat {
+  product: string;
+  count: number;
+}
+export interface PrixerDashboardStats {
+  myArtStats: Partial<Art>[];
+  topCategories: TopCategoryStat[];
+  topProducts: TopProductStat[];
+  myProductStats: TopProductStat[];
+}
+
 type PrixResult =
   | Account
   | Account[]
@@ -82,6 +98,7 @@ type PrixResult =
   | PermissionsV2[]
   | Prixer
   | Prixer[]
+  | PrixerDashboardStats
   | Product
   | Product[]
   | Record<string, string[]>
