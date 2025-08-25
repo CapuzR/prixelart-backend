@@ -13,10 +13,10 @@ export const createArt = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-     if (!req.permissions?.products.createProduct) {
-      res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
-      return;
-    }
+    //  if (!req.permissions?.products.createProduct) {
+    //   res.status(403).send({ success: false, message: "No tienes permiso para crear Artes." });
+    //   return;
+    // }
 
     // TUS-uploaded image stored in session.uploadResults.images
     // const imageUrl =

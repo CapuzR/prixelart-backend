@@ -9,6 +9,7 @@ router.post(
   userAuthControllers.ensureAuthenticated,
   artControllers.createArt
 )
+
 router.get("/art/read-by-prixer/:username", artControllers.readAllByUsername)
 router.get(
   "/art/read-all",
