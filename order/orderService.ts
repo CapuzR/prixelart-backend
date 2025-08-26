@@ -268,11 +268,42 @@ export const updateOrderAndProcessCommissions = async (
       throw new Error("Orden no encontrada o no se pudo actualizar.")
     }
 
+    const currentGlobalStatus = updatedOrder.status?.slice(-1)[0]?.[0];
+    const targetStatuses = [
+      OrderStatus.ReadyToShip,
+      OrderStatus.Delivered,
+      OrderStatus.Finished,
+    ];
+
+    if (currentGlobalStatus && targetStatuses.includes(currentGlobalStatus)) {
+      console.log(
+        `Estado global de la orden es ${currentGlobalStatus}. Actualizando estado de todas las líneas a 'Finished'...`
+      );
+
+      const updatedLines = updatedOrder.lines.map((line) => {
+        const newStatusHistory = [
+          ...(line.status || []),
+          [OrderStatus.Finished, new Date()] as [OrderStatus, Date],
+        ];
+        return {
+          ...line,
+          status: newStatusHistory,
+        };
+      });
+
+      await orders.updateOne(
+        { _id: orderObjectId },
+        { $set: { lines: updatedLines } },
+        { session }
+      );
+
+      updatedOrder.lines = updatedLines;
+    }
+
     const shouldProcessCommissions =
       updatedOrder.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
       updatedOrder.payment?.status?.slice(-1)[0]?.[0] ===
         GlobalPaymentStatus.Paid
-    // && !updatedOrder.commissionsProcessed;
 
     if (shouldProcessCommissions) {
       console.log(
