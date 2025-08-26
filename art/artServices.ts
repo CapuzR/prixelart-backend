@@ -115,14 +115,8 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
         const escapedSearchText = searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 
         const fieldsToSearch = [
-          'title',
-          'description',
-          'category',
-          'prixerUsername',
-          'tags',
-          'artType',
-          'artLocation',
-          'artId'
+          'title', 'description', 'category', 'prixerUsername',
+          'tags', 'artType', 'artLocation', 'artId'
         ];
 
         q.$or = fieldsToSearch.map(field => ({
@@ -137,15 +131,13 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
       q.prixerUsername = filters.username;
     }
 
-    const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.find(q)
-    .collation({ locale: 'es', strength: 1 })
-    .skip(skip)
-    .limit(limit + 1)
-    .toArray();
-
+    const arts = await art.aggregate<Art>([
+      { $match: q },
+      { $sample: { size: limit + 1 } }
+    ]).toArray();
+    
     const hasMore = arts.length > limit;
     const resultsToSend = hasMore ? arts.slice(0, limit) : arts;
 
