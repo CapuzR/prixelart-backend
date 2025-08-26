@@ -19,12 +19,14 @@ export const createUser = async (userData: User): Promise<PrixResponse> => {
   try {
     const users = usersCollection();
     const existingUserByEmail = await users.findOne({ email: userData.email });
-    const existingUserByUsername = await readUserByUsername(userData.username);
-    if (existingUserByUsername.success) {
-      return {
-        success: false,
-        message: 'Disculpa, el nombre de usuario ya está registrado.',
-      };
+    if (userData?.username) {
+      const existingUserByUsername = await readUserByUsername(userData?.username);
+      if (existingUserByUsername.success) {
+        return {
+          success: false,
+          message: 'Disculpa, el nombre de usuario ya está registrado.',
+        };
+      }
     }
     if (existingUserByEmail) {
       return {
@@ -61,6 +63,66 @@ export const createUser = async (userData: User): Promise<PrixResponse> => {
       success: false,
       message: `An error occurred: ${errorMsg}`,
     };
+  }
+};
+
+export const findOrCreateClient = async (order: Partial<Order>): Promise<PrixResponse> => {
+  try {
+    const users = usersCollection();
+    const clientData = order.consumerDetails;
+    let existingClient: User | null = null;
+
+    if (clientData?.basic?.email) {
+      existingClient = await users.findOne({ email: clientData.basic.email });
+    }
+
+    if (!existingClient && clientData?.basic?.phone) {
+      existingClient = await users.findOne({ phone: clientData.basic.phone });
+    }
+    if (existingClient) {
+      const updatedFields: Partial<User> = {
+        firstName: clientData?.basic?.name ?? existingClient.firstName,
+        lastName: clientData?.basic?.lastName ?? existingClient.lastName,
+        email: clientData?.basic?.email ?? existingClient.email,
+        phone: clientData?.basic?.phone ?? existingClient.phone,
+        city: clientData?.selectedAddress?.city ?? existingClient.city,
+        country: clientData?.selectedAddress?.country ?? existingClient.country,
+        shippingAddress: order?.shipping?.address.line1 ?? existingClient.shippingAddress,
+        billingAddress: order?.billing?.address?.address?.line1 ?? existingClient.billingAddress,
+      };
+
+      await users.updateOne({ _id: existingClient._id }, { $set: updatedFields });
+
+      const updatedClient = { ...existingClient, ...updatedFields };
+
+      return { success: true, message: 'Cliente actualizado con éxito.', result: updatedClient };
+    } else {
+      const newClientData: User = {
+        firstName: clientData?.basic?.name || '',
+        lastName: clientData?.basic?.lastName || '',
+        email: clientData?.basic?.email!,
+        phone: clientData?.basic?.phone,
+        active: true,
+        role: ['Consumer'],
+        city: clientData?.selectedAddress?.city,
+        country: clientData?.selectedAddress?.country,
+        shippingAddress: order?.shipping?.address.line1,
+        billingAddress: order?.billing?.address?.address?.line1,
+      };
+
+      const result = await users.insertOne(newClientData);
+      const newClient = await users.findOne({ _id: result.insertedId });
+
+      return {
+        success: true,
+        message: 'Cliente creado con éxito.',
+        result: newClient!,
+      };
+    }
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('Error en findOrCreateClient:', errorMsg);
+    return { success: false, message: `Error al procesar el cliente: ${errorMsg}` };
   }
 };
 
@@ -346,7 +408,7 @@ export const getMyStats = async (username: string): Promise<PrixResponse> => {
       getUserArtStats(username),
       getTopArtCategories(),
       getTopSoldProducts(),
-      getProductsSoldWithUserArt(username)
+      getProductsSoldWithUserArt(username),
     ]);
 
     return {
@@ -439,10 +501,7 @@ async function getTopArtCategories(): Promise<{ category: string; count: number 
       {
         $match: {
           $expr: {
-            $eq: [
-              { $arrayElemAt: [{ $last: '$status' }, 0] },
-              5,
-            ],
+            $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5],
           },
         },
       },
@@ -487,7 +546,7 @@ async function getTopArtCategories(): Promise<{ category: string; count: number 
     ])
     .toArray();
 
-    const categoryCounts = new Map<string, number>();
+  const categoryCounts = new Map<string, number>();
   [...activeCategorySales, ...archivedCategorySales].forEach((sale) => {
     if (sale._id) {
       const currentCount = categoryCounts.get(sale._id) || 0;
@@ -508,14 +567,13 @@ async function getTopSoldProducts(): Promise<{ product: string; count: number }[
 
   const activeProductSales = await orderCollection
     .aggregate([
-      { $match: {
-        $expr: {
-          $eq: [
-            { $arrayElemAt: [{ $last: '$status' }, 0] },
-            5
-          ]
-        }
-      } },
+      {
+        $match: {
+          $expr: {
+            $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5],
+          },
+        },
+      },
       { $unwind: '$lines' },
       {
         $group: {
@@ -555,50 +613,60 @@ async function getTopSoldProducts(): Promise<{ product: string; count: number }[
   return sortedProducts;
 }
 
-async function getProductsSoldWithUserArt(username: string): Promise<{ product: string; count: number }[]> {
+async function getProductsSoldWithUserArt(
+  username: string
+): Promise<{ product: string; count: number }[]> {
   const orderCollection = getDb().collection<Order>('order');
   const archiveCollection = getDb().collection<OrderArchive>('orderArchive');
 
-  const activeSales = await orderCollection.aggregate([
-    { $match: { $expr: { $eq: [ { $arrayElemAt: [{ $last: '$status' }, 0] }, 5 ] } } },
-    { $unwind: '$lines' },
-    { $lookup: {
-        from: 'arts',
-        localField: 'lines.item.art.artId',
-        foreignField: 'artId',
-        as: 'artDetails'
-      }
-    },
-    { $unwind: '$artDetails' },
-    { $match: { 'artDetails.prixerUsername': username } },
-    { $group: {
-        _id: '$lines.item.product.name',
-        totalSold: { $sum: '$lines.quantity' }
-      }
-    }
-  ]).toArray();
+  const activeSales = await orderCollection
+    .aggregate([
+      { $match: { $expr: { $eq: [{ $arrayElemAt: [{ $last: '$status' }, 0] }, 5] } } },
+      { $unwind: '$lines' },
+      {
+        $lookup: {
+          from: 'arts',
+          localField: 'lines.item.art.artId',
+          foreignField: 'artId',
+          as: 'artDetails',
+        },
+      },
+      { $unwind: '$artDetails' },
+      { $match: { 'artDetails.prixerUsername': username } },
+      {
+        $group: {
+          _id: '$lines.item.product.name',
+          totalSold: { $sum: '$lines.quantity' },
+        },
+      },
+    ])
+    .toArray();
 
-  const archivedSales = await archiveCollection.aggregate([
-    { $match: { status: 'Concretado' } },
-    { $unwind: '$requests' },
-    { $lookup: {
-        from: 'arts',
-        localField: 'requests.art.artId',
-        foreignField: 'artId',
-        as: 'artDetails'
-      }
-    },
-    { $unwind: '$artDetails' },
-    { $match: { 'artDetails.prixerUsername': username } },
-    { $group: {
-        _id: '$requests.product.name',
-        totalSold: { $sum: { $toInt: '$requests.quantity' } }
-      }
-    }
-  ]).toArray();
+  const archivedSales = await archiveCollection
+    .aggregate([
+      { $match: { status: 'Concretado' } },
+      { $unwind: '$requests' },
+      {
+        $lookup: {
+          from: 'arts',
+          localField: 'requests.art.artId',
+          foreignField: 'artId',
+          as: 'artDetails',
+        },
+      },
+      { $unwind: '$artDetails' },
+      { $match: { 'artDetails.prixerUsername': username } },
+      {
+        $group: {
+          _id: '$requests.product.name',
+          totalSold: { $sum: { $toInt: '$requests.quantity' } },
+        },
+      },
+    ])
+    .toArray();
 
   const productCounts = new Map<string, number>();
-  [...activeSales, ...archivedSales].forEach(sale => {
+  [...activeSales, ...archivedSales].forEach((sale) => {
     if (sale._id) {
       const currentCount = productCounts.get(sale._id) || 0;
       productCounts.set(sale._id, currentCount + sale.totalSold);

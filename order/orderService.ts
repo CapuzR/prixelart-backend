@@ -16,7 +16,7 @@ import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
 import { Admin } from "../admin/adminModel.ts"
-import { readUserByUsername } from "../user/userServices/userServices.ts"
+import { findOrCreateClient, readUserByUsername } from "../user/userServices/userServices.ts"
 import { updateBalance, createMovement } from "../movements/movementServices.ts"
 import { readOneByObjId } from "../art/artServices.ts"
 import { Art } from "../art/artModel.ts"
@@ -51,8 +51,6 @@ export const createOrder = async (
   prixerUsername?: string
 ): Promise<PrixResponse> => {
   try {
-    // 1) If this is a Prixer order, verify the user exists
-
     let prixerUser: User | null = null
     if (isPrixer) {
       if (!prixerUsername) {
@@ -67,14 +65,14 @@ export const createOrder = async (
       }
       prixerUser = prixerResp.result as User
     }
+    const clientResponse = await findOrCreateClient(order)
+    const client = clientResponse.result as User;
+    const clientId = client._id;
 
-    // 2) Validate & correct each line
     const validatedLines: OrderLine[] = await Promise.all(
       order.lines.map(async (line) => {
-        // 1) productId from the product object
         const productId = line.item.product._id!.toString()
 
-        // 2) find the variant whose attributes match your selection[]
         const sel = line.item.product.selection ?? []
         const variant = line.item.product.variants?.find(
           (v) =>
@@ -90,7 +88,6 @@ export const createOrder = async (
         }
         const variantId = variant._id
 
-        // 3) fetch the latest price
         const priceResp = await getVariantPrice(
           variantId,
           productId,
@@ -102,35 +99,24 @@ export const createOrder = async (
             `Error al obtener precio para ${productId}/${variantId}: ${priceResp.message}`
           )
         }
-        const [, finalPrice] = priceResp.result
-
-        // 4) overwrite pricePerUnit & recalc subtotal
-        // line.pricePerUnit = Number(finalPrice);
         line.discount = 0 // or your 10% logic
-        // line.subtotal = parseFloat(
-        //   (line.quantity * Number(finalPrice) - (line.discount ?? 0)).toFixed(2)
-        // );
-
-        // 5) set initial status
         line.status = [[OrderStatus.Pending, new Date()]]
 
         return line
       })
     )
 
-    // 3) (Optional) Recalculate order totals
     const totalUnits = validatedLines.reduce((sum, l) => sum + l.quantity, 0)
-    // const subTotal = parseFloat(
-    //   validatedLines
-    //     .reduce((sum, l) => sum + l.subtotal, 0)
-    //     .toFixed(2)
-    // );
-
-    
-    // 4) Insert into MongoDB
     const orders = orderCollection()
     const { acknowledged, insertedId } = await orders.insertOne({
       ...order,
+      consumerDetails: {
+        ...order.consumerDetails,
+        basic: {
+          ...order.consumerDetails?.basic,
+          id: clientId && clientId?.toString(),
+        },
+      },
       lines: validatedLines,
       totalUnits,
       history: [
@@ -140,9 +126,9 @@ export const createOrder = async (
           description: "Pedido creado.",
         }
       ],
-      // subTotal,
       createdOn: new Date(),
     })
+
     let orderEmail
     if (!acknowledged) {
       return { success: false, message: "No se pudo crear la orden." }
