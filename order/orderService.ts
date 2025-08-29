@@ -473,6 +473,7 @@ export interface GlobalDashboardStatsData {
   prevPeriodTotalOrders: number
   totalOrdersAmount: number
   totalPaidAmount: number
+  totalPendingAmount: number
   totalFinalizedAmount: number
 }
 
@@ -535,8 +536,22 @@ export const calculateGlobalDashboardStats = async (
               $cond: {
                 if: {
                   $eq: [
-                    { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
-                    GlobalPaymentStatus.Paid,
+                    { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                    String(GlobalPaymentStatus.Paid),
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
+          totalPendingAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $in: [
+                    { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                    [String(GlobalPaymentStatus.Pending), String(GlobalPaymentStatus.Credited)],
                   ],
                 },
                 then: "$total",
@@ -551,14 +566,14 @@ export const calculateGlobalDashboardStats = async (
                   $and: [
                     {
                       $eq: [
-                        { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] },
-                        OrderStatus.Finished,
+                        { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] } },
+                        String(OrderStatus.Finished),
                       ],
                     },
                     {
                       $eq: [
-                        { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
-                        GlobalPaymentStatus.Paid,
+                        { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                        String(GlobalPaymentStatus.Paid),
                       ],
                     },
                   ],
@@ -585,6 +600,7 @@ export const calculateGlobalDashboardStats = async (
           },
           totalOrdersAmount: { $ifNull: ["$totalOrdersAmount", 0] },
           totalPaidAmount: { $ifNull: ["$totalPaidAmount", 0] },
+          totalPendingAmount: { $ifNull: ["$totalPendingAmount", 0] },
           totalFinalizedAmount: { $ifNull: ["$totalFinalizedAmount", 0] },
         },
       },
@@ -597,6 +613,7 @@ export const calculateGlobalDashboardStats = async (
       averageOrderValue: 0,
       totalOrdersAmount: 0,
       totalPaidAmount: 0,
+      totalPendingAmount: 0,
       totalFinalizedAmount: 0,
     }
 
@@ -632,7 +649,6 @@ export const calculateGlobalDashboardStats = async (
       .toArray()
     const prevStats = prevStatsResult[0] || { totalSales: 0, totalOrders: 0 }
 
-    // For Order Status Counts, fetch all relevant orders and process
     const ordersForStatusCount = (await collection
       .find(matchQuery)
       .project({ lines: 1 })
@@ -669,6 +685,7 @@ export const calculateGlobalDashboardStats = async (
       prevPeriodTotalOrders: prevStats.totalOrders,
       totalOrdersAmount: mainStats.totalOrdersAmount,
       totalPaidAmount: mainStats.totalPaidAmount,
+      totalPendingAmount: mainStats.totalPendingAmount,
       totalFinalizedAmount: mainStats.totalFinalizedAmount,
     }
 
