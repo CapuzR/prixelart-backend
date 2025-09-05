@@ -102,11 +102,11 @@ export enum GlobalPaymentStatus {
   // Giftcard = 3, // This item is produced, packed, and waiting for carrier pickup
   // Gift = 4, // Carrier confirmed delivery of this item
 }
-interface ConsumerDetails {
-  basic: BasicInfo;
-  selectedAddress: BasicAddress;
-  addresses: BasicAddress[];
-  paymentMethods: PaymentMethod[];
+export interface ConsumerDetails {
+  basic?: BasicInfo;
+  selectedAddress?: BasicAddress;
+  addresses?: BasicAddress[];
+  paymentMethods?: PaymentMethod[];
 }
 
 interface BasicAddress {
@@ -121,10 +121,10 @@ interface BasicAddress {
 
 export interface BasicInfo {
   id?: string;
-  name: string;
-  lastName: string;
+  name?: string;
+  lastName?: string;
   email?: string;
-  phone: string;
+  phone?: string;
   shortAddress?: string;
 }
 

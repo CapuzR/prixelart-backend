@@ -1,7 +1,7 @@
 import { Account } from "../account/accountModel.ts"
 import { Admin } from "../admin/adminModel.ts"
 import { PermissionsV2 } from "../admin/permissionsModel.ts"
-import { Art } from "../art/artModel.ts"
+import { Art, ArtStatTemporary } from "../art/artModel.ts"
 import { Discount } from "../discount/discountModel.ts"
 import { Manufacturer } from "../manufacturer/manufacturerModel.ts"
 import { Movement } from "../movements/movementModel.ts"
@@ -37,6 +37,32 @@ interface email {
   message: string
   data?: any
 }
+
+interface UpdatedProduct {
+  productId?: string
+  variantId?: string
+  success: boolean
+  message: string
+  productName?: string
+  variantName?: string
+}
+
+export interface TopCategoryStat {
+  category: string;
+  count: number;
+}
+
+export interface TopProductStat {
+  product: string;
+  count: number;
+}
+export interface PrixerDashboardStats {
+  myArtStats: Partial<Art>[];
+  topCategories: TopCategoryStat[];
+  topProducts: TopProductStat[];
+  myProductStats: TopProductStat[];
+}
+
 type PrixResult =
   | Account
   | Account[]
@@ -44,6 +70,8 @@ type PrixResult =
   | Admin[]
   | Art
   | Art[]
+  | ArtStatTemporary
+  | ArtStatTemporary[]
   | CarouselItem
   | CarouselItem[]
   | Discount
@@ -70,8 +98,10 @@ type PrixResult =
   | PermissionsV2[]
   | Prixer
   | Prixer[]
+  | PrixerDashboardStats
   | Product
   | Product[]
+  | Record<string, string[]>
   | Service
   | Service[]
   | ShippingMethod
@@ -84,9 +114,9 @@ type PrixResult =
   | Testimonial
   | Testimonial[]
   | TopPerformingItemData[]
+  | UpdatedProduct[]
   | User
   | User[]
-  | Record<string, string[]>
 
 
 export interface PrixResponse {

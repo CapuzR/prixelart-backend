@@ -2,6 +2,7 @@ import { Art } from "./artModel.ts";
 import { Collection, ObjectId } from "mongodb";
 import { GalleryResult, PrixResponse } from "../types/responseModel.ts";
 import { getDb } from "../mongo.ts";
+import mongoose from "mongoose"
 
 function artCollection(): Collection<Art> {
   return getDb().collection<Art>("arts");
@@ -31,8 +32,13 @@ export const createArt = async (art: Art): Promise<PrixResponse> => {
 export const readOneById = async (artId: string): Promise<PrixResponse> => {
   try {
     const arts = artCollection();
-    const art = await arts.findOne({ artId, visible: true });
+    const art = await arts.findOne({ artId, visible: true })
+
     if (!art) return { success: false, message: "Arte no encontrado." };
+    const createdOn = new mongoose.Types.ObjectId(art._id)
+    const date = createdOn.getTimestamp()
+    art.createdOn = date
+
     return { success: true, message: "Arte encontrado.", result: art };
   } catch (e: unknown) {
     return {
@@ -115,14 +121,8 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
         const escapedSearchText = searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 
         const fieldsToSearch = [
-          'title',
-          'description',
-          'category',
-          'prixerUsername',
-          'tags',
-          'artType',
-          'artLocation',
-          'artId'
+          'title', 'description', 'category', 'prixerUsername',
+          'tags', 'artType', 'artLocation', 'artId'
         ];
 
         q.$or = fieldsToSearch.map(field => ({
@@ -137,15 +137,13 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
       q.prixerUsername = filters.username;
     }
 
-    const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.find(q)
-    .collation({ locale: 'es', strength: 1 })
-    .skip(skip)
-    .limit(limit + 1)
-    .toArray();
-
+    const arts = await art.aggregate<Art>([
+      { $match: q },
+      { $sample: { size: limit + 1 } }
+    ]).toArray();
+    
     const hasMore = arts.length > limit;
     const resultsToSend = hasMore ? arts.slice(0, limit) : arts;
 
@@ -266,9 +264,11 @@ export const readAllByUsername = async (
 export const updateArt = async (id: string, data: Partial<Art>): Promise<PrixResponse> => {
   try {
     const art = artCollection();
+    const { _id, ...updateData } = data;
+
     const result = await art.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: data },
+      { $set: updateData },
       { returnDocument: "after" }
     );
     if (result && !result.title) return { success: false, message: "Arte no encontrado." };

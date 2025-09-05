@@ -16,7 +16,7 @@ import { readByUsername } from "../prixer/prixerServices.ts"
 import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
 import { Admin } from "../admin/adminModel.ts"
-import { readUserByUsername } from "../user/userServices/userServices.ts"
+import { findOrCreateClient, readUserByUsername } from "../user/userServices/userServices.ts"
 import { updateBalance, createMovement } from "../movements/movementServices.ts"
 import { readOneByObjId } from "../art/artServices.ts"
 import { Art } from "../art/artModel.ts"
@@ -51,8 +51,6 @@ export const createOrder = async (
   prixerUsername?: string
 ): Promise<PrixResponse> => {
   try {
-    // 1) If this is a Prixer order, verify the user exists
-
     let prixerUser: User | null = null
     if (isPrixer) {
       if (!prixerUsername) {
@@ -67,14 +65,14 @@ export const createOrder = async (
       }
       prixerUser = prixerResp.result as User
     }
+    const clientResponse = await findOrCreateClient(order)
+    const client = clientResponse.result as User;
+    const clientId = client._id;
 
-    // 2) Validate & correct each line
     const validatedLines: OrderLine[] = await Promise.all(
       order.lines.map(async (line) => {
-        // 1) productId from the product object
         const productId = line.item.product._id!.toString()
 
-        // 2) find the variant whose attributes match your selection[]
         const sel = line.item.product.selection ?? []
         const variant = line.item.product.variants?.find(
           (v) =>
@@ -90,7 +88,6 @@ export const createOrder = async (
         }
         const variantId = variant._id
 
-        // 3) fetch the latest price
         const priceResp = await getVariantPrice(
           variantId,
           productId,
@@ -102,35 +99,24 @@ export const createOrder = async (
             `Error al obtener precio para ${productId}/${variantId}: ${priceResp.message}`
           )
         }
-        const [, finalPrice] = priceResp.result
-
-        // 4) overwrite pricePerUnit & recalc subtotal
-        // line.pricePerUnit = Number(finalPrice);
         line.discount = 0 // or your 10% logic
-        // line.subtotal = parseFloat(
-        //   (line.quantity * Number(finalPrice) - (line.discount ?? 0)).toFixed(2)
-        // );
-
-        // 5) set initial status
         line.status = [[OrderStatus.Pending, new Date()]]
 
         return line
       })
     )
 
-    // 3) (Optional) Recalculate order totals
     const totalUnits = validatedLines.reduce((sum, l) => sum + l.quantity, 0)
-    // const subTotal = parseFloat(
-    //   validatedLines
-    //     .reduce((sum, l) => sum + l.subtotal, 0)
-    //     .toFixed(2)
-    // );
-
-    
-    // 4) Insert into MongoDB
     const orders = orderCollection()
     const { acknowledged, insertedId } = await orders.insertOne({
       ...order,
+      consumerDetails: {
+        ...order.consumerDetails,
+        basic: {
+          ...order.consumerDetails?.basic,
+          id: clientId && clientId?.toString(),
+        },
+      },
       lines: validatedLines,
       totalUnits,
       history: [
@@ -140,9 +126,9 @@ export const createOrder = async (
           description: "Pedido creado.",
         }
       ],
-      // subTotal,
       createdOn: new Date(),
     })
+
     let orderEmail
     if (!acknowledged) {
       return { success: false, message: "No se pudo crear la orden." }
@@ -282,11 +268,42 @@ export const updateOrderAndProcessCommissions = async (
       throw new Error("Orden no encontrada o no se pudo actualizar.")
     }
 
+    const currentGlobalStatus = updatedOrder.status?.slice(-1)[0]?.[0];
+    const targetStatuses = [
+      OrderStatus.ReadyToShip,
+      OrderStatus.Delivered,
+      OrderStatus.Finished,
+    ];
+
+    if (currentGlobalStatus && targetStatuses.includes(currentGlobalStatus)) {
+      console.log(
+        `Estado global de la orden es ${currentGlobalStatus}. Actualizando estado de todas las líneas a 'Finished'...`
+      );
+
+      const updatedLines = updatedOrder.lines.map((line) => {
+        const newStatusHistory = [
+          ...(line.status || []),
+          [OrderStatus.Finished, new Date()] as [OrderStatus, Date],
+        ];
+        return {
+          ...line,
+          status: newStatusHistory,
+        };
+      });
+
+      await orders.updateOne(
+        { _id: orderObjectId },
+        { $set: { lines: updatedLines } },
+        { session }
+      );
+
+      updatedOrder.lines = updatedLines;
+    }
+
     const shouldProcessCommissions =
       updatedOrder.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
       updatedOrder.payment?.status?.slice(-1)[0]?.[0] ===
         GlobalPaymentStatus.Paid
-    // && !updatedOrder.commissionsProcessed;
 
     if (shouldProcessCommissions) {
       console.log(
@@ -456,6 +473,7 @@ export interface GlobalDashboardStatsData {
   prevPeriodTotalOrders: number
   totalOrdersAmount: number
   totalPaidAmount: number
+  totalPendingAmount: number
   totalFinalizedAmount: number
 }
 
@@ -518,8 +536,22 @@ export const calculateGlobalDashboardStats = async (
               $cond: {
                 if: {
                   $eq: [
-                    { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
-                    GlobalPaymentStatus.Paid,
+                    { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                    String(GlobalPaymentStatus.Paid),
+                  ],
+                },
+                then: "$total",
+                else: 0,
+              },
+            },
+          },
+          totalPendingAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $in: [
+                    { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                    [String(GlobalPaymentStatus.Pending), String(GlobalPaymentStatus.Credited)],
                   ],
                 },
                 then: "$total",
@@ -534,14 +566,14 @@ export const calculateGlobalDashboardStats = async (
                   $and: [
                     {
                       $eq: [
-                        { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] },
-                        OrderStatus.Finished,
+                        { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$status", -1] }, 0] } },
+                        String(OrderStatus.Finished),
                       ],
                     },
                     {
                       $eq: [
-                        { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] },
-                        GlobalPaymentStatus.Paid,
+                        { $toString: { $arrayElemAt: [{ $arrayElemAt: ["$payment.status", -1] }, 0] } },
+                        String(GlobalPaymentStatus.Paid),
                       ],
                     },
                   ],
@@ -568,6 +600,7 @@ export const calculateGlobalDashboardStats = async (
           },
           totalOrdersAmount: { $ifNull: ["$totalOrdersAmount", 0] },
           totalPaidAmount: { $ifNull: ["$totalPaidAmount", 0] },
+          totalPendingAmount: { $ifNull: ["$totalPendingAmount", 0] },
           totalFinalizedAmount: { $ifNull: ["$totalFinalizedAmount", 0] },
         },
       },
@@ -580,6 +613,7 @@ export const calculateGlobalDashboardStats = async (
       averageOrderValue: 0,
       totalOrdersAmount: 0,
       totalPaidAmount: 0,
+      totalPendingAmount: 0,
       totalFinalizedAmount: 0,
     }
 
@@ -615,7 +649,6 @@ export const calculateGlobalDashboardStats = async (
       .toArray()
     const prevStats = prevStatsResult[0] || { totalSales: 0, totalOrders: 0 }
 
-    // For Order Status Counts, fetch all relevant orders and process
     const ordersForStatusCount = (await collection
       .find(matchQuery)
       .project({ lines: 1 })
@@ -652,6 +685,7 @@ export const calculateGlobalDashboardStats = async (
       prevPeriodTotalOrders: prevStats.totalOrders,
       totalOrdersAmount: mainStats.totalOrdersAmount,
       totalPaidAmount: mainStats.totalPaidAmount,
+      totalPendingAmount: mainStats.totalPendingAmount,
       totalFinalizedAmount: mainStats.totalFinalizedAmount,
     }
 

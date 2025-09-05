@@ -24,6 +24,7 @@ interface Certificate {
   sequence?: number
 }
 
+export type ArtStatTemporary = Partial<Art>
 export interface Art {
   _id?: ObjectId
   artId: string
@@ -49,6 +50,7 @@ export interface Art {
   points?: number
   prixerUsername: string
   publicId?: string
+  selled?: number
   smallThumbUrl: string
   squareThumbUrl: string
   surchargeId?: string[]
