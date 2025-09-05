@@ -2,6 +2,7 @@ import { Art } from "./artModel.ts";
 import { Collection, ObjectId } from "mongodb";
 import { GalleryResult, PrixResponse } from "../types/responseModel.ts";
 import { getDb } from "../mongo.ts";
+import mongoose from "mongoose"
 
 function artCollection(): Collection<Art> {
   return getDb().collection<Art>("arts");
@@ -31,8 +32,13 @@ export const createArt = async (art: Art): Promise<PrixResponse> => {
 export const readOneById = async (artId: string): Promise<PrixResponse> => {
   try {
     const arts = artCollection();
-    const art = await arts.findOne({ artId, visible: true });
+    const art = await arts.findOne({ artId, visible: true })
+
     if (!art) return { success: false, message: "Arte no encontrado." };
+    const createdOn = new mongoose.Types.ObjectId(art._id)
+    const date = createdOn.getTimestamp()
+    art.createdOn = date
+
     return { success: true, message: "Arte encontrado.", result: art };
   } catch (e: unknown) {
     return {
