@@ -9,8 +9,8 @@ export const thanksForYourPurchase = async (order: Order) => {
 
     const { data, error } = await resend.emails.send({
       from: "prixers@prixelart.com",
-      to: [order?.consumerDetails?.basic.email!],
-      subject: `|Prixelart| Gracias por comprar ${order?.consumerDetails?.basic.name} ${order?.consumerDetails?.basic.lastName}!`,
+      to: [order?.consumerDetails?.basic?.email!],
+      subject: `|Prixelart| Gracias por comprar ${order?.consumerDetails?.basic?.name} ${order?.consumerDetails?.basic?.lastName}!`,
       html: emailHtml,
     })
 
@@ -103,7 +103,7 @@ const createOrderTemplate = (order: Order): string => {
           <tr>
             <td>
               <div class="content-header">
-                <h2>¡Gracias por tu compra, ${order.consumerDetails?.basic.name} ${order.consumerDetails?.basic?.lastName}!</h2>
+                <h2>¡Gracias por tu compra, ${order.consumerDetails?.basic?.name} ${order.consumerDetails?.basic?.lastName}!</h2>
                 <p>Hemos recibido tu pedido #${order._id?.toString().slice(-6)} y ya lo estamos preparando. Aquí tienes el resumen:</p>
               </div>
             </td>
