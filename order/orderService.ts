@@ -3,7 +3,6 @@ import {
   OrderLine,
   OrderStatus,
   GlobalPaymentStatus,
-  HistoryEntry,
   PaymentMethod,
   ShippingMethod,
 } from "./orderModel.ts"
@@ -17,7 +16,6 @@ import { getVariantPrice } from "../product/productServices.ts"
 import { thanksForYourPurchase } from "../utils/emailSender.ts"
 import { Admin } from "../admin/adminModel.ts"
 import { findOrCreateClient, readUserByUsername } from "../user/userServices/userServices.ts"
-import { updateBalance, createMovement } from "../movements/movementServices.ts"
 import { readOneByObjId } from "../art/artServices.ts"
 import { Art } from "../art/artModel.ts"
 import { Movement } from "../movements/movementModel.ts"
@@ -51,6 +49,16 @@ export const createOrder = async (
   prixerUsername?: string
 ): Promise<PrixResponse> => {
   try {
+
+    for (const line of order.lines) {
+      if (!line.item.art) {
+        return {
+          success: false,
+          message: `El artículo "${line.item.product.name}" no tiene un arte asociado. Todos los artículos deben tener un arte para crear el pedido.`,
+        };
+      }
+    }
+
     let prixerUser: User | null = null
     if (isPrixer) {
       if (!prixerUsername) {
@@ -88,9 +96,14 @@ export const createOrder = async (
         }
         const variantId = variant._id
 
+        const artId = (line.item.art && '_id' in line.item.art)
+          ? line.item.art._id?.toString()
+          : undefined;
+
         const priceResp = await getVariantPrice(
           variantId,
           productId,
+          artId,
           prixerUser,
           isPrixer
         )
@@ -122,7 +135,7 @@ export const createOrder = async (
       history: [
         {
           timestamp: order.createdOn,
-          user: order.seller ||  order.createdBy,
+          user: order.seller || order.createdBy,
           description: "Pedido creado.",
         }
       ],
@@ -187,10 +200,10 @@ export const readAllOrders = async (): Promise<PrixResponse> => {
       .toArray()
     return orders.length
       ? {
-          success: true,
-          message: "Todas las órdenes disponibles.",
-          result: orders,
-        }
+        success: true,
+        message: "Todas las órdenes disponibles.",
+        result: orders,
+      }
       : { success: false, message: "No hay órdenes registradas." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -227,10 +240,10 @@ export const addVoucher = async (
     )
     return updatedOrder
       ? {
-          success: true,
-          message: "Comprobante agregado.",
-          result: updatedOrder,
-        }
+        success: true,
+        message: "Comprobante agregado.",
+        result: updatedOrder,
+      }
       : { success: false, message: "Orden no encontrada." }
   } catch (e) {
     return { success: false, message: `Error: ${e}` }
@@ -302,8 +315,8 @@ export const updateOrderAndProcessCommissions = async (
 
     const shouldProcessCommissions =
       updatedOrder.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
-      updatedOrder.payment?.status?.slice(-1)[0]?.[0] ===
-        GlobalPaymentStatus.Paid
+      updatedOrder.payment?.status?.slice(-1)[0]?.[0] === GlobalPaymentStatus.Paid &&
+      !updatedOrder.commissionsProcessed;
 
     if (shouldProcessCommissions) {
       console.log(
@@ -662,7 +675,7 @@ export const calculateGlobalDashboardStats = async (
       })
 
     ordersForStatusCount.forEach((order) => {
-      ;(order.lines || []).forEach((line) => {
+      ; (order.lines || []).forEach((line) => {
         if (line.status && line.status.length > 0) {
           const latestStatusTuple = line.status[line.status.length - 1]
           const statusEnum = latestStatusTuple[0]
@@ -1022,9 +1035,8 @@ export const getProductionLinePerformance = async (
     console.error("!!! [CRITICAL_ERROR] in getProductionLinePerformance:", e)
     return {
       success: false,
-      message: `Error fetching production line performance: ${
-        e instanceof Error ? e.message : String(e)
-      }`,
+      message: `Error fetching production line performance: ${e instanceof Error ? e.message : String(e)
+        }`,
     }
   }
 }
@@ -1081,9 +1093,8 @@ export const getArtPerformance = async (
     console.error("!!! [CRITICAL_ERROR] in getArtPerformance:", e)
     return {
       success: false,
-      message: `Error fetching art performance: ${
-        e instanceof Error ? e.message : String(e)
-      }`,
+      message: `Error fetching art performance: ${e instanceof Error ? e.message : String(e)
+        }`,
     }
   }
 }
@@ -1394,14 +1405,14 @@ export const updatePaymentMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de pago actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de pago actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de pago no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de pago no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating payment method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -1432,9 +1443,9 @@ export const deletePaymentMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de pago eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de pago no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de pago no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting payment method:", e)
     return {
@@ -1548,14 +1559,14 @@ export const updateShippingMethod = async (
 
     return result
       ? {
-          success: true,
-          message: "Método de envío actualizado con éxito.",
-          result: result,
-        }
+        success: true,
+        message: "Método de envío actualizado con éxito.",
+        result: result,
+      }
       : {
-          success: false,
-          message: "Método de envío no encontrado para actualizar.",
-        }
+        success: false,
+        message: "Método de envío no encontrado para actualizar.",
+      }
   } catch (e: any) {
     console.error("Error updating shipping method:", e)
     if (e.code === 11000 && updateData.name) {
@@ -1586,9 +1597,9 @@ export const deleteShippingMethod = async (
     return deletedCount && deletedCount > 0
       ? { success: true, message: "Método de envío eliminado exitosamente." }
       : {
-          success: false,
-          message: "Método de envío no encontrado o ya eliminado.",
-        }
+        success: false,
+        message: "Método de envío no encontrado o ya eliminado.",
+      }
   } catch (e: any) {
     console.error("Error deleting shipping method:", e)
     return {

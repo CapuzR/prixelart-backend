@@ -30,6 +30,8 @@ export interface Order {
 
   seller?: string;
   observations?: string;
+
+  commissionsProcessed?: boolean; // Flag to indicate if commissions have been processed
 }
 
 export interface HistoryEntry {
@@ -43,13 +45,13 @@ interface PickedArt
     Art,
     'artId' | 'title' | 'largeThumbUrl' | 'prixerUsername' | 'exclusive' | '_id'
   > { }
-  
-  export interface CustomImage {
-    url: string
-    title: string
-    description?: string
-    prixerUsername?: string
-  }
+
+export interface CustomImage {
+  url: string
+  title: string
+  description?: string
+  prixerUsername?: string
+}
 interface PickedProduct
   extends Pick<
     Product,
