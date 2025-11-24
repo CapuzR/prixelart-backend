@@ -111,8 +111,19 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
 
     if (filters.text) {
       const searchText = filters.text.trim();
+      
       if (searchText.length > 0) {
-        q.title = { $regex: `^${searchText}`, $options: 'i' };
+        const safeSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regexPattern = { $regex: safeSearchText, $options: 'i' };
+
+        q.$or = [
+          { title: regexPattern },
+          { artLocation: regexPattern },
+          { category: regexPattern },
+          { description: regexPattern },
+          { prixerUsername: regexPattern },
+          { tags: regexPattern }
+        ];
       }
     }
     if (filters.category) {
@@ -125,7 +136,7 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
     const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.find(q).skip(skip).limit(limit + 1).toArray();
+    const arts = await art.find(q).sort({ createdOn: -1, _id: -1 }).skip(skip).limit(limit + 1).toArray();
 
     const hasMore = arts.length > limit;
 
@@ -209,6 +220,7 @@ export const readAllByUsername = async (
       // Default sort if sortBy is not provided or not allowed
       sortCriteria['createdAt'] = -1; // Default to newest first
     }
+    sortCriteria['_id'] = -1;
 
     const totalArts = await artsCollection.countDocuments(query);
     const totalPages = Math.ceil(totalArts / limit);
