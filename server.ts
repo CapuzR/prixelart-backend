@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser"
 import session from "cookie-session"
 import dotenv from 'dotenv'
 import helmet from "helmet"
-import { Server, EVENTS, Upload, ServerOptions } from "@tus/server"
+import { Server, EVENTS, Upload } from "@tus/server"
 import { S3Store } from "@tus/s3-store"
 import {
   S3Client,
@@ -21,11 +21,10 @@ import {
 import pathNode from "node:path"
 import sharp from "sharp"
 import { Readable } from "stream"
+import { Server as ServerIO } from 'socket.io';
+import http from 'http';
 
 dotenv.config()
-
-// const __filename = fileURLToPath(import.meta.url)
-// const __dirname = path.dirname(__filename)
 
 const app = express()
 
@@ -40,7 +39,7 @@ app.use(
     secure: true,
     httpOnly: true,
     sameSite: "none",
-    domain: ".prixelart.com",
+    domain: "localhost",
     path: "/",
     maxAge: 12 * 60 * 60 * 1000,
     overwrite: true,
@@ -49,6 +48,7 @@ app.use(
 
 const frontEndUrl = process.env.FRONT_END_URL || "http://localhost:3000"
 const allowedOrigins: string[] = [
+  `https://localhost:3000`,
   `http://${frontEndUrl}`,
   `https://${frontEndUrl}`,
   `http://admin.${frontEndUrl}`,
@@ -438,5 +438,15 @@ app.use(
     res.json({ error: err.message || "Error desconocido" })
   }
 )
+
+export const httpServer = http.createServer(app);
+
+export const io = new ServerIO(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 export default app

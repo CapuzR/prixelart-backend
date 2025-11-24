@@ -129,7 +129,7 @@ export const updateOrder = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  if (!req.permissions?.createOrder) {
+  if (!req.permissions?.orders.updateItemStatus) {
     res.send({
       success: false,
       message: "No tienes autorización para realizar esta acción.",

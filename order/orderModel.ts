@@ -1,10 +1,10 @@
-import { ObjectId } from "mongodb";
-import { Art } from "../art/artModel.ts";
-import { Product, VariantAttribute } from "../product/productModel.ts";
-
+import { ObjectId } from 'mongodb';
+import { Art } from '../art/artModel.ts';
+import { Product, VariantAttribute } from '../product/productModel.ts';
+import mongoose, { Schema, Document } from 'mongoose';
 // Main Order interface
 export interface Order {
-  _id?: ObjectId;
+  // _id?: ObjectId;
   number?: number;
   lines: OrderLine[]; // requests
   createdOn: Date;
@@ -14,11 +14,8 @@ export interface Order {
   payment: PaymentDetails;
   shipping: ShippingDetails;
   billing: BillingDetails;
-
   totalUnits: number;
-  status: [OrderStatus, Date][]
-  // paymentStatus: [GlobalPaymentStatus, Date][]
-
+  status: [OrderStatus, Date][];
   subTotal: number;
   discount?: number;
   surcharge?: number;
@@ -44,14 +41,7 @@ interface PickedArt
     prixerUsername?: string
   }
 interface PickedProduct
-  extends Pick<
-    Product,
-    | '_id'
-    | 'name'
-    | 'productionTime'
-    | 'sources'
-    | 'variants'
-  > {
+  extends Pick<Product, '_id' | 'name' | 'productionTime' | 'sources' | 'variants'> {
   selection?: VariantAttribute[];
 }
 
@@ -147,7 +137,7 @@ interface Payment {
 interface PaymentDetails {
   total: number;
   payment: Payment[];
-  status: [GlobalPaymentStatus, Date][]
+  status: [GlobalPaymentStatus, Date][];
 }
 
 interface ShippingDetails {
@@ -184,3 +174,153 @@ export interface ShippingMethod {
   createdBy: String;
   price: string;
 }
+
+export interface OrderDocument extends Order, Document {}
+
+const itemSchema = new Schema<Item>(
+  {
+    sku: { type: String, required: true },
+    art: { type: Schema.Types.Mixed },
+    product: { type: Object, required: true },
+    price: { type: String, required: true },
+    discount: Number,
+    surcharge: Number,
+  },
+  { _id: false }
+);
+
+const orderLineSchema = new Schema<OrderLine>(
+  {
+    id: { type: String, required: true },
+    item: { type: itemSchema, required: true },
+    quantity: { type: Number, required: true },
+    pricePerUnit: { type: Number, required: true },
+    subtotal: { type: Number, required: true },
+    status: { type: [[Number, Date]], required: true },
+    discount: Number,
+    surcharge: Number,
+  },
+  { _id: false }
+);
+
+const paymentSchema = new Schema<Payment>(
+  {
+    id: { type: String, required: true },
+    description: { type: String, required: true },
+    voucher: String,
+    method: { type: Object, required: true },
+    amount: String,
+    createdOn: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
+const paymentDetailsSchema = new Schema<PaymentDetails>(
+  {
+    total: { type: Number, required: true },
+    payment: { type: [paymentSchema], required: true },
+    status: { type: [[Number, Date]], required: true },
+  },
+  { _id: false }
+);
+
+const historyEntrySchema = new Schema<HistoryEntry>(
+  {
+    timestamp: { type: Date, required: true },
+    user: { type: String, required: true },
+    description: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const basicInfoSchema = new Schema<BasicInfo>(
+  {
+    id: String,
+    name: String,
+    lastName: String,
+    email: String,
+    phone: String,
+    shortAddress: String,
+  },
+  { _id: false }
+);
+
+const basicAddressSchema = new Schema<BasicAddress>(
+  {
+    line1: { type: String, required: true },
+    line2: String,
+    reference: String,
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    country: { type: String, required: true },
+    zipCode: String,
+  },
+  { _id: false }
+);
+
+const taxSchema = new Schema<Tax>(
+  {
+    id: String,
+    name: { type: String, required: true },
+    value: { type: Number, required: true },
+    amount: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+const shippingDetailsSchema = new Schema<ShippingDetails>(
+  {
+    method: { type: Object, required: true },
+    country: { type: String, required: true },
+    address: { type: basicAddressSchema, required: true },
+    estimatedDeliveryDate: Date,
+  },
+  { _id: false }
+);
+
+const billingDetailsSchema = new Schema<BillingDetails>(
+  {
+    billTo: basicInfoSchema,
+    address: {
+      recepient: basicInfoSchema,
+      address: basicAddressSchema,
+    },
+  },
+  { _id: false }
+);
+
+const orderSchema = new Schema<OrderDocument>(
+  {
+    number: { type: Number, unique: true, sparse: true },
+    lines: { type: [orderLineSchema], required: true },
+    createdOn: { type: Date, default: Date.now, required: true },
+    createdBy: { type: String, required: true },
+    history: [historyEntrySchema],
+    consumerDetails: {
+      basic: basicInfoSchema,
+      addresses: [basicAddressSchema],
+    },
+    payment: { type: paymentDetailsSchema, required: true },
+    shipping: { type: shippingDetailsSchema, required: true },
+    billing: { type: billingDetailsSchema, required: true },
+    totalUnits: { type: Number, required: true },
+    status: { type: [[Number, Date]], required: true },
+    subTotal: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    surcharge: { type: Number, default: 0 },
+    shippingCost: { type: Number, default: 0 },
+    tax: [taxSchema],
+    totalWithoutTax: { type: Number },
+    total: { type: Number, required: true },
+    seller: String,
+    observations: String,
+    commissionsProcessed: { type: Boolean, default: false },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const OrderModel = mongoose.model<OrderDocument>('Order', orderSchema);
+
+export default OrderModel;
