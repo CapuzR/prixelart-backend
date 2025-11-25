@@ -2,7 +2,6 @@ import { Art } from "./artModel.ts";
 import { Collection, ObjectId } from "mongodb";
 import { GalleryResult, PrixResponse } from "../types/responseModel.ts";
 import { getDb } from "../mongo.ts";
-import mongoose from "mongoose"
 
 function artCollection(): Collection<Art> {
   return getDb().collection<Art>("arts");
@@ -32,13 +31,8 @@ export const createArt = async (art: Art): Promise<PrixResponse> => {
 export const readOneById = async (artId: string): Promise<PrixResponse> => {
   try {
     const arts = artCollection();
-    const art = await arts.findOne({ artId, visible: true })
-
+    const art = await arts.findOne({ artId, visible: true });
     if (!art) return { success: false, message: "Arte no encontrado." };
-    const createdOn = new mongoose.Types.ObjectId(art._id)
-    const date = createdOn.getTimestamp()
-    art.createdOn = date
-
     return { success: true, message: "Arte encontrado.", result: art };
   } catch (e: unknown) {
     return {
@@ -117,17 +111,19 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
 
     if (filters.text) {
       const searchText = filters.text.trim();
+      
       if (searchText.length > 0) {
-        const escapedSearchText = searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+        const safeSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regexPattern = { $regex: safeSearchText, $options: 'i' };
 
-        const fieldsToSearch = [
-          'title', 'description', 'category', 'prixerUsername',
-          'tags', 'artType', 'artLocation', 'artId'
+        q.$or = [
+          { title: regexPattern },
+          { artLocation: regexPattern },
+          { category: regexPattern },
+          { description: regexPattern },
+          { prixerUsername: regexPattern },
+          { tags: regexPattern }
         ];
-
-        q.$or = fieldsToSearch.map(field => ({
-          [field]: { $regex: escapedSearchText, $options: 'i' }
-        }));
       }
     }
     if (filters.category) {
@@ -137,14 +133,13 @@ export const readGallery = async (filters: any): Promise<PrixResponse> => {
       q.prixerUsername = filters.username;
     }
 
+    const skip = Number(filters.initialPoint || 0);
     const limit = Number(filters.itemsPerPage || 30);
 
-    const arts = await art.aggregate<Art>([
-      { $match: q },
-      { $sample: { size: limit + 1 } }
-    ]).toArray();
-    
+    const arts = await art.find(q).sort({ createdOn: -1, _id: -1 }).skip(skip).limit(limit + 1).toArray();
+
     const hasMore = arts.length > limit;
+
     const resultsToSend = hasMore ? arts.slice(0, limit) : arts;
 
     const result: GalleryResult = {
@@ -225,6 +220,7 @@ export const readAllByUsername = async (
       // Default sort if sortBy is not provided or not allowed
       sortCriteria['createdAt'] = -1; // Default to newest first
     }
+    sortCriteria['_id'] = -1;
 
     const totalArts = await artsCollection.countDocuments(query);
     const totalPages = Math.ceil(totalArts / limit);
@@ -264,11 +260,9 @@ export const readAllByUsername = async (
 export const updateArt = async (id: string, data: Partial<Art>): Promise<PrixResponse> => {
   try {
     const art = artCollection();
-    const { _id, ...updateData } = data;
-
     const result = await art.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: updateData },
+      { $set: data },
       { returnDocument: "after" }
     );
     if (result && !result.title) return { success: false, message: "Arte no encontrado." };

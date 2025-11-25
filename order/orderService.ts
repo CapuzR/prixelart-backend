@@ -407,14 +407,15 @@ export const updateOrderAndProcessCommissions = async (
           }
         }
 
-        finalUpdatePayload.$set.commissionsProcessed = true;
-        historyEntriesToAdd.push({
-          timestamp: new Date(),
-          user: adminUsername,
-          description: 'Las comisiones de la orden han sido procesadas y liquidadas.',
-        });
-        console.log(`Orden ${futureOrderState._id} marcada como procesada.`);
       }
+      finalUpdatePayload.$set.commissionsProcessed = true;
+      historyEntriesToAdd.push({
+        timestamp: new Date(),
+        user: adminUsername,
+        description: 'Las comisiones de la orden han sido procesadas y liquidadas.',
+      });
+      console.log(`Orden ${futureOrderState._id} marcada como procesada.`);
+
     }
     if (Object.keys(finalUpdatePayload.$set).length > 0 || historyEntriesToAdd.length > 0) {
       if (historyEntriesToAdd.length > 0) {
