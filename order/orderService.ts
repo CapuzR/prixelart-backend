@@ -6,6 +6,7 @@ import {
   GlobalPaymentStatus,
   PaymentMethod,
   ShippingMethod,
+  OrderDocument
 } from './orderModel.ts';
 import { Collection, FindOneAndUpdateOptions, ObjectId } from 'mongodb';
 import { PrixResponse } from '../types/responseModel.ts';
@@ -49,7 +50,10 @@ export const createOrder = async (
   isPrixer?: boolean,
   prixerUsername?: string
 ): Promise<PrixResponse> => {
+  const client = getMongoClient();
+  const session = client.startSession();
   try {
+    session.startTransaction();
     for (const line of order.lines) {
       if (!line.item.art) {
         return {
@@ -73,7 +77,7 @@ export const createOrder = async (
       }
       prixerUser = prixerResp.result as User;
     }
-    const clientResponse = await findOrCreateClient(order);
+    const clientResponse = await findOrCreateClient(order, session);
     const client = clientResponse.result as User;
     const clientId = client._id;
 
@@ -114,46 +118,59 @@ export const createOrder = async (
 
     const totalUnits = validatedLines.reduce((sum, l) => sum + l.quantity, 0);
     const orders = orderCollection();
-    const { acknowledged, insertedId } = await orders.insertOne({
-      ...order,
-      consumerDetails: {
-        ...order.consumerDetails,
-        basic: {
-          ...order.consumerDetails?.basic,
-          id: clientId && clientId?.toString(),
+    const { acknowledged, insertedId } = await orders.insertOne(
+      {
+        ...order,
+        consumerDetails: {
+          ...order.consumerDetails,
+          basic: {
+            ...order.consumerDetails?.basic,
+            id: clientId && clientId?.toString(),
+          },
         },
+        lines: validatedLines,
+        totalUnits,
+        history: [
+          {
+            timestamp: order.createdOn,
+            user: order.seller || order.createdBy,
+            description: 'Pedido creado.',
+          },
+        ],
+        createdOn: new Date(),
       },
-      lines: validatedLines,
-      totalUnits,
-      history: [
-        {
-          timestamp: order.createdOn,
-          user: order.seller || order.createdBy,
-          description: 'Pedido creado.',
-        },
-      ],
-      createdOn: new Date(),
-    });
+      { session }
+    );
+
+    if (!acknowledged) {
+      throw new Error('La base de datos no reconoció la inserción de la orden.');
+    }
+    await session.commitTransaction();
 
     let orderEmail;
-    if (!acknowledged) {
-      return { success: false, message: 'No se pudo crear la orden.' };
-    } else {
-      orderEmail = await sendEmail({ ...order, _id: insertedId });
+    try {
+      orderEmail = await sendEmail({ ...order, _id: insertedId } as unknown as OrderDocument);
+    } catch (emailError) {
+      console.error('Orden creada pero falló el envío de correo:', emailError);
     }
 
     return {
       success: true,
       message: 'Orden creada con éxito.',
-      result: { ...order, _id: insertedId },
+      result: { ...order, _id: insertedId } as unknown as OrderDocument,
       email: orderEmail,
     };
   } catch (e: any) {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     console.error('createOrder error:', e);
     return {
       success: false,
       message: `Error al crear la orden: ${e.message || e}`,
     };
+  } finally {
+    await session.endSession();
   }
 };
 
@@ -406,7 +423,6 @@ export const updateOrderAndProcessCommissions = async (
             console.log(`Comisión para ${prixerUser.username} encolada en la transacción.`);
           }
         }
-
       }
       finalUpdatePayload.$set.commissionsProcessed = true;
       historyEntriesToAdd.push({
@@ -415,7 +431,6 @@ export const updateOrderAndProcessCommissions = async (
         description: 'Las comisiones de la orden han sido procesadas y liquidadas.',
       });
       console.log(`Orden ${futureOrderState._id} marcada como procesada.`);
-
     }
     if (Object.keys(finalUpdatePayload.$set).length > 0 || historyEntriesToAdd.length > 0) {
       if (historyEntriesToAdd.length > 0) {
