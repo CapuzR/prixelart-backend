@@ -6,6 +6,7 @@ import { getDb } from '../../mongo.ts';
 import { Art } from '../../art/artModel.ts';
 import { Order } from '../../order/orderModel.ts';
 import { OrderArchive } from '../../orderArchive/orderArchiveModel.ts';
+import { ClientSession } from 'mongodb';
 
 function usersCollection(): Collection<User> {
   return getDb().collection<User>('users');
@@ -66,18 +67,20 @@ export const createUser = async (userData: User): Promise<PrixResponse> => {
   }
 };
 
-export const findOrCreateClient = async (order: Partial<Order>): Promise<PrixResponse> => {
+export const findOrCreateClient = async (order: Partial<Order>, session?: ClientSession): Promise<PrixResponse> => {
   try {
     const users = usersCollection();
     const clientData = order.consumerDetails;
     let existingClient: User | null = null;
 
     if (clientData?.basic?.email) {
-      existingClient = await users.findOne({ email: clientData.basic.email });
+      existingClient = await users.findOne({ email: clientData.basic.email },
+        { session });
     }
 
     if (!existingClient && clientData?.basic?.phone) {
-      existingClient = await users.findOne({ phone: clientData.basic.phone });
+      existingClient = await users.findOne({ phone: clientData.basic.phone },
+        { session });
     }
     if (existingClient) {
       const updatedFields: Partial<User> = {
@@ -91,7 +94,8 @@ export const findOrCreateClient = async (order: Partial<Order>): Promise<PrixRes
         billingAddress: order?.billing?.address?.address?.line1 ?? existingClient.billingAddress,
       };
 
-      await users.updateOne({ _id: existingClient._id }, { $set: updatedFields });
+      await users.updateOne({ _id: existingClient._id }, { $set: updatedFields },
+        { session });
 
       const updatedClient = { ...existingClient, ...updatedFields };
 
@@ -110,8 +114,10 @@ export const findOrCreateClient = async (order: Partial<Order>): Promise<PrixRes
         billingAddress: order?.billing?.address?.address?.line1,
       };
 
-      const result = await users.insertOne(newClientData);
-      const newClient = await users.findOne({ _id: result.insertedId });
+      const result = await users.insertOne(newClientData,
+        { session });
+      const newClient = await users.findOne({ _id: result.insertedId },
+        { session });
 
       return {
         success: true,
