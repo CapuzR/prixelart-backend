@@ -2,6 +2,7 @@ import { Resend } from "resend"
 import { Order, OrderLine, Tax } from "../order/orderModel.ts"
 const resend = new Resend("re_5p8exeLt_6r7WpSjoreg5jBT4qtAhwRhZ")
 // This var must NOT be here!
+const ADMIN_EMAIL = 'iamwar2070@gmail.com'
 
 export const thanksForYourPurchase = async (order: Order) => {
   try {
@@ -289,3 +290,48 @@ export const forgotPassword = async (email: string, recoveryUrl: string) => {
     return { success: false, error }
   }
 }
+
+export const sendAdminErrorAlert = async (errorMessage: string, orderData?: any) => {
+  try {
+    const orderJson = orderData ? JSON.stringify(orderData, null, 2) : 'Sin datos';
+
+    const { data, error } = await resend.emails.send({
+      from: 'System Alert <alertas@tudominio.com>',
+      to: [ADMIN_EMAIL],
+      subject: `🚨 ERROR CRÍTICO: Fallo al crear Orden - ${new Date().toLocaleTimeString()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h1 style="color: #d32f2f;">❌ Error al Procesar Orden</h1>
+          <p><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>Mensaje del Error:</strong></p>
+          <div style="background-color: #ffebee; padding: 15px; border-left: 5px solid #d32f2f; margin-bottom: 20px;">
+            <code>${errorMessage}</code>
+          </div>
+
+          <h3>📦 Datos del Intento de Orden:</h3>
+          <p><strong>Cliente:</strong> ${orderData?.consumerDetails?.basic?.email || 'Desconocido'}</p>
+          <p><strong>Monto Total:</strong> ${orderData?.total || 'N/A'}</p>
+          
+          <details>
+            <summary style="cursor: pointer; color: #1976d2; font-weight: bold;">Ver JSON Completo (Click aquí)</summary>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto;">
+${orderJson}
+            </pre>
+          </details>
+
+          <hr />
+          <p style="font-size: 12px; color: #777;">Este es un mensaje automático del sistema backend.</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error('Error de Resend al intentar enviar la alerta:', error);
+      return;
+    }
+
+    console.log('📧 Alerta de error enviada al administrador vía Resend.');
+  } catch (err) {
+    console.error('Excepción al enviar alerta de Resend:', err);
+  }
+};
