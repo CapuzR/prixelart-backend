@@ -205,7 +205,7 @@ export const readAllOrders = async (): Promise<PrixResponse> => {
   try {
     const order = orderCollection();
     const fiveMonthsAgo = new Date();
-    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 5);
+    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 10);
     const orders = await order
       .find({
         'status.name': { $ne: 'Anulado' },
