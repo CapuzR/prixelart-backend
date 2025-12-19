@@ -6,7 +6,7 @@ import {
   GlobalPaymentStatus,
   PaymentMethod,
   ShippingMethod,
-  OrderDocument
+  OrderDocument,
 } from './orderModel.ts';
 import { Collection, FindOneAndUpdateOptions, ObjectId } from 'mongodb';
 import { PrixResponse } from '../types/responseModel.ts';
@@ -21,6 +21,8 @@ import { findOrCreateClient, readUserByUsername } from '../user/userServices/use
 import { readOneByObjId } from '../art/artServices.ts';
 import { Art } from '../art/artModel.ts';
 import { Movement } from '../movements/movementModel.ts';
+
+import { sendAdminErrorAlert } from '../utils/emailSender.ts';
 
 function orderCollection(): Collection<Order> {
   return getDb().collection<Order>('order');
@@ -164,7 +166,10 @@ export const createOrder = async (
     if (session.inTransaction()) {
       await session.abortTransaction();
     }
+
+    const errorMsg = e instanceof Error ? e.message : String(e);
     console.error('createOrder error:', e);
+    sendAdminErrorAlert(errorMsg, order).catch(console.error);
     return {
       success: false,
       message: `Error al crear la orden: ${e.message || e}`,
