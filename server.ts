@@ -416,6 +416,7 @@ import movementsRoutes from "./movements/movementRoutes.js"
 import servicesRoutes from "./serviceOfPrixers/serviceRoutes.js"
 import organizationsRoutes from "./organizations/organizationRoutes.js"
 import surchargeRoutes from "./surcharge/surchargeRoutes.js"
+import subscribersRoutes from "./subscriber/subscriberRoutes.js"
 
 app.use("/", userRoutes)
 app.use("/", prixerRoutes)
@@ -432,6 +433,7 @@ app.use("/", movementsRoutes)
 app.use("/", servicesRoutes)
 app.use("/", organizationsRoutes)
 app.use("/", surchargeRoutes)
+app.use("/", subscribersRoutes)
 
 app.use(
   (err: any, _req: ExpressRequest, res: Response, _next: NextFunction) => {
