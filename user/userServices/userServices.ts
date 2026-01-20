@@ -35,18 +35,19 @@ export const createUser = async (userData: User): Promise<PrixResponse> => {
         message: 'Disculpa, el correo del usuario ya está registrado.',
       };
     }
-    let newUserData;
 
-    if (userData.role?.includes('Prixer')) {
-      const salt = await bcrypt.genSalt(2);
-      const hash = await bcrypt.hash(userData.password!, salt);
-      newUserData = { ...userData, password: hash };
-    } else {
-      newUserData = { ...userData };
-    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userData.password!, salt);
+
+    const newUserData = { 
+      ...userData, 
+      password: hashedPassword,
+      role: userData.role || ['Consumer']
+    };
+
     const result = await users.insertOne(newUserData);
     if (result.insertedId) {
-      const newUser = await users.findOne({ _id: result.insertedId });
+      const newUser = await users.findOne({ _id: result.insertedId },  { projection: { password: 0 } });
       return {
         success: true,
         message: 'Éxito',

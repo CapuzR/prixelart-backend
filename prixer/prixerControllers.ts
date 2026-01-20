@@ -40,14 +40,9 @@ export const createPrixer = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // CAN'T use adminAuth permissions cause this process is users only !
-
-    const userId = req.params.userId
-    if (!userId) {
-      res.status(400).send({
-        success: false,
-        message: "User ID is required to create a Prixer profile.",
-      })
+    const userId = req.userId; 
+        if (!userId) {
+          res.status(401).send({ success: false, message: "Usuario no autenticado." });
       return
     }
 
@@ -60,24 +55,14 @@ export const createPrixer = async (
       return
     }
 
-    const avatarUploads = (req.session?.uploadResults as any)?.avatar as
-      | { purpose: string; url: string }[]
-      | undefined
-    const avatarUrl =
-      avatarUploads?.find((u) => u.purpose === "PrixerAvatar")?.url || null
 
-    if (!avatarUrl) {
-      throw new Error("No avatar image found in session for Prixer.")
-    }
+    const specialtyInput = req.body.specialty || req.body.specialtyArt;
 
-    const specialty = req.body.specialty
-      ? Array.isArray(req.body.specialty)
-        ? req.body.specialty
-        : (req.body.specialty as string)
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0)
-      : undefined
+    const specialty = specialtyInput
+      ? Array.isArray(specialtyInput)
+        ? specialtyInput
+        : (specialtyInput as string).split(",").map((s) => s.trim())
+      : undefined;
 
     const {
       description,
@@ -87,6 +72,7 @@ export const createPrixer = async (
       phone,
       status,
       termsAgree,
+      avatar
     } = req.body
 
     if (termsAgree === undefined) {
@@ -103,8 +89,8 @@ export const createPrixer = async (
       instagram,
       twitter,
       facebook,
+      avatar,
       phone,
-      avatar: avatarUrl,
       status: status === "true" || status === true,
       termsAgree: termsAgree === "true" || termsAgree === true,
     }
