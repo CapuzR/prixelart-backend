@@ -226,6 +226,7 @@ const tusServer = new Server({
         : objectKeyInPrivateBucket;
 
     const isArtUpload = metadata.context === "artPieceImage";
+    const isProfileUpload = metadata.context === "userProfileImage";
     let finalUrlToClient: string;
 
     // --- Caching Configuration ---
@@ -239,7 +240,7 @@ const tusServer = new Server({
 
     try {
         // Handle Art Uploads (with image processing)
-        if (isArtUpload) {
+        if (isArtUpload || isProfileUpload) {
             const getObjectParams = {
                 Bucket: privateBucketName,
                 Key: cleanKeyInPrivateBucket,
@@ -258,17 +259,20 @@ const tusServer = new Server({
 
             const originalImageBuffer = await streamToBuffer(getObjectResult.Body);
             const processedImageBuffer = await sharp(originalImageBuffer)
-                .webp({ quality: 50 })
+                .webp({ quality: isProfileUpload ? 100 : 50 })
                 .toBuffer();
+
+                const folder = isProfileUpload ? "perfiles" : "arte_procesado";
+
             const originalFileNameNoExt = pathNode.basename(
                 cleanKeyInPrivateBucket,
                 pathNode.extname(cleanKeyInPrivateBucket)
             );
-            const publicArtObjectKey = `arte_procesado/${originalFileNameNoExt}_q50_${Date.now()}.webp`;
+            const publicObjectKey = `${folder}/${originalFileNameNoExt}_${Date.now()}.webp`;
 
             const putPublicArtParams = {
                 Bucket: publicBucketName,
-                Key: publicArtObjectKey,
+                Key: publicObjectKey,
                 Body: processedImageBuffer,
                 ACL: "public-read" as ObjectCannedACL,
                 ContentType: "image/webp",
@@ -281,7 +285,7 @@ const tusServer = new Server({
             finalUrlToClient = `https://${publicBucketName}.${doSpacesEndpoint!.replace(
                 "https://",
                 ""
-            )}/${publicArtObjectKey}`;
+            )}/${publicObjectKey}`;
         
         // Handle all other file uploads
         } else {

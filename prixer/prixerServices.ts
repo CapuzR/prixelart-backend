@@ -92,7 +92,9 @@ export const createPrixer = async (data: Prixer & { userId: string }): Promise<P
 
     const updateResult = await users.updateOne(
       { _id: userId, "prixer": { $exists: false } },
-      { $set: { prixer: prixerData } }
+      { $set: { prixer: prixerData },
+        $addToSet: { role: 'Prixer' } 
+     }
     );
 
     if (updateResult.acknowledged && updateResult.modifiedCount === 1) {
