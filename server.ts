@@ -60,6 +60,7 @@ const allowedOrigins: string[] = [
   `www.${frontEndUrl}`,
   "http://localhost:3000",
   "http://localhost:5173",
+  "https://prixelart.com"
 ]
 
 app.disable("x-powered-by")

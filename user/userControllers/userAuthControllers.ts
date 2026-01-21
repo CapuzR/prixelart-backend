@@ -23,10 +23,16 @@ export const register = async (req: Request, res: Response, next: NextFunction):
       const user = result.result as User;
       const token = authServices.generateToken(user);
       res.cookie("token", token, {
-        secure: isProduction,
+        secure: true,
         httpOnly: true,
-        sameSite: "none",
-        domain: ".prixelart.com",
+        sameSite: 
+        // isProduction ?
+         "none",
+        //  : "lax",
+        domain:
+        //  isProduction ?
+          ".prixelart.com",
+          // :        "localhost",
         path: "/",
         maxAge: 240 * 60 * 1000,
       }).send(result);
@@ -50,8 +56,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     res.cookie("token", auth.result! as string, {
       secure: true,
       httpOnly: true,
-      sameSite:"none",
-      domain:  ".prixelart.com",
+      sameSite: isProduction ? "none" : "lax",
+      domain: isProduction ? ".prixelart.com" : "localhost",
       path: "/",
       maxAge: 240 * 60 * 1000,
     })
@@ -84,7 +90,9 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
         }
       }
     } else {
-      return
+      
+      res.status(401).send({ success: false, message: "Inicia sesión." });
+      return;
       // return {
       //   success: false,
       //   message: "Inicia sesión.",
@@ -105,8 +113,8 @@ export const logout = async (req: Request, res: Response, next: NextFunction): P
     res.clearCookie("token", {
       secure: isProduction,
       httpOnly: true,
-      sameSite: "none",
-      domain: ".prixelart.com",
+      sameSite: isProduction ? "none" : "lax",
+      domain: isProduction ? ".prixelart.com" : "localhost",
       path: "/",
     });
     res.send(response);
