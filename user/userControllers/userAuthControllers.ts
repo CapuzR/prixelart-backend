@@ -22,6 +22,9 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     if (result.success === true) {
       const user = result.result as User;
       const token = authServices.generateToken(user);
+
+      delete result.password
+
       res.cookie("token", token, {
         secure: true,
         httpOnly: true,
@@ -63,6 +66,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     })
 
     const userResp = await authServices.readUserByEmail(credentials.email);
+    delete userResp.password
 
     res.json({
       success: true,
