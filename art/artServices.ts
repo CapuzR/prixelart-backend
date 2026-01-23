@@ -259,10 +259,11 @@ export const readAllByUsername = async (
 // Update art by artId
 export const updateArt = async (id: string, data: Partial<Art>): Promise<PrixResponse> => {
   try {
+    const { _id, ...updateData } = data;
     const art = artCollection();
     const result = await art.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: data },
+      { $set: updateData },
       { returnDocument: "after" }
     );
     if (result && !result.title) return { success: false, message: "Arte no encontrado." };
