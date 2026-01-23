@@ -31,7 +31,7 @@ router.put(
   artControllers.updateArt
 )
 router.put(
-  "/art/update/:id",
+  "/art/updateAsPrixer/:id",
   userAuthControllers.ensureAuthenticated,
   artControllers.updateArtAsPrixer
 )
