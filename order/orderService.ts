@@ -285,6 +285,7 @@ export const updateOrderAndProcessCommissions = async (
     if (!originalOrder) {
       throw new Error('Orden no encontrada.');
     }
+
     const finalUpdatePayload: {
       $set: Partial<Order>;
       $push?: { history: { $each: HistoryEntry[] } };
@@ -305,12 +306,13 @@ export const updateOrderAndProcessCommissions = async (
     delete update.changeDescriptions;
 
     Object.assign(finalUpdatePayload.$set, update);
-
     const futureOrderState = { ...originalOrder, ...finalUpdatePayload.$set };
+
     const currentGlobalStatus = futureOrderState.status?.slice(-1)[0]?.[0];
     const targetStatuses = [OrderStatus.ReadyToShip, OrderStatus.Delivered, OrderStatus.Finished];
     const orderIsInTargetState =
       currentGlobalStatus && targetStatuses.includes(currentGlobalStatus);
+
     const someLinesNeedUpdating = futureOrderState.lines.some(
       (line) => line.status?.slice(-1)[0]?.[0] !== OrderStatus.Finished
     );
@@ -326,6 +328,8 @@ export const updateOrderAndProcessCommissions = async (
       }));
 
       finalUpdatePayload.$set.lines = updatedLines;
+      futureOrderState.lines = updatedLines;
+
       historyEntriesToAdd.push({
         timestamp: new Date(),
         user: adminUsername,
@@ -333,58 +337,48 @@ export const updateOrderAndProcessCommissions = async (
       });
     }
 
-    const shouldProcessCommissions =
-      futureOrderState.status?.slice(-1)[0]?.[0] === OrderStatus.Finished &&
-      futureOrderState.payment?.status?.slice(-1)[0]?.[0] === GlobalPaymentStatus.Paid &&
-      !futureOrderState?.commissionsProcessed;
+    const isOrderFinished = futureOrderState.status?.slice(-1)[0]?.[0] === OrderStatus.Finished;
+    const isOrderPaid =
+      futureOrderState.payment?.status?.slice(-1)[0]?.[0] === GlobalPaymentStatus.Paid;
+    const areCommissionsPending = !futureOrderState?.commissionsProcessed;
 
-    if (shouldProcessCommissions) {
+    if (isOrderFinished && isOrderPaid && areCommissionsPending) {
+      console.log(`Iniciando cálculo de comisiones para Orden ${id}...`);
+      const buyerEmail = originalOrder.consumerDetails?.basic?.email;
+
       for (const line of futureOrderState.lines) {
-        if (
-          !line.item?.art ||
-          !('artId' in line.item.art) ||
-          !line.item.art._id ||
-          !line.item.product
-        ) {
-          // console.warn(
-          //   `Skipping commission for line in order ${futureOrderState.number || futureOrderState._id} due to missing art _id, product data, or being a CustomImage.`
-          // );
-          continue;
+        if (!line.item?.art || !line.item.product) {
+          throw new Error(`Error Crítico: Falta arte o Producto`);
         }
-
         const pickedArt = line.item.art;
-        const artResult = await readOneByObjId(pickedArt._id!.toString());
-        let fullArt: Art;
-        if (artResult.success && artResult.result) {
-          fullArt = artResult.result as Art;
-        } else {
-          // console.warn(
-          //   `Art with ID ${pickedArt._id} not found in DB. Skipping commission for this line.`
-          // );
+        let commissionRate: number = 0.1;
+        if (!pickedArt.prixerUsername) {
+          console.log(`Ítem '${pickedArt.title}' es genérico sin artista. Saltando comisión.`);
           continue;
         }
 
-        let commissionRate: number;
-        const artSpecificCommission = fullArt.comission;
+        const hasValidArtId = pickedArt._id && ObjectId.isValid(pickedArt._id.toString());
 
-        if (artSpecificCommission !== undefined && artSpecificCommission !== null) {
-          const parsedArtCommission = parseFloat(String(artSpecificCommission));
-          if (!isNaN(parsedArtCommission) && parsedArtCommission > 0) {
-            commissionRate = parsedArtCommission / 100;
-            // console.log(
-            //   `Using specific commission rate ${parsedArtCommission}% for art '${line.item.art.title}' by ${line.item.art.prixerUsername}.`
-            // );
+        if (hasValidArtId) {
+          const artResult = await readOneByObjId(pickedArt?._id!.toString());
+          if (artResult.success && artResult.result) {
+            let fullArt: Art = artResult.result as Art;
+            commissionRate = Number(fullArt.comission) / 100;
+
+            const artSpecificCommission = Number(fullArt.comission);
+
+            if (fullArt.comission && !isNaN(artSpecificCommission) && artSpecificCommission > 0) {
+              commissionRate = artSpecificCommission / 100;
+            } else {
+              console.log(
+                `El arte con ID ${fullArt._id} no se encontró en BD. Usando tasa por defecto 10%.`
+              );
+            }
           } else {
-            commissionRate = 0.1;
-            // console.warn(
-            //   `Invalid art commission ('${artSpecificCommission}') for art '${line.item.art.title}'. Defaulting to 10%.`
-            // );
+            throw new Error('Error al recuperar datos completos del arte para comisión.');
           }
         } else {
-          commissionRate = 0.1;
-          // console.log(
-          //   `No specific commission for art '${line.item.art.title}'. Using default 10% for ${line.item.art.prixerUsername}.`
-          // );
+          // Caso CustomImage o Arte sin ID: Se mantiene 0.1 (10%)
         }
 
         let lineSubtotal = 0;
@@ -405,8 +399,29 @@ export const updateOrderAndProcessCommissions = async (
         if (paymentAmount > 0 && line.item.art.prixerUsername) {
           const prixerResult = await readUserByUsername(line.item.art.prixerUsername);
           const prixerUser = prixerResult.result as User;
+          if (!prixerUser) {
+            throw new Error(
+              `Error Crítico: Se intenta pagar a '${pickedArt.prixerUsername}' pero el usuario no existe.`
+            );
+          }
 
-          if (paymentAmount > 0 && prixerUser?.account) {
+          const isSelfPurchase =
+            (buyerEmail && prixerUser.email && buyerEmail === prixerUser.email) ||
+            pickedArt.prixerUsername === prixerUser.username;
+
+          if (isSelfPurchase) {
+            console.log(
+              `Auto-compra detectada: El comprador es el autor (${prixerUser.username}). Omitiendo pago.`
+            );
+            historyEntriesToAdd.push({
+              timestamp: new Date(),
+              user: adminUsername,
+              description: `Comisión omitida para ${pickedArt.title}: Autor comprando su propio arte.`,
+            });
+            continue;
+          }
+
+          if (paymentAmount > 0 && prixerUser.account) {
             const commissionMovement: Movement = {
               date: new Date(),
               createdOn: new Date(),
@@ -420,12 +435,22 @@ export const updateOrderAndProcessCommissions = async (
 
             await movements.insertOne(commissionMovement, { session });
 
-            await accounts.updateOne(
+            const balanceUpdate = await accounts.updateOne(
               { _id: prixerUser.account },
               { $inc: { balance: commissionMovement.value } },
               { session }
             );
+
+            if (balanceUpdate.modifiedCount === 0) {
+              throw new Error(
+                `Error de concurrencia: No se pudo actualizar el balance de ${prixerUser.username}.`
+              );
+            }
             console.log(`Comisión para ${prixerUser.username} encolada en la transacción.`);
+          } else if (!prixerUser.account) {
+            throw new Error(
+              `El artista ${prixerUser.username} existe pero no tiene Wallet (Account) configurada.`
+            );
           }
         }
       }
